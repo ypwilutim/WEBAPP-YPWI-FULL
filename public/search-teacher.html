@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cari Guru - YPWI Absensi</title>
+
+  <!-- Open Graph Meta Tags -->
+  <meta property="og:title" content="Cari Guru - Sistem Absensi YPWI Lutim">
+  <meta property="og:description" content="Temukan dan akses profil lengkap guru di Sistem Absensi YPWI Lutim. Cari berdasarkan nama, NIP, atau sekolah">
+  <meta property="og:image" content="/assets/images/thumbnail/search teacher.svg">
+  <meta property="og:url" content="">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="YPWI Lutim Absensi">
+
+  <!-- Twitter Card Meta Tags -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Cari Guru - Sistem Absensi YPWI Lutim">
+  <meta name="twitter:description" content="Temukan dan akses profil lengkap guru di Sistem Absensi YPWI Lutim. Cari berdasarkan nama, NIP, atau sekolah">
+  <meta name="twitter:image" content="/assets/images/thumbnail/search teacher.svg">
+
+  <!-- General Meta Tags -->
+  <meta name="description" content="Temukan dan akses profil lengkap guru di Sistem Absensi YPWI Lutim. Cari berdasarkan nama, NIP, atau sekolah">
+  <meta name="keywords" content="cari guru, sistem absensi, YPWI Lutim, database guru, profil guru">
+  <meta name="author" content="YPWI Lutim">
+
+  <script>
+    // Set dynamic og:url based on current location
+    document.querySelector('meta[property="og:url"]').setAttribute('content', window.location.href);
+  </script>
+
+  <link rel="icon" href="assets/images/YPWI LOGO HITAM.png" type="image/png">
+  <link href="styles.css" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-50 min-h-screen">
+  <div class="max-w-4xl mx-auto p-8">
+    <!-- Header -->
+    <div class="mb-8">
+      <div class="flex items-center space-x-3 mb-4">
+        <img src="assets/images/YPWI LOGO HITAM.png" alt="YPWI Logo" class="w-12 h-12 object-contain bg-white rounded-lg p-1">
+        <div>
+          <h1 class="text-3xl font-bold text-gray-900">Cari Guru</h1>
+          <p class="text-gray-600 mt-1">Temukan dan akses profil lengkap guru</p>
+        </div>
+      </div>
+
+      <!-- Search Bar -->
+      <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+        <div class="relative">
+          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <i class="fas fa-search text-gray-400"></i>
+          </div>
+          <input type="text" id="searchInput" placeholder="Ketik nama guru..." class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" autocomplete="off">
+        </div>
+        <p class="text-sm text-gray-500 mt-2">
+          <i class="fas fa-info-circle mr-1"></i>
+          Cari berdasarkan nama guru. Klik nama untuk melihat profil lengkap.
+        </p>
+      </div>
+    </div>
+
+    <!-- Results -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100">
+      <div class="p-6 border-b border-gray-100">
+        <h2 class="text-lg font-semibold text-gray-900">Hasil Pencarian</h2>
+        <p id="resultCount" class="text-sm text-gray-600 mt-1">Menampilkan <span id="count">0</span> guru</p>
+      </div>
+
+      <div class="p-6">
+        <div id="teachersList" class="space-y-4">
+          <div class="text-center py-12 text-gray-500">
+            <i class="fas fa-search text-4xl mb-4"></i>
+            <p>Ketik nama guru untuk memulai pencarian</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Authentication bypassed for this page
+
+    let allTeachers = [];
+
+    async function fetchTeachers(searchTerm = '') {
+      try {
+        const url = searchTerm ?
+          `/api/search/teachers?q=${encodeURIComponent(searchTerm)}` :
+          '/api/search/teachers';
+
+        const response = await fetch(url);
+        const res = await response.json();
+
+        if (res.success) {
+          allTeachers = Array.isArray(res.data) ? res.data : (res.data ? [res.data] : []);
+          displayTeachers(allTeachers);
+        }
+      } catch (error) {
+        console.error('Teachers fetch error:', error);
+        // Show error message to user
+        const container = document.getElementById('teachersList');
+        container.innerHTML = `
+          <div class="text-center py-12 text-red-500">
+            <i class="fas fa-exclamation-triangle text-4xl mb-4"></i>
+            <p>Terjadi kesalahan saat memuat data. Silakan coba lagi.</p>
+          </div>
+        `;
+      }
+    }
+
+    function displayTeachers(teachers) {
+      const container = document.getElementById('teachersList');
+      const count = document.getElementById('count');
+
+      count.textContent = teachers.length;
+
+      if (teachers.length === 0) {
+        container.innerHTML = `
+          <div class="text-center py-12 text-gray-500">
+            <i class="fas fa-user-slash text-4xl mb-4"></i>
+            <p>Tidak ada guru ditemukan</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = teachers.map(teacher => `
+        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer" onclick="selectTeacher(${teacher.id})">
+          <div class="flex items-center space-x-4">
+            <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+              <i class="fas fa-user text-blue-600"></i>
+            </div>
+            <div class="flex-1">
+              <h3 class="font-medium text-gray-900">${teacher.nama || '-'}</h3>
+              <p class="text-sm text-gray-600">NIP: ${teacher.nip || '-'} | NIK: ${teacher.nik || '-'}</p>
+              ${teacher.assignments && teacher.assignments.length > 0 ?
+                `<p class="text-xs text-blue-600 mt-1">🏫 ${teacher.assignments.map(a => a.nama_sekolah).join(', ')}</p>` :
+                '<p class="text-xs text-gray-500 mt-1">Belum ditugaskan ke sekolah</p>'}
+            </div>
+          </div>
+          <div class="flex items-center space-x-2">
+            <div class="flex flex-col items-end space-y-1">
+              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${teacher.has_user ? 'bg-blue-100 text-blue-800' : 'bg-orange-100 text-orange-800'}">
+                ${teacher.has_user ? 'Sudah Punya Akun' : 'Belum Punya Akun'}
+              </span>
+              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${teacher.status_aktif ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">
+                ${teacher.status_aktif ? 'Aktif' : 'Nonaktif'}
+              </span>
+            </div>
+            <i class="fas fa-chevron-right text-gray-400"></i>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function filterTeachers(searchTerm) {
+      const filtered = allTeachers.filter(teacher =>
+        teacher.nama && teacher.nama.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+      displayTeachers(filtered);
+    }
+
+    function selectTeacher(teacherId) {
+      const teacher = allTeachers.find(t => t.id == teacherId);
+      if (teacher) {
+        if (teacher.has_user && teacher.email) {
+          // Guru sudah punya akun, arahkan ke login
+          window.location.href = `login.html?email=${encodeURIComponent(teacher.email)}`;
+        } else {
+          // Guru belum punya akun, arahkan ke complete profile
+          window.location.href = `complete-profile.html?teacher_id=${teacherId}`;
+        }
+      }
+    }
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+      fetchTeachers(); // Load all teachers initially
+
+      const searchInput = document.getElementById('searchInput');
+      searchInput.addEventListener('input', (e) => {
+        const searchTerm = e.target.value.trim();
+        if (searchTerm.length >= 2) {
+          // Search from server when 2+ characters
+          fetchTeachers(searchTerm);
+        } else if (searchTerm.length === 0) {
+          // Show all teachers when search is cleared
+          fetchTeachers();
+        } else {
+          // Filter locally for short terms
+          filterTeachers(searchTerm);
+        }
+      });
+    });
+  </script>
+</body>
+</html>

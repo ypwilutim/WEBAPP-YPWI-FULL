@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#1f2937">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="description" content="Scanner QR Absensi YPWI Lutim">
+  <title>YPWI Scanner Absensi</title>
+
+  <!-- PWA Manifest -->
+  <link rel="manifest" href="/scanner-manifest.json">
+  <link rel="icon" href="/assets/images/YPWI LOGO HITAM.png" type="image/png">
+  <link rel="apple-touch-icon" href="/assets/images/YPWI LOGO HITAM.png">
+
+   <!-- QR Scanner Library - Using jsQR -->
+   <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Tailwind CSS (production build) -->
+    <link href="/css/tailwind.css" rel="stylesheet">
+
+  <style>
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background-color: #1f2937;
+      color: white;
+      overflow: hidden;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    /* Fullscreen camera container */
+    #scanner-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 10;
+    }
+
+    #scanner-header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 50;
+      background: linear-gradient(to bottom, rgba(31, 41, 55, 0.95), rgba(31, 41, 55, 0));
+      padding: 1rem;
+      pointer-events: none;
+    }
+
+    #scanner-footer {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 50;
+      background: linear-gradient(to top, rgba(31, 41, 55, 0.95), rgba(31, 41, 55, 0));
+      padding: 1.5rem;
+      pointer-events: none;
+    }
+
+    .scanner-content {
+      pointer-events: auto;
+    }
+
+    /* Status indicator */
+    .status-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      display: inline-block;
+      animation: pulse 2s infinite;
+    }
+    .status-online { background-color: #10b981; }
+    .status-offline { background-color: #ef4444; }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+     /* Scan region overlay */
+     #scan-region {
+       position: absolute;
+       top: 50%;
+       left: 50%;
+       transform: translate(-50%, -50%);
+       width: 350px;
+       height: 350px;
+       border: 3px solid #3b82f6;
+       border-radius: 12px;
+       box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.5);
+       overflow: hidden;
+     }
+
+     /* Scan line animation */
+     #scan-region::after {
+       content: '';
+       position: absolute;
+       top: 0;
+       left: 0;
+       right: 0;
+       height: 2px;
+       background: linear-gradient(90deg, transparent, #3b82f6, transparent);
+       box-shadow: 0 0 8px #3b82f6;
+       animation: scan-line 2s linear infinite;
+     }
+
+     @keyframes scan-line {
+       0% { top: 0; opacity: 0; }
+       10% { opacity: 1; }
+       90% { opacity: 1; }
+       100% { top: 100%; opacity: 0; }
+     }
+
+     #scan-region::before {
+       content: '';
+       position: absolute;
+       top: -2px;
+       left: -2px;
+       right: -2px;
+       bottom: -2px;
+       border: 2px solid rgba(59, 130, 246, 0.5);
+       border-radius: 14px;
+       animation: scan-pulse 2s ease-out infinite;
+     }
+
+    @keyframes scan-pulse {
+      0% { transform: scale(1); opacity: 1; }
+      100% { transform: scale(1.1); opacity: 0; }
+    }
+
+    /* Toast notification */
+    .toast {
+      position: fixed;
+      top: 80px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 100;
+      min-width: 300px;
+      max-width: 90%;
+      transition: all 0.3s ease;
+    }
+
+    /* Pending counter badge */
+    .badge-pending {
+      position: absolute;
+      top: -8px;
+      right: -8px;
+      background-color: #ef4444;
+      color: white;
+      font-size: 12px;
+      font-weight: bold;
+      padding: 2px 8px;
+      border-radius: 9999px;
+      min-width: 20px;
+      text-align: center;
+    }
+
+    /* Hide on small screens */
+    @media (max-width: 640px) {
+      #scan-region {
+        width: 240px;
+        height: 240px;
+      }
+    }
+
+    /* Button click animation */
+    .button-click {
+      animation: buttonPulse 0.3s ease;
+    }
+
+    @keyframes buttonPulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+      100% { transform: scale(1); }
+    }
+  </style>
+</head>
+  <body>
+   <!-- Header -->
+   <header id="scanner-header" class="scanner-content">
+    <div class="flex justify-between items-center">
+      <div class="flex items-center space-x-3">
+        <img src="/assets/images/YPWI LOGO HITAM.png" alt="Logo" class="w-10 h-10 object-contain bg-white rounded-lg p-1">
+        <div>
+          <h1 class="text-lg font-bold">Scanner Absensi</h1>
+          <p class="text-sm text-gray-300" id="school-name">Loading...</p>
+        </div>
+      </div>
+        <div class="flex items-center space-x-2">
+          <div id="connection-status" class="flex items-center space-x-2">
+            <span class="status-dot status-offline" id="status-dot"></span>
+            <span class="text-sm" id="status-text">Offline</span>
+          </div>
+        </div>
+       </div>
+     </div>
+   </header>
+
+  <!-- Toast Container -->
+  <div id="toast-container" class="toast-container"></div>
+
+   <!-- Scanner Region -->
+   <div id="scanner-container">
+     <div id="scan-region"></div>
+     <video id="reader" class="w-full h-full object-cover" playsinline autoplay muted></video>
+   </div>
+
+    <!-- Footer -->
+    <footer id="scanner-footer" class="scanner-content">
+      <div class="text-center">
+        <p class="text-sm text-gray-300 mb-2">Arahkan QR code guru ke dalam kotak biru</p>
+        <p class="text-xs text-gray-400 mb-2" id="scanning-status">Status: Menunggu QR...</p>
+        <div class="flex justify-center space-x-4 text-xs text-gray-400">
+          <span id="last-scan">Belum ada scan</span>
+          <span>•</span>
+          <span id="sync-time">Sync: --:--</span>
+        </div>
+      </div>
+    </footer>
+
+  <!-- Setup Modal (first time) -->
+  <div id="setup-modal" class="fixed inset-0 bg-black bg-opacity-80 z-[100] flex items-center justify-center hidden">
+    <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4 text-gray-900">
+      <h2 class="text-xl font-bold mb-4">Setup Scanner Device</h2>
+      <p class="text-sm text-gray-600 mb-4">
+        Masukkan informasi sekolah untuk mendaftarkan device scanner ini.
+      </p>
+      <form id="setup-form">
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700 mb-1">Device ID</label>
+          <input type="text" name="device_id" id="device-id-input" class="w-full px-3 py-2 border border-gray-300 rounded-md" placeholder="Contoh: SDIT-TABLET-01" required>
+          <p class="text-xs text-gray-500 mt-1">ID unik untuk device ini (bisa diisi manual)</p>
+        </div>
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700 mb-1">Sekolah (Tenant ID)</label>
+          <select name="tenant_id" id="tenant-select" class="w-full px-3 py-2 border border-gray-300 rounded-md" required>
+            <option value="">Pilih Sekolah...</option>
+          </select>
+        </div>
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700 mb-1">Nama Sekolah</label>
+          <input type="text" name="school_name" id="school-name-input" class="w-full px-3 py-2 border border-gray-300 rounded-md" placeholder="Contoh: SDIT Al-Ikhlas" required>
+        </div>
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700 mb-1">Nama Device (Opsional)</label>
+          <input type="text" name="device_name" class="w-full px-3 py-2 border border-gray-300 rounded-md" placeholder="Contoh: Tablet Security SDIT">
+        </div>
+        <div class="flex space-x-2">
+          <button type="submit" class="flex-1 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700">
+            Daftarkan Device
+          </button>
+          <button type="button" id="skip-setup" class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">
+            Lewati (Demo)
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- QR Scan Result Modal -->
+  <div id="scan-result-modal" class="fixed inset-0 bg-black bg-opacity-80 z-[100] flex items-center justify-center hidden">
+    <div class="bg-white rounded-lg p-6 max-w-sm w-full mx-4 text-gray-900 text-center">
+      <div id="scan-success" class="hidden">
+        <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+          <i class="fas fa-check text-green-600 text-2xl"></i>
+        </div>
+        <h3 class="text-lg font-bold text-green-800 mb-2">Absensi Tercatat!</h3>
+        <p class="text-sm text-gray-600" id="success-message"></p>
+      </div>
+      <div id="scan-error" class="hidden">
+        <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+          <i class="fas fa-times text-red-600 text-2xl"></i>
+        </div>
+        <h3 class="text-lg font-bold text-red-800 mb-2">Gagal Mencatat</h3>
+        <p class="text-sm text-gray-600" id="error-message"></p>
+      </div>
+      <button id="close-modal" class="mt-6 w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700">
+        Lanjutkan Scanning
+      </button>
+    </div>
+  </div>
+
+  <!-- Offline Queue Indicator (bottom-right) -->
+  <div id="offline-queue-indicator" class="fixed bottom-20 right-4 bg-black bg-opacity-75 text-white px-3 py-2 rounded-lg text-sm hidden">
+    <i class="fas fa-wifi-slash mr-2"></i>
+    <span id="queue-count">0</span> pending
+  </div>
+
+     <!-- QR Scanner Library -->
+     <script src="/js/scanner-app.js"></script>
+    <script>
+      // Register Service Worker
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/scanner-sw.js')
+          .then(reg => {
+            console.log('[SW] Registered:', reg.scope);
+            console.log('[SW] Service worker state:', reg.active?.state);
+            console.log('[SW] Waiting service worker:', reg.waiting?.state);
+            console.log('[SW] Installing service worker:', reg.installing?.state);
+          })
+          .catch(err => {
+            console.error('[SW] Registration failed:', err);
+            // Try fallback registration
+            console.log('[SW] Attempting fallback registration...');
+            navigator.serviceWorker.register('./scanner-sw.js')
+              .then(reg => console.log('[SW] Fallback registered:', reg.scope))
+              .catch(fallbackErr => console.error('[SW] Fallback failed:', fallbackErr));
+          });
+      } else {
+        console.warn('[SW] Service Worker not supported in this browser');
+      }
+    </script>
+</body>
+</html>

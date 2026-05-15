@@ -1,0 +1,5 @@
+---
+deployment:
+  tasks:
+    - export DEPLOYPATH=/home/ypwh2917/YPWI-WEB-SYSTEM/
+    - /bin/cp -R * $DEPLOYPATH

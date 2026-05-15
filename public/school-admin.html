@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Sekolah - YPWI Lutim</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <link rel="manifest" href="manifest.json">
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    .nav-active { background-color: #3b82f6; color: white; }
+    .modal { display: none; }
+    .modal.show { display: flex; }
+    .skeleton-loader {
+      background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+      background-size: 200% 100%;
+      animation: loading 1.5s infinite;
+    }
+    @keyframes loading {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+    .skeleton-text { height: 1.25rem; border-radius: 4px; margin-bottom: 0.5rem; }
+    .skeleton-text-lg { height: 2rem; width: 60%; }
+  </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+  <div class="flex min-h-screen">
+    <!-- Sidebar -->
+    <aside class="w-64 bg-white shadow-lg border-r">
+      <!-- Operator Header -->
+      <div class="p-4 border-b bg-blue-50">
+        <div class="flex items-center justify-between mb-2">
+          <div class="flex items-center space-x-2">
+            <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+              <i class="fas fa-school text-white text-sm"></i>
+            </div>
+            <div>
+              <h1 class="text-sm font-bold text-blue-900" id="schoolNameHeader">Sekolah</h1>
+              <p class="text-xs text-blue-600" id="schoolIdHeader">ID: -</p>
+            </div>
+          </div>
+          <a href="dashboard.html" class="text-gray-500 hover:text-gray-700" title="Kembali ke Dashboard">
+            <i class="fas fa-times text-xl"></i>
+          </a>
+        </div>
+        <div class="bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded text-center font-medium">
+          Mode Operator Sekolah
+        </div>
+      </div>
+
+      <nav class="p-4 space-y-1">
+        <button class="nav-item nav-active w-full text-left flex items-center space-x-3 px-4 py-2.5 rounded-lg hover:bg-gray-100 text-sm" data-tab="dashboard">
+          <i class="fas fa-chart-line text-sm"></i><span>Dashboard</span>
+        </button>
+        <button class="nav-item w-full text-left flex items-center space-x-3 px-4 py-2.5 rounded-lg text-gray-600 hover:bg-gray-100 text-sm" data-tab="teachers">
+          <i class="fas fa-users text-sm"></i><span>Data Guru</span>
+        </button>
+        <button class="nav-item w-full text-left flex items-center space-x-3 px-4 py-2.5 rounded-lg text-gray-600 hover:bg-gray-100 text-sm" data-tab="attendance">
+          <i class="fas fa-clipboard-list text-sm"></i><span>Kehadiran</span>
+        </button>
+        <button class="nav-item w-full text-left flex items-center space-x-3 px-4 py-2.5 rounded-lg text-gray-600 hover:bg-gray-100 text-sm" data-tab="locations">
+          <i class="fas fa-map-marker-alt text-sm"></i><span>Lokasi</span>
+        </button>
+        <button class="nav-item w-full text-left flex items-center space-x-3 px-4 py-2.5 rounded-lg text-gray-600 hover:bg-gray-100 text-sm" data-tab="rules">
+          <i class="fas fa-clock text-sm"></i><span>Aturan Absensi</span>
+        </button>
+        <button class="nav-item w-full text-left flex items-center space-x-3 px-4 py-2.5 rounded-lg text-gray-600 hover:bg-gray-100 text-sm" data-tab="whatsapp">
+          <i class="fab fa-whatsapp text-sm"></i><span>WhatsApp</span>
+        </button>
+      </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 p-6">
+      <div class="flex justify-between items-center mb-6">
+        <div>
+          <h2 id="pageTitle" class="text-2xl font-bold text-gray-900">Dashboard</h2>
+          <p class="text-gray-500 text-sm mt-1">Mengelola data untuk: <strong id="schoolTitleInline" class="text-blue-600">-</strong></p>
+        </div>
+        <div class="flex items-center space-x-3">
+          <span class="text-xs text-gray-500" id="currentDate"></span>
+          <div class="flex items-center space-x-2">
+            <div class="w-7 h-7 bg-blue-500 rounded-md flex items-center justify-center">
+              <i class="fas fa-user text-white text-xs"></i>
+            </div>
+            <span class="text-xs font-medium text-gray-600" id="adminRole">Operator</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Dashboard Tab -->
+      <div id="dashboardTab" class="tab-content">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-6">
+          <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
+            <div class="flex items-center justify-between">
+              <div><p class="text-xs font-medium text-gray-500 uppercase tracking-wide">Total Guru</p>
+                <p class="text-2xl font-bold text-gray-900 mt-1 skeleton-loader skeleton-text-lg" id="totalTeachers">0</p></div>
+              <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center"><i class="fas fa-users text-blue-600"></i></div>
+            </div>
+          </div>
+          <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
+            <div class="flex items-center justify-between">
+              <div><p class="text-xs font-medium text-gray-500 uppercase tracking-wide">Hadir Hari Ini</p>
+                <p class="text-2xl font-bold text-gray-900 mt-1 skeleton-loader skeleton-text-lg" id="todayAttendance">0</p></div>
+              <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center"><i class="fas fa-check-circle text-green-600"></i></div>
+            </div>
+          </div>
+          <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
+            <div class="flex items-center justify-between">
+              <div><p class="text-xs font-medium text-gray-500 uppercase tracking-wide">Terlambat</p>
+                <p class="text-2xl font-bold text-gray-900 mt-1 skeleton-loader skeleton-text-lg" id="lateCount">0</p></div>
+              <div class="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center"><i class="fas fa-clock text-red-600"></i></div>
+            </div>
+          </div>
+          <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
+            <div class="flex items-center justify-between">
+              <div><p class="text-xs font-medium text-gray-500 uppercase tracking-wide">Aturan Pusat</p>
+                <p class="text-lg font-semibold mt-1" id="centralRulesStatus" style="color:#6b7280;">-</p></div>
+              <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center"><i class="fas fa-balance-scale text-purple-600"></i></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+          <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
+            <h3 class="text-base font-semibold text-gray-900 mb-4">Info Sekolah</h3>
+            <div class="space-y-3 text-sm">
+              <div class="flex justify-between"><span class="text-gray-500">Nama Sekolah</span><span class="font-medium text-gray-900" id="schoolInfoName">-</span></div>
+              <div class="flex justify-between"><span class="text-gray-500">Tenant ID</span><span class="font-medium text-gray-900" id="schoolInfoId">-</span></div>
+              <div class="flex justify-between"><span class="text-gray-500">Metode Absensi</span><span class="font-medium text-gray-900" id="schoolInfoMethod">-</span></div>
+              <div class="flex justify-between"><span class="text-gray-500">Aturan Pusat</span><span class="font-medium" id="schoolInfoCentral">-</span></div>
+              <div class="flex justify-between"><span class="text-gray-500">Lokasi</span><span class="font-medium text-gray-900" id="schoolInfoLocation">Belum diatur</span></div>
+            </div>
+          </div>
+<!-- Attendance chart - fixed height container -->
+           <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5" style="min-height:300px; position:relative;">
+             <h3 class="text-base font-semibold text-gray-900 mb-4">Statistik Kehadiran Minggu Ini</h3>
+             <div style="position:relative; height:250px;">
+               <canvas id="attendanceChart"></canvas>
+             </div>
+           </div>
+        </div>
+      </div>
+
+      <!-- Teachers Tab -->
+      <div id="teachersTab" class="tab-content hidden">
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+          <div class="flex justify-between items-center mb-6">
+            <h3 class="text-lg font-semibold text-gray-900">Data Guru</h3>
+            <button onclick="showAddTeacherModal()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 text-sm flex items-center"><i class="fas fa-plus mr-2"></i>Tambah Guru</button>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full">
+              <thead class="bg-gray-50 border-b border-gray-100">
+                <tr>
+                  <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Nama</th>
+                  <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">NIK</th>
+                  <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">NIP</th>
+                  <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Status</th>
+                  <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="teachersTable" class="divide-y divide-gray-100">
+                <tr><td colspan="5" class="px-4 py-12 text-center text-gray-500"><i class="fas fa-spinner fa-spin text-xl mb-2"></i><p>Memuat data...</p></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="mt-4 flex items-center justify-between">
+            <div class="flex items-center text-sm text-gray-700"><span id="paginationInfo">Menampilkan 0 dari 0 data</span></div>
+            <div class="flex items-center space-x-2">
+              <button id="prevPageBtn" class="px-3 py-1.5 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed" disabled><i class="fas fa-chevron-left mr-1"></i>Sebelumnya</button>
+              <div class="flex items-center space-x-1"><span id="pageNumbers" class="flex items-center space-x-1"></span></div>
+              <button id="nextPageBtn" class="px-3 py-1.5 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed" disabled>Selanjutnya<i class="fas fa-chevron-right ml-1"></i></button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Attendance Tab -->
+      <div id="attendanceTab" class="tab-content hidden">
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+          <div class="flex justify-between items-center mb-6">
+            <h3 class="text-lg font-semibold text-gray-900">Log Kehadiran</h3>
+            <div class="flex space-x-2">
+              <input type="date" id="attendanceDateFilter" class="px-3 py-1.5 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500">
+              <select id="attendanceStatusFilter" class="px-3 py-1.5 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500"><option value="">Semua Status</option><option value="tepat_waktu">Tepat Waktu</option><option value="terlambat">Terlambat</option></select>
+              <button onclick="loadAttendanceLogs()" class="px-3 py-1.5 bg-blue-600 text-white rounded-md text-sm hover:bg-blue-700"><i class="fas fa-sync-alt mr-1"></i>Refresh</button>
+            </div>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full">
+              <thead class="bg-gray-50 border-b border-gray-100"><tr><th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Nama Guru</th><th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Jenis</th><th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Waktu</th><th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Status</th><th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Metode</th></tr></thead>
+              <tbody id="attendanceTable" class="divide-y divide-gray-100"><tr><td colspan="5" class="px-4 py-12 text-center text-gray-500"><i class="fas fa-spinner fa-spin text-xl mb-2"></i><p>Memuat data...</p></td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Locations Tab -->
+      <div id="locationsTab" class="tab-content hidden">
+        <div class="space-y-6">
+          <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+            <div class="flex justify-between items-center mb-6">
+              <h3 class="text-lg font-semibold text-gray-900">Lokasi Sekolah</h3>
+              <button onclick="showAddLocationModal()" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700"><i class="fas fa-plus mr-2"></i>Tambah Lokasi</button>
+            </div>
+            <div id="schoolLocations" class="space-y-4"><div class="text-center py-12"><div class="animate-spin rounded-full h-12 w-12 border-4 border-blue-500 border-t-transparent mx-auto mb-4"></div><p class="text-gray-600">Memuat data lokasi...</p></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Rules Tab -->
+      <div id="rulesTab" class="tab-content hidden">
+        <div class="space-y-6">
+          <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+            <div class="flex justify-between items-center mb-6">
+              <h3 class="text-lg font-semibold text-gray-900">Aturan Absensi</h3>
+              <button onclick="showAddRuleModal()" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700"><i class="fas fa-plus mr-2"></i>Tambah Aturan</button>
+            </div>
+            <div class="bg-blue-50 rounded-lg p-4 mb-6"><div class="flex items-start space-x-3"><i class="fas fa-info-circle text-blue-500 mt-0.5"></i><div><h5 class="font-medium text-blue-900">Informasi Aturan</h5><p class="text-sm text-blue-700 mt-1">Ketika <strong>"Gunakan Aturan Pusat"</strong> aktif pada sekolah ini, maka <strong>aturan pusat (sistem)</strong> dan <strong>aturan sekolah</strong> keduanya berlaku. Aturan sekolah tetap dapat menimpa aturan pusat jika terjadi konflik pada jadwal yang sama.</p></div></div></div>
+            <div id="attendanceRules" class="space-y-4"><div class="text-center py-12"><i class="fas fa-clock text-4xl text-gray-400 mb-4"></i><p class="text-gray-600">Memuat aturan absensi...</p></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- WhatsApp Tab -->
+      <div id="whatsappTab" class="tab-content hidden">
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+          <div class="flex justify-between items-center mb-6"><h3 class="text-lg font-semibold text-gray-900 flex items-center"><i class="fab fa-whatsapp text-green-600 mr-2"></i>Pesan WhatsApp</h3></div>
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div class="bg-blue-50 border border-blue-200 rounded-lg p-6">
+              <h4 class="text-base font-semibold text-blue-800 mb-4 flex items-center"><i class="fas fa-user mr-2"></i>Kirim Pesan Individual</h4>
+              <form id="singleWhatsAppForm" class="space-y-4">
+                <div class="relative"><label class="block text-sm font-medium text-gray-700 mb-2">Pilih Guru</label><div class="relative"><input type="text" id="singleTeacherInput" class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500" placeholder="Ketik nama guru..." required autocomplete="off"><input type="hidden" id="singleTeacherSelect" name="teacherId"><div id="teacherSearchResults" class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto hidden"></div></div><div id="teacherSelectedInfo" class="mt-1 text-xs text-gray-500"></div></div>
+                <div><label class="block text-sm font-medium text-gray-700 mb-2">Pesan WhatsApp</label><select id="singleMessageTemplate" class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500 mb-2"><option value="">Pilih template...</option><option value="pribadi">💬 Pesan Pribadi</option><option value="peringatan">⚠️ Peringatan</option><option value="pujian">🌟 Pujian</option><option value="permintaan">📝 Permintaan</option></select><textarea id="singleMessage" rows="4" class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500" placeholder="Ketik pesan..." required></textarea></div>
+                <button type="submit" class="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 text-sm flex items-center justify-center"><i class="fab fa-whatsapp mr-2"></i>Kirim Pesan</button>
+              </form>
+            </div>
+            <div><h4 class="text-base font-semibold text-gray-900 mb-4 flex items-center"><i class="fas fa-history text-gray-600 mr-2"></i>Status Pengiriman</h4><div id="whatsappStatus" class="bg-gray-50 border border-gray-200 rounded-lg p-4"><p class="text-gray-600 text-sm">Belum ada pesan yang dikirim.</p></div></div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Teacher Modal -->
+  <div id="teacherModal" class="modal fixed inset-0 bg-black bg-opacity-50 z-50 justify-center items-center">
+    <div class="bg-white rounded-lg max-w-md w-full mx-4">
+      <div class="p-6"><div class="flex items-center justify-between mb-4"><h3 class="text-lg font-semibold" id="teacherModalTitle">Tambah Guru</h3><button onclick="hideTeacherModal()" class="text-gray-400 hover:text-gray-600"><i class="fas fa-times text-xl"></i></button></div>
+        <form id="teacherForm">
+          <div class="mb-4"><label class="block text-sm font-medium text-gray-700 mb-1">Nama</label><input type="text" name="nama" class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500" required></div>
+          <div class="mb-4"><label class="block text-sm font-medium text-gray-700 mb-1">NIK</label><input type="text" name="nik" class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500" required></div>
+          <div class="mb-4"><label class="block text-sm font-medium text-gray-700 mb-1">NIP</label><input type="text" name="nip" class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500"></div>
+          <div class="mb-4"><label class="block text-sm font-medium text-gray-700 mb-1">Status Kepegawaian</label><input type="text" name="status_kepegawaian" class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500" placeholder="Guru Tetap, Guru Honorer"></div>
+          <div class="mb-4"><label class="block text-sm font-medium text-gray-700 mb-1">Email</label><input type="email" name="email" class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500"></div>
+          <div class="flex justify-end space-x-3"><button type="button" onclick="hideTeacherModal()" class="px-4 py-2 text-gray-600 hover:text-gray-800 text-sm">Batal</button><button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm">Simpan</button></div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Rule Modal -->
+  <div id="ruleModal" class="modal fixed inset-0 bg-black bg-opacity-50 z-50 justify-center items-center">
+    <div class="bg-white rounded-lg max-w-md w-full mx-4">
+      <div class="p-6"><div class="flex items-center justify-between mb-4"><h3 class="text-lg font-semibold" id="ruleModalTitle">Tambah Aturan</h3><button onclick="hideRuleModal()" class="text-gray-400 hover:text-gray-600"><i class="fas fa-times text-xl"></i></button></div>
+        <form id="ruleForm"><input type="hidden" name="tenant_id" id="ruleTenantId">
+          <div class="mb-4"><label class="block text-sm font-medium text-gray-700 mb-1">Tipe</label><select name="tipe" class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500" required><option value="Datang">Datang</option><option value="Pulang">Pulang</option></select></div>
+          <div class="mb-4"><label class="block text-sm font-medium text-gray-700 mb-1">Jam Mulai</label><input type="time" name="jam_mulai" class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500" required></div>
+          <div class="mb-4"><label class="block text-sm font-medium text-gray-700 mb-1">Jam Selesai</label><input type="time" name="jam_selesai" class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500" required></div>
+          <div class="mb-4"><label class="block text-sm font-medium text-gray-700 mb-1">Hari (opsional)</label><input type="text" name="hari" class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500" placeholder="Contoh: senin-jumat"></div>
+          <div class="mb-4"><label class="block text-sm font-medium text-gray-700 mb-1">Keterangan</label><input type="text" name="keterangan" class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500"></div>
+          <div class="mb-4"><label class="block text-sm font-medium text-gray-700 mb-1">Status Log</label><select name="status_log" class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500" required><option value="tepat_waktu">Tepat Waktu</option><option value="terlambat">Terlambat</option></select></div>
+          <div class="flex justify-end space-x-3"><button type="button" onclick="hideRuleModal()" class="px-4 py-2 text-gray-600 hover:text-gray-800 text-sm">Batal</button><button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm">Simpan</button></div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Location Modal -->
+  <div id="locationModal" class="modal fixed inset-0 bg-black bg-opacity-50 z-50 justify-center items-center">
+    <div class="bg-white rounded-lg max-w-xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+      <div class="p-6"><div class="flex items-center justify-between mb-6"><div class="flex items-center"><div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center mr-3"><i class="fas fa-map-marker-alt text-blue-600"></i></div><div><h3 id="locationModalTitle" class="text-lg font-semibold text-gray-900">Konfigurasi Lokasi Sekolah</h3><p class="text-gray-600 text-sm">Atur koordinat GPS untuk validasi absensi</p></div></div><button onclick="hideLocationModal()" class="text-gray-400 hover:text-gray-600"><i class="fas fa-times text-xl"></i></button></div>
+        <form id="locationForm">
+          <div class="mb-4"><label class="block text-sm font-medium text-gray-700 mb-2">Nama Lokasi</label><input type="text" name="location_name" class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500" placeholder="Contoh: Kampus Utama"></div>
+          <div class="mb-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200"><div class="flex items-center justify-between mb-3"><h4 class="font-medium text-blue-900 text-sm">Deteksi Lokasi Otomatis</h4><button type="button" id="modalAutoDetectBtn" class="inline-flex items-center px-3 py-1.5 bg-blue-600 border border-transparent rounded-md text-sm font-medium text-white hover:bg-blue-700"><i class="fas fa-crosshairs mr-2"></i>Detect Location</button></div><div id="modalLocationStatus" class="text-sm text-blue-700"><i class="fas fa-info-circle mr-1"></i>Klik tombol di atas untuk mendapatkan koordinat GPS</div></div>
+          <div class="grid grid-cols-2 gap-4 mb-4"><div><label class="block text-sm font-medium text-gray-700 mb-2">Latitude</label><input type="number" step="0.000001" name="latitude" id="modalLatitudeInput" class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500" placeholder="-6.2088"></div><div><label class="block text-sm font-medium text-gray-700 mb-2">Longitude</label><input type="number" step="0.000001" name="longitude" id="modalLongitudeInput" class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500" placeholder="106.8456"></div></div>
+          <div class="mb-4 p-3 bg-gradient-to-r from-slate-50 to-gray-50 rounded-lg border border-gray-200"><div class="flex items-center justify-between mb-2"><h5 class="font-semibold text-gray-900 flex items-center text-sm"><i class="fas fa-map-pin mr-2 text-blue-600"></i>Koordinat</h5><button type="button" onclick="copySchoolAdminCoords()" class="inline-flex items-center px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded-md hover:bg-blue-200"><i class="fas fa-copy mr-1"></i>Copy</button></div><div id="schoolAdminCoordPreview" class="text-sm font-mono bg-white px-3 py-2 rounded-md border border-gray-300 cursor-pointer hover:border-blue-400"><span class="text-gray-500">Belum ada koordinat</span></div></div>
+          <div class="mb-6"><label class="block text-sm font-medium text-gray-700 mb-2">Peta Lokasi</label><div id="schoolAdminMiniMap" class="w-full h-48 bg-gray-200 rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center"><div class="text-center text-gray-500"><i class="fas fa-map-marked-alt text-3xl mb-2"></i><p>Peta akan muncul setelah koordinat dimasukkan</p></div></div></div>
+          <div class="mb-4"><label class="block text-sm font-medium text-gray-700 mb-2"><i class="fas fa-ruler-combined mr-1"></i>Radius Lokasi (meter)</label><input type="number" name="location_radius" class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500" min="10" max="1000" value="100"></div>
+          <div class="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200"><div class="flex items-center justify-between"><div><label class="flex items-center cursor-pointer"><span class="text-sm font-medium text-gray-700">Gunakan Aturan Pusat</span><div class="relative ml-3"><input type="checkbox" name="use_central_rules" id="schoolAdminCentralToggle" class="sr-only toggle-checkbox" onchange="updateToggleVisual(this)"><div class="w-11 h-6 bg-gray-200 rounded-full toggle-track transition-colors duration-200 pointer-events-none"></div><div class="absolute left-0.5 top-0.5 w-5 h-5 bg-white border border-gray-300 rounded-full toggle-thumb transition-transform duration-200 pointer-events-none"></div></div></label><p class="text-xs text-blue-600 mt-1">Aktifkan agar aturan pusat juga berlaku.</p></div></div></div>
+          <div class="flex space-x-3 pt-4 border-t border-gray-200"><button type="button" onclick="hideLocationModal()" class="flex-1 inline-flex items-center justify-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"><i class="fas fa-times mr-2"></i>Batal</button><button type="submit" id="locationFormSubmitBtn" class="flex-1 inline-flex items-center justify-center px-4 py-2 bg-blue-600 border border-transparent rounded-lg text-sm font-medium text-white hover:bg-blue-700"><i class="fas fa-save mr-2"></i>Simpan Lokasi</button></div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script>
+    const token = localStorage.getItem('token');
+    if (!token) window.location.href = 'login.html';
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const tenantId = urlParams.get('tenant');
+    const schoolName = urlParams.get('school');
+    if (!tenantId) { alert('Parameter tenant tidak ditemukan.'); window.location.href = 'dashboard.html'; }
+
+    document.getElementById('schoolNameHeader').textContent = schoolName || tenantId;
+    document.getElementById('schoolIdHeader').textContent = 'ID: ' + tenantId;
+    document.getElementById('schoolTitleInline').textContent = schoolName || tenantId;
+
+function apiUrl(path) {
+       const sep = path.includes('?') ? '&' : '?';
+       return '/api' + path + sep + 'tenant_id=' + encodeURIComponent(tenantId);
+     }
+
+    let authToken = token;
+    let currentPage = 1, totalPages = 1, pageLimit = 10;
+    let currentMapContext = 'add';
+    let schoolAdminMap = null, schoolAdminMarker = null;
+
+    function setEl(id, val) { const el = document.getElementById(id); if (el) el.textContent = val; }
+
+    function updateToggleVisual(checkbox) {
+      const track = checkbox.closest('.relative')?.querySelector('.toggle-track');
+      const thumb = checkbox.closest('.relative')?.querySelector('.toggle-thumb');
+      console.log('[TOGGLE]', checkbox.checked);
+      if (!track || !thumb) return;
+      if (checkbox.checked) { track.classList.remove('bg-gray-200'); track.classList.add('bg-blue-600'); thumb.classList.add('translate-x-5'); thumb.classList.remove('translate-x-0'); }
+      else { track.classList.remove('bg-blue-600'); track.classList.add('bg-gray-200'); thumb.classList.remove('translate-x-5'); thumb.classList.add('translate-x-0'); }
+    }
+
+    function checkAuth401403(response) {
+      if (response.status === 401 || response.status === 403) { localStorage.clear(); window.location.replace('login.html'); return true; }
+      return false;
+    }
+
+    function switchTab(tabName) {
+      document.querySelectorAll('.tab-content').forEach(t => t.classList.add('hidden'));
+      document.querySelectorAll('.nav-item').forEach(n => { n.classList.remove('nav-active','bg-blue-600','text-white'); n.classList.add('text-gray-600'); });
+      const tab = document.getElementById(tabName + 'Tab');
+      if (tab) tab.classList.remove('hidden');
+      const btn = document.querySelector(`button[data-tab="${tabName}"]`);
+      if (btn) { btn.classList.add('nav-active','bg-blue-600','text-white'); btn.classList.remove('text-gray-600'); }
+      const titles = { dashboard:'Dashboard', teachers:'Data Guru', attendance:'Log Kehadiran', locations:'Lokasi Sekolah', rules:'Aturan Absensi', whatsapp:'WhatsApp' };
+      setEl('pageTitle', titles[tabName] || 'Dashboard');
+      document.getElementById('schoolTitleInline').textContent = schoolName || tenantId;
+      if (tabName === 'dashboard') loadDashboard();
+      else if (tabName === 'teachers') fetchTeachers(currentPage);
+      else if (tabName === 'attendance') loadAttendanceLogs();
+      else if (tabName === 'locations') loadSchoolLocations();
+      else if (tabName === 'rules') fetchRules();
+      else if (tabName === 'whatsapp') loadTeachersForWhatsApp();
+    }
+
+    // ===== DASHBOARD =====
+    let chartInstance = null;
+    async function loadDashboard() {
+      try {
+        const res = await fetch(apiUrl('/admin/tenants'), { headers: { 'Authorization': `Bearer ${authToken}` } });
+        if (checkAuth401403(res)) return;
+        const data = await res.json();
+        if (data.success && data.data.length > 0) {
+          const t = data.data[0];
+          setEl('schoolInfoName', t.nama_sekolah || '-');
+          setEl('schoolInfoId', t.tenant_id || '-');
+          setEl('schoolInfoMethod', t.absensi_method || '-');
+          document.getElementById('schoolInfoCentral').innerHTML = t.use_central_rules
+            ? '<span class="text-green-600 font-medium">✅ Aktif</span>'
+            : '<span class="text-gray-500">Nonaktif</span>';
+          if (t.latitude && t.longitude) document.getElementById('schoolInfoLocation').textContent = `${parseFloat(t.latitude).toFixed(4)}, ${parseFloat(t.longitude).toFixed(4)}`;
+          const cs = document.getElementById('centralRulesStatus');
+          cs.textContent = t.use_central_rules ? 'Aktif' : 'Nonaktif';
+          cs.style.color = t.use_central_rules ? '#059669' : '#6b7280';
+        }
+        const sr = await fetch(apiUrl('/admin/summary'), { headers: { 'Authorization': `Bearer ${authToken}` } });
+        if (sr.ok) { const s = await sr.json(); if (s.success) { setEl('totalTeachers', s.data.totalTeachers||0); setEl('todayAttendance', s.data.activeToday||0); setEl('lateCount', s.data.lateToday||0); } }
+        loadAttendanceChart();
+      } catch (e) { console.error('[DASHBOARD]', e); }
+    }
+
+    async function loadAttendanceChart() {
+      try {
+        const r = await fetch(apiUrl('/admin/attendance-logs'), { headers: { 'Authorization': `Bearer ${authToken}` } });
+        if (!r.ok) return;
+        const d = await r.json();
+        if (!d.success) return;
+        const days = ['Sen','Sel','Rab','Kam','Jum','Sab','Min'];
+        const now = new Date();
+        const dow = now.getDay();
+        const labels = [];
+        for (let i = 6; i >= 0; i--) { const dd = new Date(now); dd.setDate(dd.getDate() - i); labels.push(days[(dow - i + 7) % 7] + ', ' + dd.getDate()); }
+        const todayStr = now.toISOString().split('T')[0];
+        const counts = {};
+        labels.forEach(l => counts[l] = { masuk: 0, pulang: 0 });
+        if (d.data) d.data.forEach(log => {
+          const ll = days[new Date(log.waktu_scan).getDay()] + ', ' + new Date(log.waktu_scan).getDate();
+          if (counts[ll] && (new Date(log.waktu_scan).toISOString().split('T')[0] === todayStr || labels.includes(ll))) {
+            if (log.jenis === 'masuk') counts[ll].masuk++; else if (log.jenis === 'pulang') counts[ll].pulang++;
+          }
+        });
+        const ctx = document.getElementById('attendanceChart').getContext('2d');
+        if (chartInstance) chartInstance.destroy();
+        const rl = [...labels].reverse();
+        chartInstance = new Chart(ctx, {
+          type: 'bar',
+          data: { labels: rl, datasets: [
+            { label: 'Masuk', data: rl.map(l => counts[l]?.masuk || 0), backgroundColor: '#10b981', borderRadius: 4 },
+            { label: 'Pulang', data: rl.map(l => counts[l]?.pulang || 0), backgroundColor: '#3b82f6', borderRadius: 4 }
+          ]},
+          options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } }, scales: { y: { beginAtZero: true, suggestedMax: 10, ticks: { stepSize: 1 } }, x: { ticks: { font: { size: 11 } } } } }
+        });
+      } catch (e) { console.error('[CHART]', e); }
+    }
+
+    // ===== TEACHERS =====
+    async function fetchTeachers(page = 1) {
+      try {
+        const r = await fetch(apiUrl(`/admin/teachers?page=${page}&limit=${pageLimit}`), { headers: { 'Authorization': `Bearer ${authToken}` } });
+        if (checkAuth401403(r)) return;
+        const d = await r.json();
+        if (d.success) {
+          const items = d.data || [];
+          currentPage = d.pagination.page; totalPages = d.pagination.totalPages;
+          const tb = document.getElementById('teachersTable');
+          tb.innerHTML = items.length === 0 ? '<tr><td colspan="5" class="px-4 py-12 text-center text-gray-500">Belum ada data guru</td></tr>' : items.map(t => `<tr class="hover:bg-gray-50"><td class="px-4 py-3 text-sm text-gray-900 font-medium">${t.nama||'-'}</td><td class="px-4 py-3 text-sm text-gray-500">${t.nik||'-'}</td><td class="px-4 py-3 text-sm text-gray-500">${t.nip||'-'}</td><td class="px-4 py-3 text-sm"><span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${t.status_aktif?'bg-green-100 text-green-800':'bg-red-100 text-red-800'}">${t.status_aktif?'Aktif':'Nonaktif'}</span></td><td class="px-4 py-3 text-sm space-x-1"><button onclick="editTeacher(${t.id})" class="inline-flex items-center p-1.5 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-md" title="Edit"><i class="fas fa-edit text-xs"></i></button><button onclick="deleteTeacher(${t.id})" class="inline-flex items-center p-1.5 text-red-600 hover:text-red-800 hover:bg-red-50 rounded-md" title="Hapus"><i class="fas fa-trash text-xs"></i></button></td></tr>`).join('');
+          updatePaginationControls(d.pagination);
+        }
+      } catch (e) { console.error('[TEACHERS]', e); }
+    }
+
+    function updatePaginationControls(p) {
+      const { page, totalPages: tp, total, limit } = p;
+      setEl('paginationInfo', `Menampilkan ${(page-1)*limit+1}-${Math.min(page*limit, total)} dari ${total} data`);
+      const pb = document.getElementById('prevPageBtn'), nb = document.getElementById('nextPageBtn');
+      pb.disabled = page <= 1; nb.disabled = page >= tp;
+      pb.onclick = page > 1 ? () => fetchTeachers(page - 1) : null;
+      nb.onclick = page < tp ? () => fetchTeachers(page + 1) : null;
+      const pc = document.getElementById('pageNumbers'); pc.innerHTML = '';
+      const mx = 5; let s = Math.max(1, page - Math.floor(mx/2)), e = Math.min(tp, s + mx - 1);
+      if (e - s + 1 < mx) s = Math.max(1, e - mx + 1);
+      if (s > 1) { pc.appendChild(createPageBtn(1, page)); if (s > 2) { const sp = document.createElement('span'); sp.className = 'px-2 py-1 text-sm text-gray-500'; sp.textContent = '...'; pc.appendChild(sp); } }
+      for (let i = s; i <= e; i++) pc.appendChild(createPageBtn(i, page));
+      if (e < tp) { if (e < tp - 1) { const sp = document.createElement('span'); sp.className = 'px-2 py-1 text-sm text-gray-500'; sp.textContent = '...'; pc.appendChild(sp); } pc.appendChild(createPageBtn(tp, page)); }
+    }
+
+    function createPageBtn(n, cp) {
+      const b = document.createElement('button');
+      b.className = `px-2.5 py-1 text-xs font-medium rounded-md ${n===cp?'bg-blue-600 text-white':'text-gray-500 bg-white border border-gray-300 hover:bg-gray-50'}`;
+      b.textContent = n;
+      if (n !== cp) b.onclick = () => fetchTeachers(n);
+      return b;
+    }
+
+async function editTeacher(id) {
+       try {
+         const r = await fetch(apiUrl('/admin/teachers/' + id), { headers: { 'Authorization': `Bearer ${authToken}` } });
+        if (checkAuth401403(r)) return;
+        const d = await r.json();
+        if (d.success) {
+          const t = d.data;
+          document.getElementById('teacherModalTitle').textContent = 'Edit Guru';
+          const f = document.getElementById('teacherForm');
+          f.nama.value = t.nama || ''; f.nik.value = t.nik || ''; f.nip.value = t.nip || '';
+          f.status_kepegawaian.value = t.status_kepegawaian || ''; f.email.value = t.email || '';
+          f.dataset.editId = id;
+          document.getElementById('teacherModal').classList.add('show');
+        }
+      } catch (e) { console.error('[EDIT TEACHER]', e); }
+    }
+
+    async function deleteTeacher(id) {
+      if (!confirm('Yakin hapus guru ini?')) return;
+      try {
+        const r = await fetch(apiUrl('/admin/teachers/' + id), { method: 'DELETE', headers: { 'Authorization': `Bearer ${authToken}` } });
+        if (checkAuth401403(r)) return;
+        const d = await r.json();
+        if (d.success) { fetchTeachers(currentPage); showToast('Guru berhasil dihapus', 'success'); } else showToast(d.message || 'Gagal menghapus', 'error');
+      } catch (e) { console.error('[DELETE TEACHER]', e); showToast('Terjadi kesalahan', 'error'); }
+    }
+
+    document.getElementById('teacherForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const data = Object.fromEntries(new FormData(e.target));
+      const editId = e.target.dataset.editId;
+      try {
+        const r = await fetch(editId ? apiUrl('/admin/teachers/' + editId) : apiUrl('/admin/teachers'), {
+          method: editId ? 'PUT' : 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` },
+          body: JSON.stringify(data)
+        });
+        if (checkAuth401403(r)) return;
+        const d = await r.json();
+        if (d.success) { hideTeacherModal(); fetchTeachers(currentPage); showToast(editId ? 'Guru diperbarui' : 'Guru ditambahkan', 'success'); }
+        else showToast(d.message || 'Gagal menyimpan', 'error');
+      } catch (err) { console.error('[TEACHER FORM]', err); showToast('Terjadi kesalahan', 'error'); }
+    });
+
+    // ===== ATTENDANCE =====
+    async function loadAttendanceLogs() {
+      try {
+        const df = document.getElementById('attendanceDateFilter')?.value || '';
+        const sf = document.getElementById('attendanceStatusFilter')?.value || '';
+        let url = apiUrl('/admin/attendance-logs');
+        if (df) url += `&date_filter=${df}`;
+        if (sf) url += `&status_filter=${sf}`;
+        const r = await fetch(url, { headers: { 'Authorization': `Bearer ${authToken}` } });
+        if (checkAuth401403(r)) return;
+        const d = await r.json();
+        const tb = document.getElementById('attendanceTable');
+        if (d.success && d.data.length > 0) {
+          tb.innerHTML = d.data.map(a => `<tr class="hover:bg-gray-50"><td class="px-4 py-3 text-sm text-gray-900">${a.nama||'-'}</td><td class="px-4 py-3 text-sm text-gray-500">${a.jenis==='masuk'?'Masuk':'Pulang'}</td><td class="px-4 py-3 text-sm text-gray-500">${new Date(a.waktu_scan).toLocaleString('id-ID')}</td><td class="px-4 py-3 text-sm"><span class="px-2 py-1 rounded-full text-xs font-semibold ${a.status==='tepat_waktu'?'bg-green-100 text-green-800':'bg-red-100 text-red-800'}">${a.status==='tepat_waktu'?'Tepat Waktu':'Terlambat'}</span></td><td class="px-4 py-3 text-sm text-gray-500">${a.metode||'-'}</td></tr>`).join('');
+        } else tb.innerHTML = '<tr><td colspan="5" class="px-4 py-12 text-center text-gray-500">Belum ada data kehadiran</td></tr>';
+      } catch (e) { console.error('[ATTENDANCE LOGS]', e); }
+    }
+
+    document.getElementById('attendanceDateFilter')?.addEventListener('change', loadAttendanceLogs);
+    document.getElementById('attendanceStatusFilter')?.addEventListener('change', loadAttendanceLogs);
+
+    // ===== LOCATIONS =====
+    async function loadSchoolLocations() {
+      try {
+        const r = await fetch(apiUrl('/admin/tenant-locations'), { headers: { 'Authorization': `Bearer ${authToken}` } });
+        if (checkAuth401403(r)) return;
+        const d = await r.json();
+        const c = document.getElementById('schoolLocations');
+        if (d.success) {
+          const items = d.data || [];
+          if (items.length === 0) { c.innerHTML = '<div class="text-center py-8 text-gray-500"><p>Belum ada lokasi.</p></div>'; return; }
+          c.innerHTML = items.map(l => `<div class="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-sm"><div class="flex items-start justify-between mb-3"><div class="flex-1"><h5 class="font-medium text-gray-900">${l.location_name || 'Lokasi Utama'}</h5><p class="text-xs text-gray-500 mt-1">ID: ${l.id} | Radius: ${l.location_radius||100}m</p></div><span class="px-2 py-1 text-xs font-semibold rounded-full ${l.is_active?'bg-green-100 text-green-800':'bg-red-100 text-red-800'}">${l.is_active?'Aktif':'Nonaktif'}</span></div><div class="grid grid-cols-2 gap-2 mb-3"><div class="text-xs text-gray-500">Lat: <span class="font-mono text-gray-700">${l.latitude?parseFloat(l.latitude).toFixed(6):'-'}</span></div><div class="text-xs text-gray-500">Lng: <span class="font-mono text-gray-700">${l.longitude?parseFloat(l.longitude).toFixed(6):'-'}</span></div></div><div class="flex space-x-2 pt-2 border-t border-gray-100"><button onclick="editSchoolLocation(${l.id})" class="inline-flex items-center px-2 py-1 border border-blue-300 rounded-md text-xs font-medium text-blue-700 bg-blue-50 hover:bg-blue-100"><i class="fas fa-edit mr-1"></i>Edit</button><button onclick="toggleLocStatus(${l.id},${l.is_active})" class="inline-flex items-center px-2 py-1 border ${l.is_active?'border-orange-300 text-orange-700 bg-orange-50 hover:bg-orange-100':'border-green-300 text-green-700 bg-green-50 hover:bg-green-100'} rounded-md text-xs font-medium"><i class="fas fa-${l.is_active?'pause':'play'} mr-1"></i>${l.is_active?'Nonaktifkan':'Aktifkan'}</button><button onclick="deleteSchoolLocation(${l.id})" class="inline-flex items-center px-2 py-1 border border-red-300 rounded-md text-xs font-medium text-red-700 bg-red-50 hover:bg-red-100"><i class="fas fa-trash mr-1"></i>Hapus</button></div></div>`).join('');
+        }
+      } catch (e) { console.error('[LOCATIONS]', e); }
+    }
+
+    async function toggleLocStatus(id, cur) {
+      if (!confirm(`Yakin ${!cur?'mengaktifkan':'menonaktifkan'} lokasi ini?`)) return;
+      try {
+        const r = await fetch(apiUrl('/admin/tenant-locations/' + id), { method: 'PUT', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` }, body: JSON.stringify({ is_active: !cur }) });
+        if (checkAuth401403(r)) return;
+        const d = await r.json();
+        if (d.success) { loadSchoolLocations(); showToast(`Lokasi berhasil ${!cur?'diaktifkan':'dinonaktifkan'}`, 'success'); }
+        else showToast(d.message || 'Gagal', 'error');
+      } catch (e) { console.error('[TOGGLE LOC]', e); showToast('Terjadi kesalahan', 'error'); }
+    }
+
+    async function deleteSchoolLocation(id) {
+      if (!confirm('Yakin hapus lokasi ini?')) return;
+      try {
+        const r = await fetch(apiUrl('/admin/tenant-locations/' + id), { method: 'DELETE', headers: { 'Authorization': `Bearer ${authToken}` } });
+        if (checkAuth401403(r)) return;
+        const d = await r.json();
+        if (d.success) { loadSchoolLocations(); showToast('Lokasi dihapus', 'success'); }
+        else showToast(d.message || 'Gagal', 'error');
+      } catch (e) { console.error('[DEL LOC]', e); showToast('Terjadi kesalahan', 'error'); }
+    }
+
+    // ===== LOCATION MODAL =====
+    function showAddLocationModal() { currentMapContext = 'add'; document.getElementById('locationModalTitle').textContent = 'Tambah Lokasi Baru'; document.getElementById('locationForm').reset(); resetLocationModal(); document.getElementById('locationModal').classList.add('show'); setTimeout(initMiniMap, 100); }
+
+    async function editSchoolLocation(id) {
+      currentMapContext = 'edit';
+      try {
+        const r = await fetch(apiUrl('/admin/tenant-locations'), { headers: { 'Authorization': `Bearer ${authToken}` } });
+        const d = await r.json();
+        if (d.success) {
+          const loc = d.data.find(l => l.id === id);
+          if (loc) {
+            document.getElementById('locationModalTitle').textContent = 'Edit Lokasi';
+            document.getElementById('modalLatitudeInput').value = loc.latitude || '';
+            document.getElementById('modalLongitudeInput').value = loc.longitude || '';
+            document.querySelector('input[name="location_name"]').value = loc.location_name || '';
+            document.querySelector('input[name="location_radius"]').value = loc.location_radius || 100;
+            document.getElementById('schoolAdminCentralToggle').checked = loc.use_central_rules || false;
+            updateToggleVisual(document.getElementById('schoolAdminCentralToggle'));
+            updateCoordPreview();
+            document.getElementById('locationModal').classList.add('show');
+            setTimeout(() => initMiniMap(loc.latitude, loc.longitude), 100);
+          }
+        }
+      } catch (e) { console.error('[EDIT LOC]', e); }
+    }
+
+    function resetLocationModal() {
+      document.getElementById('modalLatitudeInput').value = '';
+      document.getElementById('modalLongitudeInput').value = '';
+      document.getElementById('schoolAdminCentralToggle').checked = false;
+      updateToggleVisual(document.getElementById('schoolAdminCentralToggle'));
+      document.getElementById('schoolAdminCoordPreview').innerHTML = '<span class="text-gray-500">Belum ada koordinat</span>';
+      if (schoolAdminMap) { schoolAdminMap.remove(); schoolAdminMap = null; }
+      schoolAdminMarker = null;
+    }
+
+    function hideLocationModal() { document.getElementById('locationModal').classList.remove('show'); resetLocationModal(); }
+
+    function initMiniMap(lat, lng) {
+      const mc = document.getElementById('schoolAdminMiniMap');
+      if (!mc) return;
+      if (schoolAdminMap) { schoolAdminMap.remove(); schoolAdminMap = null; }
+      const dl = lat || -2.2166, dn = lng || 113.9209;
+      try {
+        schoolAdminMap = L.map(mc, { center: [dl, dn], zoom: 16, zoomControl: false, attributionControl: false });
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(schoolAdminMap);
+        schoolAdminMap.on('click', e => setMapLoc(e.latlng.lat, e.latlng.lng));
+        schoolAdminMarker = L.marker([dl, dn], { draggable: true }).addTo(schoolAdminMap);
+        schoolAdminMarker.on('dragend', e => setMapLoc(e.target.getLatLng().lat, e.target.getLatLng().lng));
+        schoolAdminMap.setView([dl, dn], 16);
+      } catch (e) { console.error('[MINI MAP]', e); mc.innerHTML = '<div class="text-center text-gray-500 p-4"><i class="fas fa-exclamation-triangle text-2xl mb-2"></i><p>Peta gagal dimuat</p></div>'; }
+    }
+
+    function setMapLoc(lat, lng) {
+      document.getElementById('modalLatitudeInput').value = lat.toFixed(6);
+      document.getElementById('modalLongitudeInput').value = lng.toFixed(6);
+      updateCoordPreview();
+      if (schoolAdminMarker) schoolAdminMarker.setLatLng([lat, lng]);
+      if (schoolAdminMap) schoolAdminMap.setView([lat, lng], 16);
+    }
+
+    function updateCoordPreview() {
+      const lat = document.getElementById('modalLatitudeInput').value;
+      const lng = document.getElementById('modalLongitudeInput').value;
+      const p = document.getElementById('schoolAdminCoordPreview');
+      p.innerHTML = lat && lng ? `<span class="text-green-600">📍 ${parseFloat(lat).toFixed(6)}, ${parseFloat(lng).toFixed(6)}</span>` : '<span class="text-gray-500">Belum ada koordinat</span>';
+    }
+
+    document.getElementById('modalAutoDetectBtn')?.addEventListener('click', function() {
+      if (!navigator.geolocation) { alert('Browser tidak mendukung geolokasi'); return; }
+      const btn = this, ot = btn.innerHTML;
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Detecting...'; btn.disabled = true;
+      document.getElementById('modalLocationStatus').innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i>Mendapatkan koordinat GPS...';
+      navigator.geolocation.getCurrentPosition(function(pos) {
+        const lat = pos.coords.latitude.toFixed(6), lng = pos.coords.longitude.toFixed(6), acc = Math.round(pos.coords.accuracy);
+        document.getElementById('modalLatitudeInput').value = lat;
+        document.getElementById('modalLongitudeInput').value = lng;
+        updateCoordPreview();
+        document.getElementById('modalLocationStatus').innerHTML = `<i class="fas fa-check-circle mr-1 text-green-600"></i>Terdeteksi (akurasi: ${acc}m)`;
+        if (schoolAdminMap) { schoolAdminMap.setView([lat, lng], 16); if (schoolAdminMarker) schoolAdminMarker.setLatLng([lat, lng]); }
+        else initMiniMap(lat, lng);
+        btn.innerHTML = ot; btn.disabled = false;
+      }, function(err) {
+        let msg = 'Gagal mendapatkan lokasi';
+        if (err.code === 1) msg = 'Akses lokasi ditolak';
+        else if (err.code === 3) msg = 'Timeout';
+        document.getElementById('modalLocationStatus').innerHTML = `<i class="fas fa-exclamation-triangle mr-1 text-red-600"></i>${msg}`;
+        btn.innerHTML = ot; btn.disabled = false;
+      }, { enableHighAccuracy: true, timeout: 15000 });
+    });
+
+    document.getElementById('modalLatitudeInput')?.addEventListener('input', updateCoordPreview);
+    document.getElementById('modalLongitudeInput')?.addEventListener('input', updateCoordPreview);
+
+    document.getElementById('locationForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const data = Object.fromEntries(new FormData(e.target));
+      data.use_central_rules = document.getElementById('schoolAdminCentralToggle').checked;
+      const sb = document.getElementById('locationFormSubmitBtn'), ot = sb.innerHTML;
+      sb.disabled = true; sb.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan...';
+      try {
+        const r = await fetch(apiUrl('/admin/tenants/' + tenantId), { method: 'PUT', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` }, body: JSON.stringify(data) });
+        if (checkAuth401403(r)) return;
+        const d = await r.json();
+        if (d.success) { hideLocationModal(); loadSchoolLocations(); loadDashboard(); showToast('Lokasi disimpan', 'success'); }
+        else showToast(d.message || 'Gagal', 'error');
+      } catch (err) { console.error('[LOC FORM]', err); showToast('Terjadi kesalahan', 'error'); }
+      finally { sb.disabled = false; sb.innerHTML = ot; }
+    });
+
+    // ===== RULES =====
+    async function fetchRules() {
+      try {
+        const r = await fetch(apiUrl('/admin/rules'), { headers: { 'Authorization': `Bearer ${authToken}` } });
+        if (checkAuth401403(r)) return;
+        const d = await r.json();
+        const c = document.getElementById('attendanceRules');
+        if (d.success) {
+          const items = d.data || [];
+          if (items.length === 0) { c.innerHTML = '<div class="text-center py-8 text-gray-500"><i class="fas fa-clock text-4xl text-gray-400 mb-4"></i><p>Belum ada aturan</p><button onclick="showAddRuleModal()" class="mt-2 inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md text-sm hover:bg-blue-700"><i class="fas fa-plus mr-2"></i>Tambah Aturan Pertama</button></div>'; }
+          else { c.innerHTML = items.map(rule => `<div class="bg-white border border-gray-200 rounded-lg p-4"><div class="flex items-center justify-between"><div><h5 class="font-medium text-gray-900">${rule.tipe} - ${rule.jam_mulai} s/d ${rule.jam_selesai}</h5><p class="text-sm text-gray-600 mt-1">${rule.status_log==='tepat_waktu'?'Tepat Waktu':'Terlambat'} ${rule.keterangan?'| '+rule.keterangan:''} ${rule.hari?'| Hari: '+rule.hari:''}</p></div><div class="flex space-x-2"><button onclick="editRule(${rule.id})" class="text-blue-600 hover:text-blue-800 text-sm"><i class="fas fa-edit"></i></button><button onclick="deleteRule(${rule.id})" class="text-red-600 hover:text-red-800 text-sm"><i class="fas fa-trash"></i></button></div></div></div>`).join(''); }
+        }
+      } catch (e) { console.error('[RULES]', e); }
+    }
+
+    function showAddRuleModal() { document.getElementById('ruleModalTitle').textContent = 'Tambah Aturan'; document.getElementById('ruleForm').reset(); document.getElementById('ruleTenantId').value = tenantId; delete document.getElementById('ruleForm').dataset.editId; document.getElementById('ruleModal').classList.add('show'); }
+    function hideRuleModal() { document.getElementById('ruleModal').classList.remove('show'); }
+
+    async function editRule(id) {
+      try {
+        const r = await fetch(apiUrl('/admin/rules/' + id), { headers: { 'Authorization': `Bearer ${authToken}` } });
+        if (checkAuth401403(r)) return;
+        const d = await r.json();
+        if (d.success) {
+          const rule = d.data;
+          document.getElementById('ruleModalTitle').textContent = 'Edit Aturan';
+          const f = document.getElementById('ruleForm');
+          f.tipe.value = rule.tipe; f.jam_mulai.value = rule.jam_mulai; f.jam_selesai.value = rule.jam_selesai;
+          f.keterangan.value = rule.keterangan || ''; f.hari.value = rule.hari || ''; f.status_log.value = rule.status_log;
+          f.dataset.editId = id;
+          document.getElementById('ruleModal').classList.add('show');
+        }
+      } catch (e) { console.error('[EDIT RULE]', e); }
+    }
+
+    async function deleteRule(id) {
+      if (!confirm('Yakin hapus aturan ini?')) return;
+      try {
+        const r = await fetch(apiUrl('/admin/rules/' + id), { method: 'DELETE', headers: { 'Authorization': `Bearer ${authToken}` } });
+        if (checkAuth401403(r)) return;
+        const d = await r.json();
+        if (d.success) { fetchRules(); showToast('Aturan dihapus', 'success'); }
+        else showToast(d.message || 'Gagal', 'error');
+      } catch (e) { console.error('[DEL RULE]', e); showToast('Terjadi kesalahan', 'error'); }
+    }
+
+    document.getElementById('ruleForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const data = Object.fromEntries(new FormData(e.target));
+      const editId = e.target.dataset.editId;
+      try {
+        const r = await fetch(editId ? apiUrl('/admin/rules/' + editId) : apiUrl('/admin/rules'), {
+          method: editId ? 'PUT' : 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` },
+          body: JSON.stringify(data)
+        });
+        if (checkAuth401403(r)) return;
+        const d = await r.json();
+        if (d.success) { hideRuleModal(); fetchRules(); showToast(editId ? 'Aturan diperbarui' : 'Aturan ditambahkan', 'success'); }
+        else showToast(d.message || 'Gagal', 'error');
+      } catch (err) { console.error('[RULE FORM]', err); showToast('Terjadi kesalahan', 'error'); }
+    });
+
+    // ===== WHATSAPP =====
+    let teacherDataList = [];
+    async function loadTeachersForWhatsApp() {
+      try {
+        const r = await fetch(apiUrl('/admin/teachers?all=1&has_wa=1'), { headers: { 'Authorization': `Bearer ${authToken}` } });
+        if (!r.ok) return;
+        const d = await r.json();
+        if (!d.success) return;
+        teacherDataList = d.data || [];
+        setupWAInput();
+      } catch (e) { console.error('[WA TEACHERS]', e); }
+    }
+
+    function setupWAInput() {
+      const input = document.getElementById('singleTeacherInput');
+      const hiddenInput = document.getElementById('singleTeacherSelect');
+      const resultsDiv = document.getElementById('teacherSearchResults');
+      const selInfo = document.getElementById('teacherSelectedInfo');
+      let timer = null;
+
+      input.addEventListener('input', function() {
+        clearTimeout(timer);
+        const q = this.value.trim().toLowerCase();
+        if (q.length < 1) { resultsDiv.classList.add('hidden'); resultsDiv.innerHTML = ''; hiddenInput.value = ''; selInfo.innerHTML = ''; return; }
+        timer = setTimeout(() => {
+          const filtered = teacherDataList.filter(t => {
+            if (!t.no_wa) return false;
+            return (t.nama || '').toLowerCase().includes(q) || (t.no_wa || '').includes(q);
+          });
+          const mk = t => {
+            const a = t.assignments && t.assignments[0];
+            return { id: t.id, nama: t.nama, wa: t.no_wa, jabatan: a ? (a.jabatan_di_unit || 'Guru') : 'Guru', sekolah: a ? (a.nama_sekolah || '-') : '-' };
+          };
+          if (filtered.length === 0) { resultsDiv.innerHTML = '<div class="px-4 py-3 text-sm text-gray-500 text-center">Tidak ditemukan</div>'; resultsDiv.classList.remove('hidden'); hiddenInput.value = ''; }
+          else {
+            resultsDiv.innerHTML = filtered.map(mk).map(t => `<div class="px-4 py-3 hover:bg-blue-50 cursor-pointer text-sm border-b border-gray-100 last:border-b-0" data-id="${t.id}" data-nama="${t.nama.replace(/"/g,'&quot;')}" data-wa="${t.wa}" data-jabatan="${t.jabatan.replace(/"/g,'&quot;')}" data-sekolah="${t.sekolah.replace(/"/g,'&quot;')}"><div class="font-medium text-gray-900">${t.nama}</div><div class="text-xs text-gray-500">\u{1F4F7} ${t.wa} &middot; ${t.jabatan} &middot; ${t.sekolah}</div></div>`).join('');
+            resultsDiv.classList.remove('hidden');
+            resultsDiv.querySelectorAll('[data-id]').forEach(item => {
+              item.addEventListener('click', function() {
+                hiddenInput.value = this.dataset.id;
+                input.value = `${this.dataset.nama} (${this.dataset.wa}) - ${this.dataset.jabatan}`;
+                selInfo.innerHTML = `<span class="text-green-600">✅ Dipilih: ${this.dataset.nama}</span>`;
+                resultsDiv.classList.add('hidden');
+              });
+            });
+          }
+        }, 200);
+      });
+
+      document.addEventListener('click', function(ev) { if (!resultsDiv.contains(ev.target) && ev.target !== input) resultsDiv.classList.add('hidden'); });
+    }
+
+    document.getElementById('singleWhatsAppForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const tid = document.getElementById('singleTeacherSelect').value;
+      const msg = document.getElementById('singleMessage').value.trim();
+      if (!tid || !msg) { alert('Pilih guru dan isi pesan!'); return; }
+      if (!confirm('Kirim pesan ke guru?')) return;
+      const btn = e.target.querySelector('button[type="submit"]');
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Mengirim...'; btn.disabled = true;
+      try {
+        const r = await fetch(apiUrl('/admin/send-whatsapp-single/' + tid), { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` }, body: JSON.stringify({ message: msg }) });
+        const d = await r.json();
+        updateWhatsAppStatus(d.success ? '✅ Pesan berhasil dikirim' : '❌ Gagal: ' + (d.message || ''), d.success ? 'success' : 'error');
+        e.target.reset();
+      } catch (err) { console.error('[WA SEND]', err); updateWhatsAppStatus('❌ Terjadi kesalahan', 'error'); }
+      finally { btn.innerHTML = '<i class="fab fa-whatsapp mr-2"></i>Kirim Pesan'; btn.disabled = false; }
+    });
+
+    function updateWhatsAppStatus(msg, type = 'info') {
+      const colors = { success: 'text-green-700 bg-green-100 border-green-300', error: 'text-red-700 bg-red-100 border-red-300', info: 'text-blue-700 bg-blue-100 border-blue-300' };
+      const el = document.getElementById('whatsappStatus');
+      el.className = `border rounded-lg p-4 ${colors[type] || colors.info}`;
+      el.innerHTML = `<p class="text-sm">${msg}</p><p class="text-xs mt-1 opacity-75">${new Date().toLocaleTimeString('id-ID')}</p>`;
+    }
+
+    function copySchoolAdminCoords() {
+      const p = document.getElementById('schoolAdminCoordPreview');
+      if (!p) return;
+      const t = p.textContent;
+      if (t && !t.includes('Belum ada')) {
+        const m = t.match(/(-?\d+\.\d+),\s*(-?\d+\.\d+)/);
+        if (m) {
+          navigator.clipboard.writeText(`${m[1]}, ${m[2]}`).then(() => {
+            p.innerHTML = '<div class="flex items-center text-green-700"><i class="fas fa-check-circle mr-2"></i><span class="font-semibold">Koordinat berhasil disalin!</span></div>';
+            setTimeout(() => updateCoordPreview(), 2000);
+          }).catch(() => alert('Gagal menyalin'));
+        }
+      }
+    }
+
+    function showToast(message, type = 'info') {
+      const t = document.createElement('div');
+      t.className = `fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg max-w-sm text-sm ${type==='success'?'bg-green-500 text-white':type==='error'?'bg-red-500 text-white':'bg-blue-500 text-white'}`;
+      t.innerHTML = `<div class="flex items-center"><i class="fas ${type==='success'?'fa-check-circle':type==='error'?'fa-exclamation-circle':'fa-info-circle'} mr-2"></i><span>${message}</span></div>`;
+      document.body.appendChild(t);
+      setTimeout(() => t.remove(), 3000);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const now = new Date();
+      setEl('currentDate', now.toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }));
+      document.querySelectorAll('.nav-item').forEach(btn => btn.addEventListener('click', function() { switchTab(this.getAttribute('data-tab')); }));
+      loadDashboard();
+    });
+  </script>
+</body>
+</html>

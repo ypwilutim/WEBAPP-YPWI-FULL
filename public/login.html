@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - YPWI Lutim</title>
+
+  <!-- Open Graph Meta Tags -->
+  <meta property="og:title" content="Login - Sistem Absensi YPWI Lutim">
+  <meta property="og:description" content="Masuk ke Sistem Absensi Guru YPWI Lutim untuk melakukan absensi lokasi dengan GPS dan QR Code">
+  <meta property="og:image" content="/assets/images/thumbnail/login.svg">
+  <meta property="og:url" content="">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="YPWI Lutim Absensi">
+
+  <!-- Twitter Card Meta Tags -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Login - Sistem Absensi YPWI Lutim">
+  <meta name="twitter:description" content="Masuk ke Sistem Absensi Guru YPWI Lutim untuk melakukan absensi lokasi dengan GPS dan QR Code">
+  <meta name="twitter:image" content="/assets/images/thumbnail/login.svg">
+
+  <!-- General Meta Tags -->
+  <meta name="description" content="Sistem Absensi Guru YPWI Lutim - Login untuk melakukan absensi lokasi dengan GPS dan QR Code">
+  <meta name="keywords" content="absensi guru, YPWI Lutim, GPS absensi, QR code, sistem absensi">
+  <meta name="author" content="YPWI Lutim">
+
+  <script>
+    // Set dynamic og:url based on current location
+    document.querySelector('meta[property="og:url"]').setAttribute('content', window.location.href);
+  </script>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <link rel="icon" href="assets/images/YPWI LOGO HITAM.png" type="image/png">
+  <link href="styles.css" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="min-h-screen py-8 profile-page">
+  <div class="pt-28 pb-12">
+    <div class="max-w-7xl mx-auto px-6">
+      <div class="glass rounded-3xl shadow-2xl p-10 border border-gray-100">
+        <div class="text-center mb-10 float-animation">
+          <div class="w-20 h-20 mx-auto mb-4 rounded-2xl bg-white flex items-center justify-center shadow-lg p-2">
+            <img src="assets/images/YPWI LOGO HITAM.png" alt="YPWI Logo" class="w-full h-full object-contain">
+          </div>
+          <h1 class="text-4xl font-extrabold text-gray-950">Masuk ke Akun</h1>
+          <p class="text-gray-600 mt-2 text-lg">Sistem Digital YPWI Lutim</p>
+          <p class="text-sm text-gray-500 mt-1" id="tenantText">Memuat...</p>
+        </div>
+
+        <div class="max-w-md mx-auto">
+          <form id="loginForm" method="POST" novalidate>
+            <div class="mb-5">
+              <label for="username" class="block text-sm font-semibold text-gray-700 mb-2">Username</label>
+              <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <i class="fas fa-user text-gray-400"></i>
+                </div>
+                <input type="text" id="username" name="username" class="w-full pl-10 pr-4 py-3 rounded-xl border-2 border-gray-200 bg-white focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition font-medium" placeholder="Masukkan username" required autocomplete="username">
+              </div>
+              <p class="text-red-500 text-sm mt-1 hidden" id="usernameError">Username harus diisi</p>
+            </div>
+            <div class="mb-6">
+              <label for="password" class="block text-sm font-semibold text-gray-700 mb-2">Password</label>
+              <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <i class="fas fa-lock text-gray-400"></i>
+                </div>
+                <input type="password" id="password" name="password" class="w-full pl-10 pr-12 py-3 rounded-xl border-2 border-gray-200 bg-white focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition font-medium" placeholder="Masukkan password" required autocomplete="current-password">
+                <button type="button" id="togglePassword" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 transition">
+                  <i class="fas fa-eye" id="eyeIcon"></i>
+                  <i class="fas fa-eye-slash hidden" id="eyeSlashIcon"></i>
+                </button>
+              </div>
+              <p class="text-red-500 text-sm mt-1 hidden" id="passwordError">Password harus diisi</p>
+            </div>
+            <button type="submit" id="loginBtn" class="w-full bg-[#066e3a] text-white font-extrabold py-4 px-8 rounded-3xl text-xl flex items-center justify-center gap-3 shadow-lg transform hover:scale-[1.02] transition">
+              <i class="bi bi-box-arrow-in-right"></i>
+              Masuk
+            </button>
+            <div id="loadingSpinner" class="hidden text-center py-4">
+              <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-primary border-t-transparent mb-2"></div>
+              <p class="text-gray-600 text-sm">Sedang masuk...</p>
+            </div>
+          </form>
+          <div class="mt-6 text-center space-y-2">
+            <a href="#" id="forgotPasswordLink" class="text-[#066e3a] hover:text-[#066e3a]/80 text-sm transition block">Lupa password?</a>
+            <div class="border-t border-gray-200 pt-3">
+              <p class="text-sm text-gray-600 mb-2">Belum punya akun atau perlu lengkapi profil?</p>
+              <a href="search-teacher.html" class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg text-sm transition">
+                <i class="fas fa-search"></i>
+                Cari Guru
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Forgot Password Modal -->
+  <div id="forgotPasswordModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+    <div class="flex items-center justify-center min-h-screen p-4">
+      <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8">
+        <div class="text-center mb-6">
+          <div class="w-16 h-16 mx-auto mb-4 rounded-2xl bg-red-100 flex items-center justify-center">
+            <i class="fas fa-key text-red-600 text-2xl"></i>
+          </div>
+          <h2 class="text-2xl font-bold text-gray-900">Lupa Password</h2>
+          <p class="text-gray-600 mt-2">Masukkan nomor WhatsApp untuk verifikasi</p>
+        </div>
+
+        <!-- Step 1: Enter WhatsApp -->
+        <div id="step1" class="space-y-4">
+          <div>
+            <label for="whatsappNumber" class="block text-sm font-medium text-gray-700 mb-2">Nomor WhatsApp</label>
+            <div class="relative">
+              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <i class="fab fa-whatsapp text-green-500"></i>
+              </div>
+              <input type="tel" id="whatsappNumber" placeholder="6281234567890" class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
+            </div>
+          </div>
+          <button id="sendOtpBtn" class="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-4 rounded-lg transition">
+            <i class="fas fa-paper-plane mr-2"></i>
+            Kirim Kode Verifikasi
+          </button>
+        </div>
+
+        <!-- Step 2: Enter OTP -->
+        <div id="step2" class="hidden space-y-4">
+          <div>
+            <label for="otpCode" class="block text-sm font-medium text-gray-700 mb-2">Kode Verifikasi</label>
+            <input type="text" id="otpCode" placeholder="Masukkan 6 digit kode" maxlength="6" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent text-center text-2xl tracking-widest">
+            <p class="text-sm text-gray-500 mt-2">Kode dikirim ke WhatsApp Anda</p>
+          </div>
+          <div>
+            <label for="newPassword" class="block text-sm font-medium text-gray-700 mb-2">Password Baru</label>
+            <input type="password" id="newPassword" placeholder="Minimal 8 karakter" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
+          </div>
+          <button id="resetPasswordBtn" class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-4 rounded-lg transition">
+            <i class="fas fa-save mr-2"></i>
+            Reset Password
+          </button>
+        </div>
+
+        <div class="mt-6 text-center">
+          <button id="backToLoginBtn" class="text-gray-500 hover:text-gray-700 text-sm">
+            <i class="fas fa-arrow-left mr-1"></i>
+            Kembali ke Login
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="text-center mt-8 text-gray-500 text-sm">
+    <p>© 2026 YPWI Lutim. Semua hak dilindungi.</p>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // Password toggle functionality
+      const togglePassword = document.getElementById('togglePassword');
+      const passwordInput = document.getElementById('password');
+      const eyeIcon = document.getElementById('eyeIcon');
+      const eyeSlashIcon = document.getElementById('eyeSlashIcon');
+
+      if (togglePassword && passwordInput && eyeIcon && eyeSlashIcon) {
+        togglePassword.addEventListener('click', () => {
+          const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+          passwordInput.setAttribute('type', type);
+          eyeIcon.classList.toggle('hidden');
+          eyeSlashIcon.classList.toggle('hidden');
+        });
+      }
+
+      // Tenant detection
+      const hostname = window.location.hostname;
+      let tenant = 'SDIT';
+      if (hostname.includes('sdit')) tenant = 'SDIT';
+      else if (hostname.includes('smpit')) tenant = 'SMPIT';
+      else if (hostname.includes('smait')) tenant = 'SMAIT';
+
+      const tenantTextElement = document.getElementById('tenantText');
+      if (tenantTextElement) {
+        tenantTextElement.textContent = `Tenant: ${tenant}`;
+      }
+
+      // Login form handling
+      const loginForm = document.getElementById('loginForm');
+      const loginBtn = document.getElementById('loginBtn');
+      const loadingSpinner = document.getElementById('loadingSpinner');
+      const usernameError = document.getElementById('usernameError');
+      const passwordError = document.getElementById('passwordError');
+
+      if (loginForm) {
+        loginForm.addEventListener('submit', async (e) => {
+          try {
+            e.preventDefault();
+            e.stopPropagation();
+            usernameError.classList.add('hidden');
+            passwordError.classList.add('hidden');
+
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value;
+            let hasError = false;
+
+            if (!username) {
+              usernameError.classList.remove('hidden');
+              hasError = true;
+            }
+            if (!password) {
+              passwordError.classList.remove('hidden');
+              hasError = true;
+            }
+            if (hasError) return;
+
+            loginBtn.classList.add('hidden');
+            loadingSpinner.classList.remove('hidden');
+
+            console.log('🔐 [LOGIN DEBUG] Starting login attempt for user:', username);
+
+            try {
+              console.log('🌐 [LOGIN DEBUG] Sending fetch request to /api/auth/login');
+              const response = await fetch('/api/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password }),
+              });
+
+              console.log('📡 [LOGIN DEBUG] Response received - Status:', response.status, response.statusText);
+              console.log('📡 [LOGIN DEBUG] Response headers:', Object.fromEntries(response.headers.entries()));
+
+              if (!response.ok) {
+                console.error('❌ [LOGIN DEBUG] Response not OK - throwing error');
+                throw new Error(`Server error: ${response.status} ${response.statusText}`);
+              }
+
+              console.log('✅ [LOGIN DEBUG] Response OK, parsing JSON...');
+              const data = await response.json();
+              console.log('📦 [LOGIN DEBUG] Parsed response data:', data);
+
+              if (data.success) {
+                console.log('✅ [LOGIN DEBUG] Login successful, token received');
+
+                // Store complete user data at once
+                const userData = {
+                  id: data.user.id,
+                  username: data.user.username,
+                  role: data.user.role,
+                  tenant_id: data.user.tenant_id,
+                  guru_id: data.user.guru_id,
+                  is_profile_complete: data.user.is_profile_complete,
+                  is_default_password: data.user.is_default_password
+                };
+
+                localStorage.setItem('token', data.token);
+                localStorage.setItem('user', JSON.stringify(userData));
+
+                console.log('💾 [LOGIN DEBUG] Stored token and user data:', { token: !!data.token, user: userData });
+
+                // Check profile completion and redirect
+                if (data.redirect === 'complete-profile.html' && data.teacherId) {
+                  Swal.fire({
+                    title: 'Profil Belum Lengkap!',
+                    text: 'Silakan lengkapi profil Anda untuk melanjutkan.',
+                    icon: 'info',
+                    confirmButtonText: 'Lengkapi Profil',
+                    confirmButtonColor: '#066e3a'
+                  }).then((result) => {
+                    if (result.isConfirmed) {
+                      window.location.href = `complete-profile.html?teacher_id=${data.teacherId}`;
+                    }
+                  });
+                } else {
+                  Swal.fire({
+                    title: 'Login Berhasil!',
+                    text: data.message,
+                    icon: 'success',
+                    timer: 1500,
+                    showConfirmButton: false
+                  }).then(() => {
+                    console.log('🔄 [LOGIN DEBUG] Redirecting to:', data.redirect);
+                    window.location.href = data.redirect;
+                  });
+                }
+              } else {
+                console.warn('⚠️ [LOGIN DEBUG] Login failed with message:', data.message);
+                Swal.fire({
+                  title: 'Login Gagal',
+                  text: data.message || 'Terjadi kesalahan. Silakan coba lagi.',
+                  icon: data.message && data.message.includes('Password') ? 'warning' : 'error',
+                  confirmButtonText: 'Coba Lagi',
+                  confirmButtonColor: '#667eea'
+                });
+              }
+            } catch (jsError) {
+              console.error('❌ [LOGIN DEBUG] JavaScript error in form submission:', jsError);
+              console.error('❌ [LOGIN DEBUG] Error stack:', jsError.stack);
+              e.preventDefault();
+              e.stopPropagation();
+              Swal.fire({
+                title: 'Kesalahan Sistem',
+                text: 'Terjadi kesalahan dalam memproses form. Silakan coba lagi.',
+                icon: 'error',
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#667eea'
+              });
+              return;
+            }
+          } catch (error) {
+            console.error('🚫 [LOGIN DEBUG] Network/Fetch error:', error);
+            console.error('🚫 [LOGIN DEBUG] Error message:', error.message);
+            Swal.fire({
+              title: 'Kesalahan Jaringan',
+              text: 'Tidak dapat terhubung ke server. Periksa koneksi Anda.',
+              icon: 'error',
+              confirmButtonText: 'OK',
+              confirmButtonColor: '#667eea'
+            });
+          } finally {
+            loginBtn.classList.remove('hidden');
+            loadingSpinner.classList.add('hidden');
+          }
+        });
+      }
+
+      // Check for email parameter and auto-fill
+      const urlParams = new URLSearchParams(window.location.search);
+      const email = urlParams.get('email');
+      if (email) {
+        document.getElementById('username').value = email;
+      }
+
+      // Input validation reset
+      const inputs = document.querySelectorAll('input[required]');
+      inputs.forEach(input => {
+        input.addEventListener('input', () => {
+          const errorEl = document.getElementById(input.id + 'Error');
+          if (errorEl) errorEl.classList.add('hidden');
+        });
+      });
+
+      // Forgot Password Modal
+      const forgotPasswordModal = document.getElementById('forgotPasswordModal');
+      const forgotPasswordLink = document.getElementById('forgotPasswordLink');
+      const backToLoginBtn = document.getElementById('backToLoginBtn');
+      const sendOtpBtn = document.getElementById('sendOtpBtn');
+      const resetPasswordBtn = document.getElementById('resetPasswordBtn');
+      const step1 = document.getElementById('step1');
+      const step2 = document.getElementById('step2');
+
+      let currentVerificationCode = null;
+      let currentPhoneNumber = null;
+
+      // Open modal
+      forgotPasswordLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        forgotPasswordModal.classList.remove('hidden');
+        step1.classList.remove('hidden');
+        step2.classList.add('hidden');
+        document.getElementById('whatsappNumber').value = '';
+        document.getElementById('otpCode').value = '';
+        document.getElementById('newPassword').value = '';
+      });
+
+      // Close modal
+      backToLoginBtn.addEventListener('click', () => {
+        forgotPasswordModal.classList.add('hidden');
+        currentVerificationCode = null;
+        currentPhoneNumber = null;
+      });
+
+      // Send OTP
+      sendOtpBtn.addEventListener('click', async () => {
+        const phoneNumber = document.getElementById('whatsappNumber').value.trim();
+
+        if (!phoneNumber) {
+          Swal.fire('Error', 'Masukkan nomor WhatsApp', 'error');
+          return;
+        }
+
+        // Basic validation for Indonesian number
+        if (!phoneNumber.match(/^628\d{8,12}$/)) {
+          Swal.fire('Error', 'Format nomor WhatsApp tidak valid (gunakan 628xxxxxxxxx)', 'error');
+          return;
+        }
+
+        sendOtpBtn.disabled = true;
+        sendOtpBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Mengirim...';
+
+        try {
+          const response = await fetch('/api/forgot-password/send-otp', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ phoneNumber })
+          });
+
+          const data = await response.json();
+
+          if (data.success) {
+            currentPhoneNumber = phoneNumber;
+            currentVerificationCode = data.verificationCode; // For testing, remove in production
+
+            step1.classList.add('hidden');
+            step2.classList.remove('hidden');
+
+            Swal.fire('Berhasil', 'Kode verifikasi telah dikirim ke WhatsApp Anda', 'success');
+          } else {
+            Swal.fire('Error', data.message || 'Gagal mengirim kode verifikasi', 'error');
+          }
+        } catch (error) {
+          console.error('Send OTP error:', error);
+          Swal.fire('Error', 'Terjadi kesalahan saat mengirim kode', 'error');
+        } finally {
+          sendOtpBtn.disabled = false;
+          sendOtpBtn.innerHTML = '<i class="fas fa-paper-plane mr-2"></i>Kirim Kode Verifikasi';
+        }
+      });
+
+      // Reset Password
+      resetPasswordBtn.addEventListener('click', async () => {
+        const otpCode = document.getElementById('otpCode').value.trim();
+        const newPassword = document.getElementById('newPassword').value;
+
+        if (!otpCode || otpCode.length !== 6) {
+          Swal.fire('Error', 'Masukkan kode verifikasi 6 digit', 'error');
+          return;
+        }
+
+        if (!newPassword || newPassword.length < 8) {
+          Swal.fire('Error', 'Password baru minimal 8 karakter', 'error');
+          return;
+        }
+
+        // For testing, accept any 6-digit code. In production, verify against stored code
+        const isValidOtp = otpCode.length === 6 && /^\d{6}$/.test(otpCode);
+
+        if (!isValidOtp) {
+          Swal.fire('Error', 'Kode verifikasi tidak valid', 'error');
+          return;
+        }
+
+        resetPasswordBtn.disabled = true;
+        resetPasswordBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Mereset...';
+
+        try {
+          const response = await fetch('/api/forgot-password/reset', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              phoneNumber: currentPhoneNumber,
+              otpCode,
+              newPassword
+            })
+          });
+
+          const data = await response.json();
+
+          if (data.success) {
+            forgotPasswordModal.classList.add('hidden');
+            currentVerificationCode = null;
+            currentPhoneNumber = null;
+
+            Swal.fire('Berhasil', 'Password berhasil direset. Silakan login dengan password baru.', 'success');
+          } else {
+            Swal.fire('Error', data.message || 'Gagal reset password', 'error');
+          }
+        } catch (error) {
+          console.error('Reset password error:', error);
+          Swal.fire('Error', 'Terjadi kesalahan saat reset password', 'error');
+        } finally {
+          resetPasswordBtn.disabled = false;
+          resetPasswordBtn.innerHTML = '<i class="fas fa-save mr-2"></i>Reset Password';
+        }
+      });
+
+      // WhatsApp number normalization
+      const whatsappNumberInput = document.getElementById('whatsappNumber');
+      whatsappNumberInput.addEventListener('input', (e) => {
+        let value = e.target.value.replace(/\D/g, ''); // Remove non-digits
+
+        // Auto-add 62 prefix if not present
+        if (value && !value.startsWith('62')) {
+          if (value.startsWith('0')) {
+            value = '62' + value.substring(1);
+          } else {
+            value = '62' + value;
+          }
+        }
+
+        // Limit to reasonable length
+        if (value.length > 15) {
+          value = value.substring(0, 15);
+        }
+
+        e.target.value = value;
+      });
+
+      // Close modal when clicking outside
+      forgotPasswordModal.addEventListener('click', (e) => {
+        if (e.target === forgotPasswordModal) {
+          forgotPasswordModal.classList.add('hidden');
+          currentVerificationCode = null;
+          currentPhoneNumber = null;
+        }
+      });
+    });
+  </script>
+</body>
+</html>
