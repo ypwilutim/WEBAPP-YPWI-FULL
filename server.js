@@ -581,6 +581,51 @@ app.put('/api/profile-complete/:teacherId', async (req, res) => {
   }
 });
 
+// Public search endpoint for teachers (no auth required)
+app.get('/api/search/teachers', async (req, res) => {
+  try {
+    const searchTerm = req.query.q || '';
+    const limit = parseInt(req.query.limit) || 50;
+
+    let query = `
+      SELECT
+        t.id, t.nama, t.nik, t.nip, t.email, t.status_aktif,
+        CASE WHEN u.id IS NOT NULL THEN 1 ELSE 0 END as has_user,
+        GROUP_CONCAT(DISTINCT CONCAT(ta.tenant_id, ':', ta.jabatan_di_unit, ':', tn.nama_sekolah)) as assignments
+      FROM teachers t
+      LEFT JOIN teacher_assignments ta ON t.id = ta.teacher_id
+      LEFT JOIN tenants tn ON ta.tenant_id = tn.tenant_id
+      LEFT JOIN users u ON t.email = u.username AND u.role = 'guru'
+      WHERE t.status_aktif = 1
+    `;
+    let params = [];
+
+    if (searchTerm) {
+      query += ' AND t.nama LIKE ?';
+      params.push(`%${searchTerm}%`);
+    }
+
+    query += ' GROUP BY t.id ORDER BY t.nama ASC LIMIT ?';
+    params.push(limit);
+
+    const teachers = await db.query(query, params);
+
+    // Format assignments
+    const formattedTeachers = teachers.map(teacher => ({
+      ...teacher,
+      assignments: teacher.assignments ? teacher.assignments.split(',').map(a => {
+        const [tenant_id, jabatan, nama_sekolah] = a.split(':');
+        return { tenant_id, jabatan_di_unit: jabatan, nama_sekolah };
+      }) : []
+    }));
+
+    res.json({ success: true, data: formattedTeachers });
+  } catch (error) {
+    console.error('Public teacher search error:', error);
+    res.status(500).json({ success: false, message: 'Error searching teachers' });
+  }
+});
+
 // Public endpoint for WhatsApp notifications (used in profile completion)
 app.post('/api/send-whatsapp-public', async (req, res) => {
   try {
