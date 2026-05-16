@@ -14,6 +14,7 @@ const fs = require('fs');
 const rateLimit = require('express-rate-limit');
 const helmet = require('helmet');
 const axios = require('axios');
+const PDFKit = require('pdfkit');
 const db = require('./db');
 
 // Native fetch is available in modern Node.js, no import needed
@@ -204,45 +205,61 @@ const teacherUpload = multer({
 app.use(cors());
 app.use(express.static('public'));
 
+const logFilePath = path.join(__dirname, 'logs', 'app.log');
+// Ensure logs directory exists
+if (!fs.existsSync(path.join(__dirname, 'logs'))) {
+  fs.mkdirSync(path.join(__dirname, 'logs'));
+}
 const logger = {
-  request: (req, message = '') => {
-    const timestamp = new Date().toISOString();
-    const { method, url, headers, body } = req;
-    const safeBody = { ...body };
-    if (safeBody.password) safeBody.password = '[HIDDEN]';
-    console.log(`[${timestamp}] 🌍 REQUEST  | ${method.padEnd(6)} | ${url.padEnd(40)} | Body: ${JSON.stringify(safeBody)}`);
-  },
-  response: (req, res, statusCode) => {
-    const timestamp = new Date().toISOString();
-    console.log(`[${timestamp}] 📤 RESPONSE | ${req.method.padEnd(6)} | ${req.url.padEnd(40)} | Status: ${statusCode}`);
-  },
-  loginDebug: {
-    receivedData: (data) => {
-      const timestamp = new Date().toISOString();
-      const safeData = { ...data };
-      if (safeData.password) safeData.password = '[HIDDEN]';
-      console.log(`[${timestamp}] 🔐 LOGIN_DEBUG | [1/3] Data received from body:`, JSON.stringify(safeData));
-    },
-    queryResult: (user) => {
-      const timestamp = new Date().toISOString();
-      if (user) {
-        console.log(`[${timestamp}] 🔐 LOGIN_DEBUG | [2/3] User found in DB:`, JSON.stringify({ id: user.id, username: user.username, role: user.role, tenant_id: user.tenant_id, guru_id: user.guru_id, hasPassword: !!user.password, is_profile_complete: user.is_profile_complete }));
-      } else {
-        console.log(`[${timestamp}] 🔐 LOGIN_DEBUG | [2/3] No records found`);
-      }
-    },
-    passwordCheck: (isValid) => {
-      const timestamp = new Date().toISOString();
-      console.log(`[${timestamp}] 🔐 LOGIN_DEBUG | [3/3] Password comparison result: ${isValid ? '✅ MATCH' : '❌ MISMATCH'}`);
-    }
-  },
-  error: (error, context = '') => {
-    const timestamp = new Date().toISOString();
-    console.error(`\n[${timestamp}] ❌ ERROR    | Context: ${context}`);
-    console.error(`[${timestamp}] ❌ ERROR    | Message: ${error.message}`);
-    console.error(`[${timestamp}] ❌ ERROR    | Stack Trace:\n${error.stack}\n`);
-  },
-};
+   request: (req, message = '') => {
+     const timestamp = new Date().toISOString();
+     const { method, url, headers, body } = req;
+     const safeBody = { ...body };
+     if (safeBody.password) safeBody.password = '[HIDDEN]';
+     const logMessage = `[${timestamp}] 🌍 REQUEST  | ${method.padEnd(6)} | ${url.padEnd(40)} | Body: ${JSON.stringify(safeBody)}`;
+     console.log(logMessage);
+     fs.appendFileSync(logFilePath, logMessage + '\n', 'utf8');
+   },
+   response: (req, res, statusCode) => {
+     const timestamp = new Date().toISOString();
+     const logMessage = `[${timestamp}] 📤 RESPONSE | ${req.method.padEnd(6)} | ${req.url.padEnd(40)} | Status: ${statusCode}`;
+     console.log(logMessage);
+     fs.appendFileSync(logFilePath, logMessage + '\n', 'utf8');
+   },
+   loginDebug: {
+     receivedData: (data) => {
+       const timestamp = new Date().toISOString();
+       const safeData = { ...data };
+       if (safeData.password) safeData.password = '[HIDDEN]';
+        const logMessage = `[${timestamp}] 🔐 LOGIN_DEBUG | [1/3] Data received from body: ${JSON.stringify(safeData)}`;
+       console.log(logMessage);
+       fs.appendFileSync(logFilePath, logMessage + '\n', 'utf8');
+     },
+     queryResult: (user) => {
+       const timestamp = new Date().toISOString();
+       let logMessage;
+       if (user) {
+          logMessage = `[${timestamp}] 🔐 LOGIN_DEBUG | [2/3] User found in DB: ${JSON.stringify({ id: user.id, username: user.username, role: user.role, tenant_id: user.tenant_id, guru_id: user.guru_id, hasPassword: !!user.password, is_profile_complete: user.is_profile_complete })}`;
+       } else {
+         logMessage = `[${timestamp}] 🔐 LOGIN_DEBUG | [2/3] No records found`;
+       }
+       console.log(logMessage);
+       fs.appendFileSync(logFilePath, logMessage + '\n', 'utf8');
+     },
+     passwordCheck: (isValid) => {
+       const timestamp = new Date().toISOString();
+       const logMessage = `[${timestamp}] 🔐 LOGIN_DEBUG | [3/3] Password comparison result: ${isValid ? '✅ MATCH' : '❌ MISMATCH'}`;
+       console.log(logMessage);
+       fs.appendFileSync(logFilePath, logMessage + '\n', 'utf8');
+     }
+   },
+   error: (error, context = '') => {
+     const timestamp = new Date().toISOString();
+     const logMessage = `\n[${timestamp}] ❌ ERROR    | Context: ${context}\n[${timestamp}] ❌ ERROR    | Message: ${error.message}\n[${timestamp}] ❌ ERROR    | Stack Trace:\n${error.stack}\n`;
+     console.error(logMessage);
+     fs.appendFileSync(logFilePath, logMessage + '\n', 'utf8');
+   },
+ };
 
 // Request logging middleware
 app.use((req, res, next) => {
@@ -1220,21 +1237,313 @@ JOIN teacher_assignments ta ON t.id = ta.teacher_id AND ta.tenant_id = ?
     }
 
     if (statusFilter && statusFilter !== '') {
-      query += ' AND al.status = ?';
-      params.push(statusFilter);
+       query += ' AND al.status = ?';
+       params.push(statusFilter);
+     }
+
+     query += ' ORDER BY al.waktu_scan DESC LIMIT 100';
+
+     const logs = await db.query(query, params);
+
+     res.json({
+       success: true,
+       data: logs
+     });
+} catch (error) {
+      console.error('Admin attendance logs error:', error);
+      res.status(500).json({ success: false, message: 'Error fetching attendance logs' });
+    }
+  });
+
+  // ====================  MONTHLY ATTENDANCE REPORT (PDF)  ====================
+/**
+ * Generate a landscape PDF with daily attendance columns (1-31) for a month.
+ * Query parameters:
+ *   tenant_id   – school tenant (required)
+ *   month       – 1-12 (optional, defaults to current month)
+ *   year        – four-digit year (optional, defaults to current year)
+ */
+app.get('/api/admin/monthly-report/pdf', authenticateOperator, async (req, res) => {
+  try {
+    const { tenant_id, month, year } = req.query;
+    if (!tenant_id) {
+      return res.status(400).json({ success: false, message: 'tenant_id is required' });
     }
 
-    query += ' ORDER BY al.waktu_scan DESC LIMIT 100';
+    const m = parseInt(month, 10) || new Date().getMonth() + 1;
+    const y = parseInt(year, 10) || new Date().getFullYear();
 
-    const logs = await db.query(query, params);
+    // Get last day of month
+    const lastDay = new Date(y, m, 0).getDate();
 
-    res.json({
-      success: true,
-      data: logs
+    // Get tenant name
+    const tenantRows = await db.query('SELECT nama_sekolah FROM tenants WHERE tenant_id = ?', [tenant_id]);
+    const tenantName = tenantRows[0]?.nama_sekolah || tenant_id;
+
+    // Fetch attendance logs for the month with daily data
+    const logs = await db.query(
+      `SELECT
+        t.id as teacher_id,
+        t.nama as teacher_name,
+        a.jenis,
+        DATE(a.waktu_scan) as tanggal,
+        TIME(a.waktu_scan) as jam
+      FROM teachers t
+      JOIN teacher_assignments ta ON t.id = ta.teacher_id
+      LEFT JOIN attendance_logs a ON t.id = a.teacher_id
+        AND MONTH(a.waktu_scan) = ? AND YEAR(a.waktu_scan) = ?
+      WHERE ta.tenant_id = ? AND t.status_aktif = 1
+      ORDER BY t.nama, tanggal, a.jenis`,
+      [m, y, tenant_id]
+    );
+
+    // Organize data per teacher per date (include all active teachers)
+    const teacherData = {};
+    logs.forEach(row => {
+      // Add teacher if not exists (for teachers with no attendance)
+      if (!teacherData[row.teacher_id]) {
+        teacherData[row.teacher_id] = { name: row.teacher_name, dates: {} };
+      }
+      // Only add attendance data if exists
+      if (row.jenis === 'masuk' || row.jenis === 'pulang') {
+        const dateNum = parseInt(row.tanggal?.split('-')[2]) || 0;
+        if (!teacherData[row.teacher_id].dates[dateNum]) {
+          teacherData[row.teacher_id].dates[dateNum] = { masuk: '', pulang: '' };
+        }
+        if (row.jenis === 'masuk') {
+          teacherData[row.teacher_id].dates[dateNum].masuk = row.jam ? row.jam.substring(0, 5) : '';
+        } else {
+          teacherData[row.teacher_id].dates[dateNum].pulang = row.jam ? row.jam.substring(0, 5) : '';
+        }
+      }
     });
-  } catch (error) {
-    console.error('Admin attendance logs error:', error);
-    res.status(500).json({ success: false, message: 'Error fetching attendance logs' });
+
+    // Create PDF in Landscape
+    const doc = new PDFKit({ size: 'A4', layout: 'landscape', margin: 20 });
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename="rekap_absensi_${tenant_id}_${y}_${String(m).padStart(2,'0')}.pdf"`);
+    doc.pipe(res);
+
+    // Declare pageWidth at the top (needed for header image and table calculations)
+    const pageWidth = doc.page.width - 40;
+
+    // Add header image on first page only (full width, maintain aspect ratio)
+    const headerPath = path.join(__dirname, 'template', 'header-yayasan-landscape.png');
+    if (fs.existsSync(headerPath)) {
+      doc.image(headerPath, 20, 20, { width: pageWidth });
+      doc.y = 80; // Ensure content starts below the header image
+    }
+
+    // Header text (below header image)
+    doc.fontSize(16).font('Helvetica-Bold').text('REKAP ABSENSI BULANAN', { align: 'center' });
+    doc.fontSize(11).font('Helvetica').text(`Sekolah: ${tenantName} | Bulan: ${new Date(y, m - 1).toLocaleString('id-ID', { month: 'long' })} ${y}`, { align: 'center' });
+    doc.moveDown(0.3);
+
+    // Calculate dynamic column widths
+    let dateColWidth = 22;
+    if (lastDay > 0) {
+      dateColWidth = Math.max(15, Math.floor((pageWidth - 90) / lastDay)); // Dynamic width, min 15px
+    }
+    const colWidths = [20, 70]; // No, Nama
+    for (let i = 1; i <= lastDay; i++) {
+      colWidths.push(dateColWidth);
+    }
+
+    let currentX = 20;
+    let headerY = doc.y;
+
+    // Draw table header background
+    doc.rect(20, headerY, pageWidth, 25).fillColor('#047517').fill();
+
+    // Header cells
+    doc.fillColor('#ffffff').fontSize(8).font('Helvetica-Bold');
+    let x = 20;
+
+    // No column
+    doc.text('No', x + 2, headerY + 7, { width: 16, align: 'center' });
+    x += colWidths[0];
+
+    // Nama Guru column
+    doc.text('Nama', x + 2, headerY + 7, { width: 66, align: 'center' });
+    x += colWidths[1];
+
+    // Date columns
+    for (let d = 1; d <= lastDay; d++) {
+      const dayNames = ['Mg', 'Sn', 'Sl', 'Ra', 'Ka', 'Ju', 'Sa'];
+      const dayOfWeek = new Date(y, m - 1, d).getDay();
+      const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+      doc.text(`${d}\n${dayNames[dayOfWeek]}`, x + 1, headerY + 7, { width: dateColWidth - 2, align: 'center' });
+      x += colWidths[2];
+    }
+
+    doc.font('Helvetica').fontSize(7);
+
+    // Table rows
+    let rowY = headerY + 25;
+    let rowHeight = 22;
+    let pageNum = 1;
+    let rowIndex = 0;
+
+    for (const [teacherId, data] of Object.entries(teacherData)) {
+      // Check page overflow
+      if (rowY + rowHeight > 560) {
+        doc.addPage({ size: 'A4', layout: 'landscape' });
+        rowY = 70; // Start below header on new page
+        pageNum++;
+        // Redraw header on new page
+        doc.rect(20, rowY - 35, pageWidth, 25).fillColor('#047517').fill();
+        doc.fillColor('#ffffff').fontSize(8).font('Helvetica-Bold');
+        x = 20;
+        doc.text('No', x + 2, rowY - 28, { width: 16, align: 'center' });
+        x += colWidths[0];
+        doc.text('Nama', x + 2, rowY - 28, { width: 66, align: 'center' });
+        x += colWidths[1];
+        for (let d = 1; d <= lastDay; d++) {
+          const dayNames = ['Mg', 'Sn', 'Sl', 'Ra', 'Ka', 'Ju', 'Sa'];
+          const dayOfWeek = new Date(y, m - 1, d).getDay();
+          doc.text(`${d}\n${dayNames[dayOfWeek]}`, x + 1, rowY - 28, { width: dateColWidth - 2, align: 'center' });
+          x += colWidths[2];
+        }
+        doc.font('Helvetica').fontSize(7);
+      }
+      
+
+      // Draw row background (alternating)
+      if (rowIndex % 2 === 0) {
+        doc.rect(20, rowY, pageWidth, rowHeight).fillColor('#f9fafb').fill();
+      }
+
+      // Draw cell borders and content
+      x = 20;
+      doc.fillColor('#000000');
+
+      // No
+      doc.text((rowIndex + 1).toString(), x + 2, rowY + 5, { width: 16, align: 'center' });
+      x += colWidths[0];
+
+      // Nama
+      doc.text(data.name, x + 2, rowY + 5, { width: 66, align: 'left' });
+      x += colWidths[1];
+
+      // Date cells with conditional weekend coloring
+      for (let d = 1; d <= lastDay; d++) {
+        const dayOfWeek = new Date(y, m - 1, d).getDay();
+        const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+        const cellData = data.dates[d] || { masuk: '', pulang: '' };
+
+        if (isWeekend) {
+          doc.rect(x, rowY, colWidths[2], rowHeight).fillColor('#fef2f2').fill();
+        }
+
+        const masukJam = cellData.masuk || '-';
+        const pulangJam = cellData.pulang || '-';
+        doc.fillColor('#000000').text(`${masukJam}\n${pulangJam}`, x + 1, rowY + 5, { width: dateColWidth - 2, align: 'center' });
+        x += colWidths[2];
+      }
+
+      // Draw vertical borders for this row
+      doc.rect(20, rowY, pageWidth, rowHeight).strokeColor('#d1d5db').lineWidth(0.3).stroke();
+
+      rowY += rowHeight;
+      rowIndex++;
+    }
+
+    doc.end();
+  } catch (err) {
+    console.error('[MONTHLY REPORT PDF] Error:', err);
+    res.status(500).json({ success: false, message: 'Failed to generate PDF' });
+  }
+});
+
+// Monthly Attendance Report HTML - for in-browser view
+app.get('/api/admin/monthly-report/html', authenticateOperator, async (req, res) => {
+  try {
+    const { tenant_id, month, year } = req.query;
+    if (!tenant_id) {
+      return res.status(400).json({ success: false, message: 'tenant_id is required' });
+    }
+
+    const m = parseInt(month, 10) || new Date().getMonth() + 1;
+    const y = parseInt(year, 10) || new Date().getFullYear();
+    const lastDay = new Date(y, m, 0).getDate();
+
+    const tenantRows = await db.query('SELECT nama_sekolah FROM tenants WHERE tenant_id = ?', [tenant_id]);
+    const tenantName = tenantRows[0]?.nama_sekolah || tenant_id;
+
+    const logs = await db.query(
+      `SELECT t.id as teacher_id, t.nama as teacher_name, a.jenis, DATE(a.waktu_scan) as tanggal, TIME(a.waktu_scan) as jam
+       FROM teachers t
+       JOIN teacher_assignments ta ON t.id = ta.teacher_id
+       LEFT JOIN attendance_logs a ON t.id = a.teacher_id AND MONTH(a.waktu_scan) = ? AND YEAR(a.waktu_scan) = ?
+       WHERE ta.tenant_id = ? AND t.status_aktif = 1
+       ORDER BY t.nama, tanggal, a.jenis`,
+      [m, y, tenant_id]
+    );
+
+    const teacherData = {};
+    logs.forEach(row => {
+      // Add teacher if not exists (for teachers with no attendance)
+      if (!teacherData[row.teacher_id]) {
+        teacherData[row.teacher_id] = { name: row.teacher_name, dates: {} };
+      }
+      // Only add attendance data if exists
+      if (row.jenis === 'masuk' || row.jenis === 'pulang') {
+        const dateNum = parseInt(row.tanggal?.split('-')[2]) || 0;
+        if (!teacherData[row.teacher_id].dates[dateNum]) {
+          teacherData[row.teacher_id].dates[dateNum] = { masuk: '', pulang: '' };
+        }
+        if (row.jenis === 'masuk') {
+          teacherData[row.teacher_id].dates[dateNum].masuk = row.jam ? row.jam.substring(0, 5) : '';
+        } else {
+          teacherData[row.teacher_id].dates[dateNum].pulang = row.jam ? row.jam.substring(0, 5) : '';
+        }
+      }
+    });
+
+    const monthNames = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+    const dayNames = ['Mg', 'Sn', 'Sl', 'Ra', 'Ka', 'Ju', 'Sa'];
+
+    let html = `<div class="overflow-x-auto">
+      <table class="w-full text-xs border-collapse">
+        <thead>
+          <tr class="bg-blue-600 text-white">
+            <th class="border border-gray-300 px-2 py-1 w-10">No</th>
+            <th class="border border-gray-300 px-2 py-1 w-40">Nama</th>`;
+    
+    for (let d = 1; d <= lastDay; d++) {
+      const dow = new Date(y, m - 1, d).getDay();
+      const isWeekend = dow === 0 || dow === 6;
+      html += `<th class="border border-gray-300 px-1 py-1 w-12 ${isWeekend ? 'bg-red-50' : ''}">${d}<br><span class="text-[10px]">${dayNames[dow]}</span></th>`;
+    }
+    
+    html += `</tr></thead><tbody>`;
+    
+    let rowIndex = 0;
+    for (const [teacherId, data] of Object.entries(teacherData)) {
+      html += `<tr class="${rowIndex % 2 === 0 ? 'bg-gray-50' : 'bg-white'} hover:bg-blue-50">
+        <td class="border border-gray-300 px-2 py-1 text-center">${rowIndex + 1}</td>
+        <td class="border border-gray-300 px-2 py-1 font-medium">${data.name}</td>`;
+      
+      for (let d = 1; d <= lastDay; d++) {
+        const dow = new Date(y, m - 1, d).getDay();
+        const isWeekend = dow === 0 || dow === 6;
+        const cellData = data.dates[d] || { masuk: '', pulang: '' };
+        html += `<td class="border border-gray-300 px-1 py-1 text-center ${isWeekend ? 'bg-red-50' : ''}"><div class="text-[10px] leading-tight">${cellData.masuk || '-'}<br>${cellData.pulang || '-'}</div></td>`;
+      }
+      
+      html += `</tr>`;
+      rowIndex++;
+    }
+    
+    html += `</tbody></table></div>
+      <div class="mt-4 text-xs text-gray-600">
+        <p><strong>Keterangan:</strong> Format: Jam Masuk / Jam Pulang. Kolom berwarna merah adalah akhir pekan.</p>
+      </div>`;
+
+    res.send(html);
+  } catch (err) {
+    console.error('[MONTHLY REPORT HTML] Error:', err);
+    res.status(500).send('<p class="text-red-500">Gagal memuat rekap bulanan</p>');
   }
 });
 
@@ -3630,19 +3939,409 @@ Terima kasih telah melakukan absensi!`;
     }
   });
 
-  // ============================================
-  // END SCANNER DEVICE ATTENDANCE ENDPOINTS
-  // ============================================
+// ============================================
+    // EVALUATION ENDPOINTS
+    // ============================================
+    
+    // Get teachers for evaluation (by evaluator's tenant)
+    app.get('/api/evaluations/teachers', authenticateToken, async (req, res) => {
+      try {
+        let tenantId = req.query.tenant_id;
+        
+        // Determine accessible tenants based on user role
+        if (req.user.role === 'admin' && !tenantId) {
+          return res.status(400).json({ success: false, message: 'tenant_id required for admin' });
+        }
+        
+        // For guru with kepala_sekolah/pimpinan_pondok role, use their assigned tenant
+        if (!tenantId) {
+          const assignments = req.user.assignments || [];
+          const relevantAssignments = assignments.filter(a => 
+            ['kepala_sekolah', 'pimpinan_pondok'].includes((a.jabatan_di_unit || '').toLowerCase().replace(/\s/g, ''))
+          );
+          if (relevantAssignments.length > 0) {
+            tenantId = relevantAssignments[0].tenant_id;
+          }
+        }
+        
+        if (!tenantId) {
+          return res.status(400).json({ success: false, message: 'No accessible tenant found' });
+        }
+        
+        // Verify access for non-admin
+        if (req.user.role === 'guru') {
+          const assignments = req.user.assignments || [];
+          const hasAccess = assignments.some(a => 
+            a.tenant_id === tenantId && 
+            ['kepala_sekolah', 'pimpinan_pondok'].includes((a.jabatan_di_unit || '').toLowerCase().replace(/\s/g, ''))
+          );
+          if (!hasAccess) {
+            return res.status(403).json({ success: false, message: 'Access denied to this tenant' });
+          }
+        }
+        
+        // Get teachers for this tenant
+        const teachers = await db.query(`
+          SELECT t.id, t.nama, t.scan_id, t.jenis_kelamin
+          FROM teachers t
+          JOIN teacher_assignments ta ON t.id = ta.teacher_id
+          WHERE ta.tenant_id = ? AND t.status_aktif = 1
+          ORDER BY t.nama ASC
+        `, [tenantId]);
+        
+        res.json({ success: true, data: teachers });
+      } catch (error) {
+        console.error('Get teachers for evaluation error:', error);
+        res.status(500).json({ success: false, message: 'Error fetching teachers' });
+      }
+    });
 
-  app.listen(PORT, '0.0.0.0', () => {
-    console.log('🚀 Server YPWI Lutim berjalan di http://localhost:' + PORT);
-    console.log('🌐 Juga dapat diakses di http://0.0.0.0:' + PORT + ' atau IP lokal Anda');
-    console.log('🔐 Login endpoint: POST /api/auth/login');
-    console.log('📊 Dashboard endpoint: GET /api/dashboard (protected)');
-    console.log('📱 Scanner endpoints: POST /api/scanner/attendance, POST /api/scanner/register');
-    console.log('🔍 QR Generator: GET /api/scanner/qr/generate?scan_id=XXX');
-  });
-}
+    // Get my evaluations (for kepala sekolah/pimpinan pondok to see their given evaluations)
+    app.get('/api/evaluations/my-evaluations', authenticateToken, async (req, res) => {
+      try {
+        if (req.user.role !== 'guru' && req.user.role !== 'admin') {
+          return res.status(403).json({ success: false, message: 'Access denied' });
+        }
+        
+        let query = `
+          SELECT e.*, t.nama as teacher_name, tn.nama_sekolah
+          FROM evaluations e
+          JOIN teachers t ON e.teacher_id = t.id
+          LEFT JOIN tenants tn ON e.tenant_id = tn.tenant_id
+          WHERE 1=1
+        `;
+        let params = [];
+        
+        if (req.user.role === 'guru') {
+          query += ' AND e.evaluator_id = ?';
+          params.push(req.user.id);
+        }
+        
+        query += ' ORDER BY e.evaluation_date DESC, e.created_at DESC LIMIT 100';
+        
+        const evaluations = await db.query(query, params);
+        res.json({ success: true, data: evaluations });
+      } catch (error) {
+        console.error('Get my evaluations error:', error);
+        res.status(500).json({ success: false, message: 'Error fetching evaluations' });
+      }
+    });
+
+    // Get evaluations summary (average score per teacher)
+    app.get('/api/evaluations/summary', authenticateToken, async (req, res) => {
+      try {
+        let tenantId = req.query.tenant_id;
+        
+        // Determine accessible tenant for non-admin
+        if (req.user.role === 'guru' && !tenantId) {
+          const assignments = req.user.assignments || [];
+          const relevantAssignments = assignments.filter(a => 
+            ['kepala_sekolah', 'pimpinan_pondok'].includes((a.jabatan_di_unit || '').toLowerCase().replace(/\s/g, ''))
+          );
+          if (relevantAssignments.length > 0) {
+            tenantId = relevantAssignments[0].tenant_id;
+          }
+        }
+        
+        let query = `
+          SELECT 
+            t.id as teacher_id,
+            t.nama as teacher_name,
+            COALESCE(AVG(e.score), 0) as avg_score,
+            COUNT(e.id) as evaluation_count
+          FROM teachers t
+          JOIN teacher_assignments ta ON t.id = ta.teacher_id
+          LEFT JOIN evaluations e ON t.id = e.teacher_id
+        `;
+        let params = [];
+        let whereAdded = false;
+        
+        if (tenantId) {
+          query += ' WHERE ta.tenant_id = ?';
+          params.push(tenantId);
+          whereAdded = true;
+        }
+        
+        query += ' GROUP BY t.id, t.nama ORDER BY avg_score DESC';
+        
+        const summary = await db.query(query, params);
+        res.json({ success: true, data: summary });
+      } catch (error) {
+        console.error('Get evaluations summary error:', error);
+        res.status(500).json({ success: false, message: 'Error fetching summary' });
+      }
+    });
+
+    // Create evaluation
+    app.post('/api/evaluations', authenticateToken, async (req, res) => {
+      try {
+        const { teacher_id, score, category, notes, evaluation_date } = req.body;
+        
+        if (!teacher_id || score === undefined) {
+          return res.status(400).json({ success: false, message: 'teacher_id and score required' });
+        }
+        
+        // Validate score (1-5)
+        if (score < 1 || score > 5) {
+          return res.status(400).json({ success: false, message: 'Score must be between 1 and 5' });
+        }
+        
+        // Determine tenant from teacher's assignment
+        const [assignment] = await db.query(
+          'SELECT tenant_id FROM teacher_assignments WHERE teacher_id = ? LIMIT 1',
+          [teacher_id]
+        );
+        
+        if (!assignment) {
+          return res.status(404).json({ success: false, message: 'Teacher not found or not assigned to any tenant' });
+        }
+        
+        const tenant_id = assignment.tenant_id;
+        
+        // Verify evaluator access - only kepala_sekolah/pimpinan_pondok can evaluate
+        if (req.user.role === 'guru') {
+          const assignments = req.user.assignments || [];
+          const hasAccess = assignments.some(a => 
+            a.tenant_id === tenant_id && 
+            ['kepala_sekolah', 'pimpinan_pondok'].includes((a.jabatan_di_unit || '').toLowerCase().replace(/\s/g, ''))
+          );
+          if (!hasAccess) {
+            return res.status(403).json({ success: false, message: 'Only kepala sekolah or pimpinan pondok can evaluate teachers' });
+          }
+        } else if (req.user.role === 'admin') {
+          // Admin can evaluate anyone - access granted
+        } else {
+          return res.status(403).json({ success: false, message: 'Insufficient permissions' });
+        }
+        
+        const evaluator_id = req.user.id;
+        
+        const result = await db.query(
+          `INSERT INTO evaluations (teacher_id, evaluator_id, tenant_id, score, category, notes, evaluation_date) 
+           VALUES (?, ?, ?, ?, ?, ?, ?)`,
+          [teacher_id, evaluator_id, tenant_id, score, category || 'kehadiran', notes || '', evaluation_date || new Date().toISOString().split('T')[0]]
+        );
+        
+        res.json({ success: true, message: 'Evaluation recorded', data: { id: result.insertId } });
+      } catch (error) {
+        console.error('Create evaluation error:', error);
+        res.status(500).json({ success: false, message: 'Error creating evaluation' });
+      }
+    });
+
+    // Get evaluations (for viewing)
+    app.get('/api/evaluations', authenticateToken, async (req, res) => {
+      try {
+        let tenantId = req.query.tenant_id;
+        const teacherId = req.query.teacher_id;
+        
+        // Determine accessible tenant for non-admin
+        if (req.user.role === 'guru' && !tenantId) {
+          const assignments = req.user.assignments || [];
+          const relevantAssignments = assignments.filter(a => 
+            ['kepala_sekolah', 'pimpinan_pondok'].includes((a.jabatan_di_unit || '').toLowerCase().replace(/\s/g, ''))
+          );
+          if (relevantAssignments.length > 0) {
+            tenantId = relevantAssignments[0].tenant_id;
+          }
+        }
+        
+        let query = `
+          SELECT e.*, t.nama as teacher_name, u.username as evaluator_name
+          FROM evaluations e
+          JOIN teachers t ON e.teacher_id = t.id
+          JOIN users u ON e.evaluator_id = u.id
+          WHERE 1=1
+        `;
+        const params = [];
+        
+        if (tenantId) {
+          query += ' AND e.tenant_id = ?';
+          params.push(tenantId);
+        }
+        
+        if (teacherId) {
+          query += ' AND e.teacher_id = ?';
+          params.push(teacherId);
+        }
+        
+        query += ' ORDER BY e.evaluation_date DESC, e.created_at DESC LIMIT 100';
+        
+        const evaluations = await db.query(query, params);
+        
+        res.json({ success: true, data: evaluations });
+      } catch (error) {
+        console.error('Get evaluations error:', error);
+        res.status(500).json({ success: false, message: 'Error fetching evaluations' });
+      }
+    });
+
+// ============================================
+    // AUTOMATIC EVALUATION FROM ATTENDANCE
+    // ============================================
+
+    async function calculateAutoEvaluation(teacher_id, tenant_id, month = null) {
+      if (!month) {
+        const now = new Date();
+        month = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
+      }
+
+      try {
+        const stats = await db.query(`
+          SELECT 
+            COUNT(*) as total_days,
+            SUM(CASE WHEN status = 'hadir' THEN 1 ELSE 0 END) as present_days,
+            SUM(CASE WHEN status = 'telat' THEN 1 ELSE 0 END) as late_days,
+            SUM(CASE WHEN status = 'alpha' OR status IS NULL THEN 1 ELSE 0 END) as alpha_days
+          FROM absensi 
+          WHERE teacher_id = ? AND tenant_id = ? AND DATE_FORMAT(waktu_scan, '%Y-%m') = ?
+          AND (status = 'hadir' OR status = 'telat' OR status = 'alpha')
+        `, [teacher_id, tenant_id, month]);
+
+        const stat = stats[0] || { total_days: 0, present_days: 0, late_days: 0, alpha_days: 0 };
+        
+        let score = 0;
+        if (stat.total_days > 0) {
+          const rate = (stat.present_days / stat.total_days) * 100;
+          if (rate >= 95) score = 5.0;
+          else if (rate >= 90) score = 4.5;
+          else if (rate >= 85) score = 4.0;
+          else if (rate >= 80) score = 3.5;
+          else if (rate >= 75) score = 3.0;
+          else if (rate >= 70) score = 2.5;
+          else if (rate >= 65) score = 2.0;
+          else score = 1.0;
+        }
+
+        return {
+          score: parseFloat(score.toFixed(2)),
+          total_days: stat.total_days,
+          present_days: stat.present_days,
+          late_days: stat.late_days,
+          alpha_days: stat.alpha_days
+        };
+      } catch (error) {
+        console.error('Auto evaluation error:', error);
+        return { score: 0, total_days: 0, present_days: 0, late_days: 0, alpha_days: 0 };
+      }
+    }
+
+    // Run auto evaluation for all teachers
+    app.post('/api/evaluations/auto-calculate', authenticateToken, async (req, res) => {
+      try {
+        const userRole = req.user.role;
+        const isAdmin = userRole === 'admin';
+        
+        // Get user's assigned tenant if not admin
+        let tenantId = null;
+        if (!isAdmin) {
+          const assignments = await db.query(
+            'SELECT tenant_id FROM teacher_assignments WHERE user_id = ? AND jabatan_di_unit IN (?, ?) LIMIT 1',
+            [req.user.id, 'kepala_sekolah', 'pimpinan_pondok']
+          );
+          if (assignments.length === 0) {
+            return res.status(403).json({ success: false, message: 'Akses ditolak' });
+          }
+          tenantId = assignments[0].tenant_id;
+        }
+
+        // Get teachers based on role
+        let teachers;
+        if (isAdmin) {
+          teachers = await db.query('SELECT id, tenant_id FROM teachers WHERE status_aktif = 1');
+        } else {
+          teachers = await db.query('SELECT id, tenant_id FROM teachers WHERE status_aktif = 1 AND tenant_id = ?', [tenantId]);
+        }
+        
+        const results = [];
+
+        for (const teacher of teachers) {
+          const evalData = await calculateAutoEvaluation(teacher.id, teacher.tenant_id);
+          
+          if (evalData.total_days > 0 && evalData.score > 0) {
+            await db.query(`
+              INSERT INTO evaluations (teacher_id, evaluator_id, tenant_id, score, category, notes, evaluation_date)
+              VALUES (?, NULL, ?, ?, 'kehadiran', ?, CURDATE())
+              ON DUPLICATE KEY UPDATE score = VALUES(score), notes = VALUES(notes)
+            `, [teacher.id, teacher.tenant_id, evalData.score, `Otomatis: ${evalData.present_days}/${evalData.total_days} hari hadir`]);
+            
+            results.push({ teacher_id: teacher.id, score: evalData.score });
+          }
+        }
+
+        res.json({ success: true, message: `Berhasil menilai ${results.length} guru`, data: results });
+      } catch (error) {
+        console.error('Auto calculate error:', error);
+        res.status(500).json({ success: false, message: 'Error auto calculating evaluations' });
+      }
+    });
+
+    // Get all evaluations (for Ketua Yayasan - admin can see all)
+    app.get('/api/evaluations/all', authenticateToken, async (req, res) => {
+      try {
+        if (req.user.role !== 'admin') {
+          return res.status(403).json({ success: false, message: 'Hanya Ketua Yayasan yang bisa melihat semua nilai' });
+        }
+
+        const query = `
+          SELECT e.*, t.nama as teacher_name, tn.nama_sekolah, u.username as evaluator_name
+          FROM evaluations e
+          JOIN teachers t ON e.teacher_id = t.id
+          JOIN tenants tn ON e.tenant_id = tn.tenant_id
+          LEFT JOIN users u ON e.evaluator_id = u.id
+          ORDER BY e.tenant_id, e.evaluation_date DESC
+        `;
+
+        const evaluations = await db.query(query);
+        res.json({ success: true, data: evaluations });
+      } catch (error) {
+        console.error('Get all evaluations error:', error);
+        res.status(500).json({ success: false, message: 'Error fetching all evaluations' });
+      }
+    });
+
+    // Get evaluation summary across all schools (for Ketua Yayasan dashboard)
+    app.get('/api/evaluations/yayasan-summary', authenticateToken, async (req, res) => {
+      try {
+        if (req.user.role !== 'admin') {
+          return res.status(403).json({ success: false, message: 'Hanya Ketua Yayasan yang bisa melihat ringkasan yayasan' });
+        }
+
+        const summary = await db.query(`
+          SELECT 
+            e.tenant_id,
+            tn.nama_sekolah,
+            COUNT(DISTINCT e.teacher_id) as total_guru,
+            AVG(e.score) as avg_score,
+            MIN(e.score) as min_score,
+            MAX(e.score) as max_score
+          FROM evaluations e
+          JOIN tenants tn ON e.tenant_id = tn.tenant_id
+          WHERE e.evaluation_date >= DATE_SUB(CURDATE(), INTERVAL 3 MONTH)
+          GROUP BY e.tenant_id, tn.nama_sekolah
+          ORDER BY avg_score DESC
+        `);
+
+        res.json({ success: true, data: summary });
+      } catch (error) {
+        console.error('Yayasan summary error:', error);
+        res.status(500).json({ success: false, message: 'Error fetching yayasan summary' });
+      }
+    });
+
+    // ============================================
+    // END EVALUATION ENDPOINTS
+    // ============================================
+
+    app.listen(PORT, '0.0.0.0', () => {
+      console.log('🚀 Server YPWI Lutim berjalan di http://localhost:' + PORT);
+      console.log('🌐 Juga dapat diakses di http://0.0.0.0:' + PORT + ' atau IP lokal Anda');
+      console.log('🔐 Login endpoint: POST /api/auth/login');
+      console.log('📊 Dashboard endpoint: GET /api/dashboard (protected)');
+      console.log('📱 Scanner endpoints: POST /api/scanner/attendance, POST /api/scanner/register');
+      console.log('🔍 QR Generator: GET /api/scanner/qr/generate?scan_id=XXX');
+    });
+  }
 
 startServer().catch(err => {
   console.error('Server start failed:', err.message);

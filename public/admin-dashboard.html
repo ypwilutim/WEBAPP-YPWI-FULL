@@ -59,40 +59,48 @@
         </div>
       </div>
 
-      <nav class="p-4 space-y-2">
-        <button class="nav-item nav-active w-full text-left flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-100" data-tab="dashboard">
-          <i class="fas fa-chart-line"></i>
-          <span>Dashboard</span>
-        </button>
-        <button class="nav-item w-full text-left flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-100" data-tab="teachers">
-          <i class="fas fa-users"></i>
-          <span>Manajemen Guru</span>
-        </button>
-        <button class="nav-item w-full text-left flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-100" data-tab="attendance">
-          <i class="fas fa-clipboard-list"></i>
-          <span>Log Kehadiran</span>
-        </button>
-        <button class="nav-item w-full text-left flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-100" data-tab="whatsapp">
-          <i class="fab fa-whatsapp"></i>
-          <span>Pesan WhatsApp</span>
-        </button>
-        <button class="nav-item w-full text-left flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-100" data-tab="payroll">
-          <i class="fas fa-wallet"></i>
-          <span>Penggajian</span>
-        </button>
-        <button class="nav-item w-full text-left flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-100" data-tab="documents">
-          <i class="fas fa-file-alt"></i>
-          <span>Dokumen HR</span>
-        </button>
-        <button class="nav-item w-full text-left flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-100" data-tab="qr-generator">
-          <i class="fas fa-qrcode"></i>
-          <span>QR Scanner & Generator</span>
-        </button>
-        <button class="nav-item w-full text-left flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-100" data-tab="settings">
-          <i class="fas fa-cog"></i>
-          <span>Pengaturan</span>
-        </button>
-      </nav>
+<nav class="p-4 space-y-2">
+         <button class="nav-item nav-active w-full text-left flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-100" data-tab="dashboard">
+           <i class="fas fa-chart-line"></i>
+           <span>Dashboard</span>
+         </button>
+         <button class="nav-item w-full text-left flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-100" data-tab="teachers">
+           <i class="fas fa-users"></i>
+           <span>Manajemen Guru</span>
+         </button>
+         <button class="nav-item w-full text-left flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-100" data-tab="evaluations">
+           <i class="fas fa-star"></i>
+           <span>Penilaian Guru Otomatis</span>
+         </button>
+         <button class="nav-item w-full text-left flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-100" data-tab="attendance">
+           <i class="fas fa-clipboard-list"></i>
+           <span>Log Kehadiran</span>
+         </button>
+         <button class="nav-item w-full text-left flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-100" data-tab="whatsapp">
+           <i class="fab fa-whatsapp"></i>
+           <span>Pesan WhatsApp</span>
+         </button>
+         <button class="nav-item w-full text-left flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-100" data-tab="payroll">
+           <i class="fas fa-wallet"></i>
+           <span>Penggajian</span>
+         </button>
+         <button class="nav-item w-full text-left flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-100" data-tab="documents">
+           <i class="fas fa-file-alt"></i>
+           <span>Dokumen HR</span>
+         </button>
+         <button class="nav-item w-full text-left flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-100" data-tab="qr-generator">
+           <i class="fas fa-qrcode"></i>
+           <span>QR Scanner & Generator</span>
+         </button>
+         <button class="nav-item w-full text-left flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-100" data-tab="settings">
+           <i class="fas fa-cog"></i>
+           <span>Pengaturan</span>
+         </button>
+         <a href="/template-editor.html" target="_blank" class="w-full text-left flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-100">
+           <i class="fas fa-file-edit"></i>
+           <span>Editor Template PDF</span>
+         </a>
+       </nav>
     </aside>
 
     <!-- Main Content -->
@@ -163,10 +171,10 @@
           </div>
         </div>
 
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-          <h3 class="text-lg font-semibold text-gray-900 mb-4">Statistik Kehadiran Minggu Ini</h3>
-<canvas id="attendanceChart" class="h-64"></canvas>
-        </div>
+          <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Statistik Kehadiran Minggu Ini</h3>
+            <canvas id="attendanceChart" class="h-64"></canvas>
+          </div>
       </div>
 
       <!-- Teachers Tab -->
@@ -238,45 +246,93 @@
         </div>
       </div>
 
-      <!-- Attendance Tab -->
-      <div id="attendanceTab" class="tab-content hidden">
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-          <div class="flex justify-between items-center mb-6">
-            <h3 class="text-lg font-semibold text-gray-900">Log Kehadiran</h3>
-            <div class="flex space-x-2">
-              <input type="date" id="attendanceDateFilter" class="px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-              <select id="attendanceStatusFilter" class="px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                <option value="">Semua Status</option>
-                <option value="tepat_waktu">Tepat Waktu</option>
-                <option value="terlambat">Terlambat</option>
-              </select>
-            </div>
-          </div>
+<!-- Attendance Tab -->
+       <div id="attendanceTab" class="tab-content hidden">
+         <!-- View Toggle -->
+         <div class="flex items-center justify-between mb-4">
+           <div class="flex space-x-2">
+             <button id="logViewBtn" class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium">Log Harian</button>
+             <button id="monthlyViewBtn" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-300">Rekap Bulanan</button>
+           </div>
+           
+         </div>
 
-          <div class="overflow-x-auto">
-            <table class="w-full">
-              <thead class="bg-gray-50 border-b border-gray-100">
-                <tr>
-                  <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Nama Guru</th>
-                  <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">NIP</th>
-                  <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Jenis</th>
-                  <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Waktu</th>
-                  <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Status</th>
-                  <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Metode</th>
-                </tr> 
-              </thead>
-              <tbody id="attendanceTable" class="divide-y divide-gray-100">
-                <tr>
-                  <td colspan="6" class="px-6 py-12 text-center text-gray-500">
-                    <i class="fas fa-spinner fa-spin text-xl mb-2"></i>
-                    <p>Memuat data...</p>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+         <!-- Log Harian View -->
+         <div id="logViewSection">
+           <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+             <div class="flex justify-between items-center mb-6">
+               <h3 class="text-lg font-semibold text-gray-900">Log Kehadiran</h3>
+               <div class="flex space-x-2">
+                 <input type="date" id="attendanceDateFilter" class="px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                 <select id="attendanceStatusFilter" class="px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                   <option value="">Semua Status</option>
+                   <option value="tepat_waktu">Tepat Waktu</option>
+                   <option value="terlambat">Terlambat</option>
+                 </select>
+                 <button onclick="loadAttendanceLogs()" class="px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"><i class="fas fa-sync-alt mr-1"></i>Refresh</button>
+               </div>
+             </div>
+
+             <div class="overflow-x-auto">
+               <table class="w-full">
+                 <thead class="bg-gray-50 border-b border-gray-100">
+                   <tr>
+                     <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Nama Guru</th>
+                     <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">NIP</th>
+                     <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Jenis</th>
+                     <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Waktu</th>
+                     <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Status</th>
+                     <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Metode</th>
+                   </tr> 
+                 </thead>
+                 <tbody id="attendanceTable" class="divide-y divide-gray-100">
+                   <tr>
+                     <td colspan="6" class="px-6 py-12 text-center text-gray-500">
+                       <i class="fas fa-spinner fa-spin text-xl mb-2"></i>
+                       <p>Memuat data...</p>
+                     </td>
+                   </tr>
+                 </tbody>
+               </table>
+             </div>
+           </div>
+         </div>
+
+<!-- Monthly Recap View -->
+            <div id="monthlyRecapSection" class="hidden">
+              <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+               <div class="flex items-center space-x-2 mb-4">
+              <select id="recapTenantSelect" class="px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500">
+                <option value="">Pilih Sekolah...</option>
+              </select>
+              <select id="recapMonthSelect" class="px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500">
+                <option value="1">Januari</option><option value="2">Februari</option><option value="3">Maret</option>
+                <option value="4">April</option><option value="5">Mei</option><option value="6">Juni</option>
+                <option value="7">Juli</option><option value="8">Agustus</option><option value="9">September</option>
+                <option value="10">Oktober</option><option value="11">November</option><option value="12">Desember</option>
+              </select>
+              <select id="recapYearSelect" class="px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500"></select>
+              <button id="searchRecapBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm flex items-center">
+                <i class="fas fa-search mr-2"></i>Cari
+              </button>
+            </div>
+<div class="flex justify-between items-center mb-4">
+                          <div class="flex items-center space-x-2">
+                            <h3 class="text-lg font-semibold text-gray-900">Rekap Absensi Bulanan</h3>
+                            <select id="pdfTemplateSelect" class="px-2 py-1 border border-gray-300 rounded text-sm">
+                              <option value="">Template Default</option>
+                            </select>
+                          </div>
+                          <button onclick="exportMonthlyPdfFromRecap()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm flex items-center">
+                            <i class="fas fa-file-pdf mr-2"></i>Export PDF
+                          </button>
+                        </div>
+                <div id="monthlyRecapContent" class="overflow-x-auto max-h-[600px]">
+                  <p class="text-center text-gray-500 py-8">Pilih bulan, tahun, dan sekolah untuk menampilkan rekap</p>
+                </div>
+              </div>
+            </div>
         </div>
-      </div>
 
       <!-- WhatsApp Tab -->
       <div id="whatsappTab" class="tab-content hidden">
@@ -386,6 +442,42 @@
           <div class="text-center py-12 text-gray-500">
             <i class="fas fa-wallet text-4xl mb-4"></i>
             <p>Fitur penggajian akan diimplementasikan</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Evaluations Tab - For Ketua Yayasan -->
+      <div id="evaluationsTab" class="tab-content hidden">
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+          <div class="flex justify-between items-center mb-6">
+            <div>
+              <h3 class="text-lg font-semibold text-gray-900">Penilaian Guru Otomatis</h3>
+              <p class="text-sm text-gray-600">Nilai otomatis berdasarkan kehadiran</p>
+            </div>
+            <button id="runAutoEvaluation" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700">
+              <i class="fas fa-sync-alt mr-2"></i>Jalankan Auto-Evaluation
+            </button>
+          </div>
+          
+          <div class="mb-6">
+            <h4 class="font-medium text-gray-900 mb-3">Kriteria Penilaian Otomatis</h4>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+              <div class="bg-green-50 p-3 rounded">95-100%: <strong>5.0</strong></div>
+              <div class="bg-green-50 p-3 rounded">90-94%: <strong>4.5</strong></div>
+              <div class="bg-yellow-50 p-3 rounded">85-89%: <strong>4.0</strong></div>
+              <div class="bg-yellow-50 p-3 rounded">80-84%: <strong>3.5</strong></div>
+              <div class="bg-orange-50 p-3 rounded">75-79%: <strong>3.0</strong></div>
+              <div class="bg-orange-50 p-3 rounded">70-74%: <strong>2.5</strong></div>
+              <div class="bg-red-50 p-3 rounded">65-69%: <strong>2.0</strong></div>
+              <div class="bg-red-50 p-3 rounded">&lt;65%: <strong>1.0</strong></div>
+            </div>
+          </div>
+          
+          <div>
+            <h4 class="font-medium text-gray-900 mb-3">Hasil Penilaian Terbaru</h4>
+            <div id="evaluationsResults" class="max-h-96 overflow-y-auto">
+              <p class="text-center text-gray-500 py-8">Belum ada data penilaian</p>
+            </div>
           </div>
         </div>
       </div>
@@ -1359,56 +1451,9 @@
   <script type="module">
     // Global variables for access across the page
     let currentUser = null;
-    let authToken = null;
+  </script>
 
-    // Authentication check with better error handling
-    function checkAuthentication() {
-      try {
-        const token = localStorage.getItem('token');
-        const userData = localStorage.getItem('user');
-
-        console.log('🔐 [AUTH CHECK] Token exists:', !!token);
-        console.log('🔐 [AUTH CHECK] User data exists:', !!userData);
-
-        if (!token) {
-          console.error('❌ [AUTH CHECK] No token found, redirecting to login');
-          window.location.replace('login.html');
-          return;
-        }
-
-        let user;
-        try {
-          user = JSON.parse(userData || '{}');
-          console.log('🔐 [AUTH CHECK] Parsed user:', user);
-        } catch (parseError) {
-          console.error('❌ [AUTH CHECK] Failed to parse user data:', parseError);
-          localStorage.clear();
-          window.location.replace('login.html');
-          return;
-        }
-
-        if (!user || user.role !== 'admin') {
-          console.error('❌ [AUTH CHECK] User not admin or invalid, redirecting to login. User role:', user?.role);
-          localStorage.clear();
-          window.location.replace('login.html');
-          return;
-        }
-
-        // Store user and token globally for page access
-        currentUser = user;
-        authToken = token;
-        console.log('✅ [AUTH CHECK] Authentication successful for admin:', user.username);
-
-      } catch (error) {
-        console.error('❌ [AUTH CHECK] Unexpected error during authentication:', error);
-        localStorage.clear();
-        window.location.replace('login.html');
-      }
-    }
-
-    // Run authentication check
-    checkAuthentication();
-
+  <script>
 let currentTeacherId = null;
      let currentRuleId = null;
      let currentPage = 1;
@@ -1469,7 +1514,7 @@ window.showAddLocationModal = showAddLocationModal;
     async function fetchDashboardData() {
       try {
         const response = await fetch('/api/admin/summary', {
-          headers: { 'Authorization': `Bearer ${authToken}` }
+          headers: { 'Authorization': `Bearer ${window.authToken || localStorage.getItem('token') || ''}` }
         });
 
         if (response.status === 401 || response.status === 403) {
@@ -1495,7 +1540,7 @@ window.showAddLocationModal = showAddLocationModal;
     async function fetchTeachers(page = 1) {
       try {
         const response = await fetch(`/api/admin/teachers?page=${page}&limit=${pageLimit}`, {
-          headers: { 'Authorization': `Bearer ${authToken}` }
+          headers: { 'Authorization': `Bearer ${window.authToken || localStorage.getItem('token') || ''}` }
         });
 
         if (response.status === 401 || response.status === 403) {
@@ -1563,7 +1608,7 @@ window.showAddLocationModal = showAddLocationModal;
     async function fetchRules() {
       try {
         const response = await fetch('/api/admin/rules', {
-          headers: { 'Authorization': `Bearer ${authToken}` }
+          headers: { 'Authorization': `Bearer ${window.authToken || localStorage.getItem('token') || ''}` }
         });
 
         if (response.status === 401 || response.status === 403) {
@@ -1624,7 +1669,7 @@ window.showAddLocationModal = showAddLocationModal;
     async function fetchAttendanceLogs() {
       try {
         const response = await fetch('/api/admin/attendance-logs', {
-          headers: { 'Authorization': `Bearer ${authToken}` }
+          headers: { 'Authorization': `Bearer ${window.authToken || localStorage.getItem('token') || ''}` }
         });
 
         if (response.status === 401 || response.status === 403) {
@@ -1661,7 +1706,7 @@ window.showAddLocationModal = showAddLocationModal;
     async function fetchTenantLocations() {
       try {
         const response = await fetch('/api/admin/tenants', {
-          headers: { 'Authorization': `Bearer ${authToken}` }
+          headers: { 'Authorization': `Bearer ${window.authToken || localStorage.getItem('token') || ''}` }
         });
 
         if (response.status === 401 || response.status === 403) {
@@ -1845,7 +1890,7 @@ window.showAddLocationModal = showAddLocationModal;
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${authToken}`
+            'Authorization': `Bearer ${window.authToken || localStorage.getItem('token') || ''}`
           },
           body: JSON.stringify({ use_central_rules: isChecked })
         });
@@ -1954,7 +1999,7 @@ window.showAddLocationModal = showAddLocationModal;
 
       // Fetch tenants for dropdown
       fetch('/api/admin/tenants', {
-        headers: { 'Authorization': `Bearer ${authToken}` }
+        headers: { 'Authorization': `Bearer ${window.authToken || localStorage.getItem('token') || ''}` }
       })
       .then(res => res.json())
       .then(data => {
@@ -1992,7 +2037,7 @@ function showLocationModal() {
     async function editTeacher(id) {
       try {
         const response = await fetch(`/api/admin/teachers/${id}`, {
-          headers: { 'Authorization': `Bearer ${authToken}` }
+          headers: { 'Authorization': `Bearer ${window.authToken || localStorage.getItem('token') || ''}` }
         });
         const res = await response.json();
 
@@ -2015,7 +2060,7 @@ function showLocationModal() {
     async function editRule(id) {
       try {
         const response = await fetch(`/api/admin/rules/${id}`, {
-          headers: { 'Authorization': `Bearer ${authToken}` }
+          headers: { 'Authorization': `Bearer ${window.authToken || localStorage.getItem('token') || ''}` }
         });
         const res = await response.json();
 
@@ -2034,7 +2079,7 @@ function showLocationModal() {
           const tenantSelect = document.querySelector('select[name="tenant_id"]');
           if (tenantSelect.options.length <= 1) {
             fetch('/api/admin/tenants', {
-              headers: { 'Authorization': `Bearer ${authToken}` }
+              headers: { 'Authorization': `Bearer ${window.authToken || localStorage.getItem('token') || ''}` }
             })
             .then(res => res.json())
             .then(data => {
@@ -2061,7 +2106,7 @@ function showLocationModal() {
     async function editTenantLocation(tenantId) {
       try {
         const response = await fetch('/api/admin/tenants', {
-          headers: { 'Authorization': `Bearer ${authToken}` }
+          headers: { 'Authorization': `Bearer ${window.authToken || localStorage.getItem('token') || ''}` }
         });
         const res = await response.json();
 
@@ -2103,7 +2148,7 @@ function showLocationModal() {
         try {
           const response = await fetch(`/api/admin/teachers/${id}`, {
             method: 'DELETE',
-            headers: { 'Authorization': `Bearer ${authToken}` }
+            headers: { 'Authorization': `Bearer ${window.authToken || localStorage.getItem('token') || ''}` }
           });
         const res = await response.json();
         if (res.success) {
@@ -2120,7 +2165,7 @@ function showLocationModal() {
         try {
           const response = await fetch(`/api/admin/rules/${id}`, {
             method: 'DELETE',
-            headers: { 'Authorization': `Bearer ${authToken}` }
+            headers: { 'Authorization': `Bearer ${window.authToken || localStorage.getItem('token') || ''}` }
           });
           const res = await response.json();
           if (res.success) {
@@ -2162,7 +2207,7 @@ function showLocationModal() {
         const promises = selectedIds.map(id =>
           fetch(`/api/admin/teachers/${id}`, {
             method: 'DELETE',
-            headers: { 'Authorization': `Bearer ${authToken}` }
+            headers: { 'Authorization': `Bearer ${window.authToken || localStorage.getItem('token') || ''}` }
           })
         );
         await Promise.all(promises);
@@ -2184,7 +2229,7 @@ function showLocationModal() {
         const promises = selectedIds.map(id =>
           fetch(`/api/admin/teachers/${id}/create-user`, {
             method: 'POST',
-            headers: { 'Authorization': `Bearer ${authToken}` }
+            headers: { 'Authorization': `Bearer ${window.authToken || localStorage.getItem('token') || ''}` }
           })
         );
         const results = await Promise.all(promises);
@@ -2217,7 +2262,7 @@ function showLocationModal() {
       try {
         const response = await fetch(`/api/admin/teachers/${teacherId}/create-user`, {
           method: 'POST',
-          headers: { 'Authorization': `Bearer ${authToken}` }
+          headers: { 'Authorization': `Bearer ${window.authToken || localStorage.getItem('token') || ''}` }
         });
         const res = await response.json();
         if (res.success) {
@@ -2426,7 +2471,7 @@ function showLocationModal() {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${authToken}`
+            'Authorization': `Bearer ${window.authToken || localStorage.getItem('token') || ''}`
           },
           body: JSON.stringify({
             latitude: latitude,
@@ -2615,7 +2660,7 @@ async function autoDetectLocationModal(event) {
           method,
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${authToken}`
+            'Authorization': `Bearer ${window.authToken || localStorage.getItem('token') || ''}`
           },
           body: JSON.stringify(data)
         });
@@ -2651,7 +2696,7 @@ async function autoDetectLocationModal(event) {
           method,
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${authToken}`
+            'Authorization': `Bearer ${window.authToken || localStorage.getItem('token') || ''}`
           },
           body: JSON.stringify(data)
         });
@@ -2688,7 +2733,7 @@ async function autoDetectLocationModal(event) {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${authToken}`
+            'Authorization': `Bearer ${window.authToken || localStorage.getItem('token') || ''}`
           },
           body: JSON.stringify(data)
         });
@@ -2737,7 +2782,7 @@ async function autoDetectLocationModal(event) {
             method: 'PUT',
             headers: {
               'Content-Type': 'application/json',
-              'Authorization': `Bearer ${authToken}`
+              'Authorization': `Bearer ${window.authToken || localStorage.getItem('token') || ''}`
             },
             body: JSON.stringify(data)
           });
@@ -2766,7 +2811,33 @@ async function autoDetectLocationModal(event) {
         }
       });
 
-    document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('DOMContentLoaded', function() {
+      // Run auth check first
+      const token = localStorage.getItem('token');
+      const userData = localStorage.getItem('user');
+      
+      if (!token || !userData) {
+        window.location.replace('/login.html');
+        return;
+      }
+      
+      try {
+        const user = JSON.parse(userData);
+        if (user.role !== 'admin') {
+          window.location.replace('/login.html');
+          return;
+        }
+        window.authToken = token;
+        window.currentUser = user;
+        
+        // Now initialize UI components after auth is confirmed
+        initAllUI();
+      } catch (e) {
+        window.location.replace('/login.html');
+      }
+    });
+
+    function initAllUI() {
       const now = new Date();
       setEl('currentDate', now.toLocaleDateString('id-ID', {
         weekday: 'long',
@@ -2775,7 +2846,7 @@ async function autoDetectLocationModal(event) {
         day: 'numeric'
       }));
 
-      setEl('adminName', currentUser?.username || 'Admin');
+      setEl('adminName', window.currentUser?.username || 'Admin');
 
       // Attach tab click handlers
       document.querySelectorAll('.nav-item').forEach(btn => {
@@ -2808,7 +2879,7 @@ async function autoDetectLocationModal(event) {
 
         // Load tenant options for device modal
         fetch('/api/admin/tenants', {
-          headers: { 'Authorization': `Bearer ${authToken}` }
+          headers: { 'Authorization': `Bearer ${window.authToken || localStorage.getItem('token') || ''}` }
         })
         .then(res => res.json())
         .then(data => {
@@ -2829,11 +2900,18 @@ async function autoDetectLocationModal(event) {
       // Refresh devices button
       document.getElementById('refresh-devices')?.addEventListener('click', loadScannerDevices);
 
+      // Auto evaluation button
+      document.getElementById('runAutoEvaluation')?.addEventListener('click', runAutoEvaluation);
+
       fetchDashboardData();
+
+      // Initialize PDF report and recap view
+      initPdfReport();
+      initRecapView();
 
       // WhatsApp functionality
       setupWhatsApp();
-    });
+    };
 
     // WhatsApp Functions
     function setupWhatsApp() {
@@ -2867,7 +2945,7 @@ async function autoDetectLocationModal(event) {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
-              'Authorization': `Bearer ${authToken}`
+              'Authorization': `Bearer ${window.authToken || localStorage.getItem('token') || ''}`
             },
             body: JSON.stringify({ message })
           });
@@ -2875,7 +2953,7 @@ async function autoDetectLocationModal(event) {
           const result = await response.json();
 
           if (result.success) {
-            updateWhatsAppStatus(`✅ ${result.message || `Pesan berhasil dikirim ke ${result.total_sent || 0} guru`}`, 'success');
+            updateWhatsAppStatus(`✅ ${result.message || 'Pesan berhasil dikirim ke ' + (result.total_sent || 0) + ' guru'}`, 'success');
             document.getElementById('bulkWhatsAppForm').reset();
           } else {
             updateWhatsAppStatus(`❌ Gagal mengirim: ${result.message}`, 'error');
@@ -2918,7 +2996,7 @@ async function autoDetectLocationModal(event) {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
-              'Authorization': `Bearer ${authToken}`
+              'Authorization': `Bearer ${window.authToken || localStorage.getItem('token') || ''}`
             },
             body: JSON.stringify({ message })
           });
@@ -2992,7 +3070,7 @@ async function autoDetectLocationModal(event) {
     async function loadTenantsForWhatsApp() {
       try {
         const response = await fetch('/api/admin/tenants', {
-          headers: { 'Authorization': `Bearer ${authToken}` }
+          headers: { 'Authorization': `Bearer ${window.authToken || localStorage.getItem('token') || ''}` }
         });
 
         if (response.ok) {
@@ -3016,7 +3094,7 @@ async function loadTeachersForWhatsApp() {
        try {
          // all=1: tanpa limit, has_wa=1: hanya guru yang punya nomor WA
          const response = await fetch('/api/admin/teachers?all=1&has_wa=1', {
-           headers: { 'Authorization': `Bearer ${authToken}` }
+           headers: { 'Authorization': `Bearer ${window.authToken || localStorage.getItem('token') || ''}` }
          });
 
          if (response.ok) {
@@ -3517,7 +3595,7 @@ console.log('Modal hidden');
            method: 'POST',
            headers: {
              'Content-Type': 'application/json',
-             'Authorization': `Bearer ${authToken}`
+             'Authorization': `Bearer ${window.authToken || localStorage.getItem('token') || ''}`
            },
            body: JSON.stringify(data)
          });
@@ -3631,7 +3709,8 @@ function showAddLocationModal() {
       console.log('Modal classes:', modal ? modal.className : 'N/A');
       console.log('Modal visible:', modal ? modal.classList.contains('show') : false);
 
-      if (!authToken) {
+      const authToken = window.authToken || localStorage.getItem('token');
+        if (!authToken) {
         console.error('No auth token available for tenant loading');
         const select = document.getElementById('locationTenantId');
         if (select) select.innerHTML = '<option value="">Token autentikasi tidak tersedia</option>';
@@ -3639,7 +3718,7 @@ function showAddLocationModal() {
       }
 
       fetch('/api/admin/tenants', {
-        headers: { 'Authorization': `Bearer ${authToken}` }
+        headers: { 'Authorization': `Bearer ${window.authToken || localStorage.getItem('token') || ''}` }
       })
       .then(res => {
         console.log('Tenant API response status:', res.status);
@@ -3732,7 +3811,7 @@ function showAddLocationModal() {
       const container = document.getElementById('devices-list');
       try {
         const response = await fetch('/api/scanner/devices', {
-          headers: { 'Authorization': `Bearer ${authToken}` }
+          headers: { 'Authorization': `Bearer ${window.authToken || localStorage.getItem('token') || ''}` }
         });
 
         if (response.ok) {
@@ -3804,7 +3883,7 @@ function showAddLocationModal() {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${authToken}`
+            'Authorization': `Bearer ${window.authToken || localStorage.getItem('token') || ''}`
           },
           body: JSON.stringify({
             device_name: newName.trim()
@@ -3836,7 +3915,7 @@ function showAddLocationModal() {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${authToken}`
+            'Authorization': `Bearer ${window.authToken || localStorage.getItem('token') || ''}`
           },
           body: JSON.stringify({
             status: nextStatus
@@ -3862,7 +3941,7 @@ function showAddLocationModal() {
       try {
         const response = await fetch(`/api/scanner/devices/${deviceId}`, {
           method: 'DELETE',
-          headers: { 'Authorization': `Bearer ${authToken}` }
+          headers: { 'Authorization': `Bearer ${window.authToken || localStorage.getItem('token') || ''}` }
         });
 
         const result = await response.json();
@@ -3883,7 +3962,7 @@ function showAddLocationModal() {
       const tbody = document.getElementById('qr-logs-table');
       try {
         const response = await fetch('/api/scanner/attendance/logs?limit=10', {
-          headers: { 'Authorization': `Bearer ${authToken}` }
+          headers: { 'Authorization': `Bearer ${window.authToken || localStorage.getItem('token') || ''}` }
         });
         if (response.ok) {
           const result = await response.json();
@@ -3933,7 +4012,7 @@ function showAddLocationModal() {
          `;
 
          const response = await fetch('/api/admin/tenant-locations', {
-           headers: { 'Authorization': `Bearer ${authToken}` }
+           headers: { 'Authorization': `Bearer ${window.authToken || localStorage.getItem('token') || ''}` }
          });
 
          if (response.status === 401 || response.status === 403) {
@@ -4048,7 +4127,7 @@ function showAddLocationModal() {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${authToken}`
+            'Authorization': `Bearer ${window.authToken || localStorage.getItem('token') || ''}`
           },
           body: JSON.stringify({
             is_active: newStatus
@@ -4074,7 +4153,7 @@ function showAddLocationModal() {
       try {
         const response = await fetch(`/api/admin/tenant-locations/${id}`, {
           method: 'DELETE',
-          headers: { 'Authorization': `Bearer ${authToken}` }
+          headers: { 'Authorization': `Bearer ${window.authToken || localStorage.getItem('token') || ''}` }
         });
 
         const result = await response.json();
@@ -4087,6 +4166,407 @@ function showAddLocationModal() {
       } catch (error) {
         console.error('Error deleting location:', error);
         showToast('Error menghapus lokasi', 'error');
+      }
+    }
+
+    // ========== PDF REPORT FUNCTIONS ==========
+    function initPdfReport() {
+      const year = new Date().getFullYear();
+      const month = new Date().getMonth() + 1;
+      
+      const yearSelect = document.getElementById('pdfYearSelect');
+      if (yearSelect) {
+        yearSelect.innerHTML = '';
+        for (let y = year - 1; y <= year + 1; y++) {
+          const opt = document.createElement('option');
+          opt.value = y;
+          opt.textContent = y;
+          if (y === year) opt.selected = true;
+          yearSelect.appendChild(opt);
+        }
+      }
+      
+      const monthSelect = document.getElementById('pdfMonthSelect');
+      if (monthSelect) {
+        monthSelect.value = month;
+      }
+      
+      loadTenantsForPdfDropdown();
+      
+      const exportBtn = document.getElementById('exportMonthlyPdfBtn');
+      if (exportBtn) {
+        exportBtn.onclick = exportMonthlyPdf;
+      }
+    }
+    
+    async function loadTenantsForPdfDropdown() {
+      const select = document.getElementById('pdfTenantSelect');
+      if (!select) return;
+      
+      select.innerHTML = '<option value="">Pilih Sekolah...</option>';
+      
+      const token = window.authToken || localStorage.getItem('token');
+      if (!token) {
+        console.error('No auth token available');
+        return;
+      }
+      
+      try {
+        const response = await fetch('/api/admin/tenants', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        
+        if (response.ok) {
+          const result = await response.json();
+          if (result.success && result.data) {
+            result.data.forEach(tenant => {
+              const opt = document.createElement('option');
+              opt.value = tenant.tenant_id;
+              opt.textContent = tenant.nama_sekolah;
+              select.appendChild(opt);
+            });
+          }
+        }
+      } catch (error) {
+        console.error('Error loading tenants for PDF:', error);
+      }
+    }
+    
+    async function loadTenantsForRecapDropdown() {
+      const select = document.getElementById('recapTenantSelect');
+      if (!select) return;
+      
+      select.innerHTML = '<option value="">Pilih Sekolah...</option>';
+      
+      const token = window.authToken || localStorage.getItem('token');
+      if (!token) {
+        console.error('No auth token available');
+        return;
+      }
+      
+      try {
+        const response = await fetch('/api/admin/tenants', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        
+        if (response.ok) {
+          const result = await response.json();
+          if (result.success && result.data) {
+            result.data.forEach(tenant => {
+              const opt = document.createElement('option');
+              opt.value = tenant.tenant_id;
+              opt.textContent = tenant.nama_sekolah;
+              select.appendChild(opt);
+            });
+          }
+        }
+      } catch (error) {
+        console.error('Error loading tenants for recap:', error);
+      }
+    }
+    
+    function getCurrentTenantId() {
+      const select = document.getElementById('pdfTenantSelect');
+      return select ? select.value : '';
+    }
+    
+    function getCurrentRecapTenantId() {
+      const select = document.getElementById('recapTenantSelect');
+      return select ? select.value : '';
+    }
+    
+    async function exportMonthlyPdf() {
+      const tenantId = getCurrentTenantId();
+      const monthSelect = document.getElementById('pdfMonthSelect');
+      const yearSelect = document.getElementById('pdfYearSelect');
+      const month = monthSelect ? monthSelect.value : '';
+      const year = yearSelect ? yearSelect.value : '';
+      
+      if (!tenantId) {
+        showToast('Pilih sekolah terlebih dahulu', 'error');
+        return;
+      }
+      
+      const statusDiv = document.getElementById('pdfExportStatus');
+      const btn = document.getElementById('exportMonthlyPdfBtn');
+      if (!btn) return;
+      
+      const originalBtn = btn.innerHTML;
+      const token = window.authToken || localStorage.getItem('token');
+      
+      if (statusDiv) statusDiv.classList.remove('hidden');
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Generating...';
+      
+      try {
+        const pdfUrl = `/api/admin/monthly-report/pdf?tenant_id=${encodeURIComponent(tenantId)}&month=${month}&year=${year}`;
+        
+        const response = await fetch(pdfUrl, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        
+        if (!response.ok) {
+          const error = await response.json().catch(() => ({ message: 'Failed to generate PDF' }));
+          throw new Error(error.message || 'Failed to generate PDF');
+        }
+        
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const newWindow = window.open(url, '_blank');
+        if (!newWindow) {
+          showToast('Pop-up browser blocked. Please allow pop-ups for this page.', 'error');
+        }
+        setTimeout(() => window.URL.revokeObjectURL(url), 1000);
+        
+        showToast('PDF berhasil dihasilkan', 'success');
+      } catch (error) {
+        console.error('PDF Export error:', error);
+        showToast('Gagal mengekspor PDF: ' + error.message, 'error');
+      } finally {
+        if (statusDiv) statusDiv.classList.add('hidden');
+        btn.disabled = false;
+        btn.innerHTML = originalBtn;
+      }
+    }
+    
+async function exportPdfWithTenant(tenantId, month, year, templateName = '') {
+       if (!tenantId) {
+         showToast('Pilih sekolah terlebih dahulu', 'error');
+         return;
+       }
+       
+       const token = window.authToken || localStorage.getItem('token');
+       if (!token) {
+         showToast('Session expired. Please login again.', 'error');
+         window.location.replace('/login.html');
+         return;
+       }
+       
+       try {
+         const params = new URLSearchParams({
+           tenant_id: tenantId,
+           month: month,
+           year: year
+         });
+         if (templateName) params.set('templateName', templateName);
+         
+         const pdfUrl = `/api/admin/monthly-report/pdf?${params.toString()}`;
+        
+        const response = await fetch(pdfUrl, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        
+        if (!response.ok) {
+          const error = await response.json().catch(() => ({ message: 'Failed to generate PDF' }));
+          throw new Error(error.message || 'Failed to generate PDF');
+        }
+        
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const newWindow = window.open(url, '_blank');
+        if (!newWindow) {
+          showToast('Pop-up browser blocked. Please allow pop-ups for this page.', 'error');
+        }
+        setTimeout(() => window.URL.revokeObjectURL(url), 1000);
+        
+        showToast('PDF berhasil dihasilkan', 'success');
+      } catch (error) {
+        console.error('PDF Export error:', error);
+        showToast('Gagal mengekspor PDF: ' + error.message, 'error');
+      }
+    }
+
+    // ========== MONTHLY RECAP VIEW ==========
+    async function loadMonthlyRecap() {
+      const month = document.getElementById('recapMonthSelect')?.value;
+      const year = document.getElementById('recapYearSelect')?.value;
+      const container = document.getElementById('monthlyRecapContent');
+      
+      if (!month || !year) return;
+      
+      const tenantId = getCurrentRecapTenantId();
+      if (!tenantId) {
+        container.innerHTML = `
+          <div class="text-center py-8">
+            <i class="fas fa-school text-4xl text-gray-300 mb-3"></i>
+            <p class="text-gray-600">Pilih sekolah untuk melihat rekap</p>
+          </div>
+        `;
+        return;
+      }
+      
+      container.innerHTML = '<div class="text-center py-8"><i class="fas fa-spinner fa-spin text-xl"></i><p class="mt-2">Memuat rekap...</p></div>';
+      
+      try {
+        const token = window.authToken || localStorage.getItem('token');
+        
+        const response = await fetch(`/api/admin/monthly-report/html?tenant_id=${tenantId}&month=${month}&year=${year}`, {
+          headers: { 'Authorization': `Bearer ${token || ''}` }
+        });
+        
+        if (response.ok) {
+          container.innerHTML = await response.text();
+        } else {
+          container.innerHTML = `
+            <div class="text-center py-8">
+              <i class="fas fa-file-pdf text-4xl text-gray-300 mb-3"></i>
+              <p class="text-gray-600">Data rekap tidak tersedia</p>
+            </div>
+          `;
+        }
+      } catch (error) {
+        console.error('Monthly recap load error:', error);
+        container.innerHTML = '<p class="text-center text-red-500 py-8">Error memuat rekap</p>';
+      }
+    }
+
+    function exportMonthlyPdfFromRecap() {
+      const month = document.getElementById('recapMonthSelect')?.value;
+      const year = document.getElementById('recapYearSelect')?.value;
+      const templateName = document.getElementById('pdfTemplateSelect')?.value || '';
+      const tenantId = getCurrentRecapTenantId();
+      if (!tenantId) {
+        showToast('Pilih sekolah terlebih dahulu', 'error');
+        return;
+      }
+      exportPdfWithTenant(tenantId, month, year, templateName);
+    }
+
+    function initRecapView() {
+      const currentYear = new Date().getFullYear();
+      const yearSelects = document.querySelectorAll('#recapYearSelect');
+      yearSelects.forEach(select => {
+        for (let y = currentYear - 1; y <= currentYear + 1; y++) {
+          const opt = document.createElement('option');
+          opt.value = y;
+          opt.textContent = y;
+          if (y === currentYear) opt.selected = true;
+          select.appendChild(opt);
+        }
+      });
+
+      const currentMonth = new Date().getMonth() + 1;
+      const monthSelects = document.querySelectorAll('#recapMonthSelect');
+      monthSelects.forEach(select => select.value = currentMonth);
+
+      loadTenantsForRecapDropdown();
+
+      const logViewBtn = document.getElementById('logViewBtn');
+      const monthlyViewBtn = document.getElementById('monthlyViewBtn');
+      
+      if (logViewBtn) {
+        logViewBtn.addEventListener('click', () => {
+          document.getElementById('logViewSection').classList.remove('hidden');
+          document.getElementById('monthlyRecapSection').classList.add('hidden');
+          logViewBtn.className = 'px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium';
+          monthlyViewBtn.className = 'px-4 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-300';
+        });
+      }
+      
+      if (monthlyViewBtn) {
+        monthlyViewBtn.addEventListener('click', () => {
+          document.getElementById('logViewSection').classList.add('hidden');
+          document.getElementById('monthlyRecapSection').classList.remove('hidden');
+          monthlyViewBtn.className = 'px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium';
+          logViewBtn.className = 'px-4 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-300';
+          loadMonthlyRecap();
+        });
+      }
+
+      document.getElementById('recapMonthSelect')?.addEventListener('change', loadMonthlyRecap);
+      document.getElementById('recapYearSelect')?.addEventListener('change', loadMonthlyRecap);
+      
+      // Search button handler
+      document.getElementById('searchRecapBtn')?.addEventListener('click', loadMonthlyRecap);
+    }
+
+    // Switch tab function
+    window.switchTab = function(tabName) {
+      document.querySelectorAll('.tab-content').forEach(t => t.classList.add('hidden'));
+      document.querySelectorAll('.nav-item').forEach(n => {
+        n.classList.remove('nav-active');
+      });
+      
+      document.getElementById(tabName + 'Tab').classList.remove('hidden');
+      const btn = document.querySelector(`button[data-tab="${tabName}"]`);
+      if (btn) btn.classList.add('nav-active');
+      
+      const titles = {
+        'dashboard': 'Dashboard',
+        'teachers': 'Manajemen Guru',
+        'evaluations': 'Penilaian Guru Otomatis',
+        'attendance': 'Log Kehadiran',
+        'whatsapp': 'Pesan WhatsApp',
+        'payroll': 'Penggajian',
+        'documents': 'Dokumen HR',
+        'qr-generator': 'QR Scanner & Generator',
+        'settings': 'Pengaturan'
+      };
+      document.getElementById('pageTitle').textContent = titles[tabName] || 'Dashboard';
+    };
+
+    // Auto Evaluation Functions
+    async function runAutoEvaluation() {
+      const btn = document.getElementById('runAutoEvaluation');
+      const originalHtml = btn.innerHTML;
+      
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Menjalankan...';
+      
+      try {
+        const token = localStorage.getItem('token');
+        const response = await fetch('/api/evaluations/auto-calculate', {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+          showToast(`Berhasil menilai ${result.data.length} guru`, 'success');
+          loadEvaluationsResults();
+        } else {
+          showToast(result.message || 'Gagal menjalankan auto-evaluation', 'error');
+        }
+      } catch (error) {
+        console.error('Auto evaluation error:', error);
+        showToast('Error menjalankan auto-evaluation', 'error');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = originalHtml;
+      }
+    }
+
+    async function loadEvaluationsResults() {
+      const container = document.getElementById('evaluationsResults');
+      
+      try {
+        const token = localStorage.getItem('token');
+        const response = await fetch('/api/evaluations/all', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        
+        const result = await response.json();
+        
+        if (result.success && result.data.length > 0) {
+          container.innerHTML = result.data.map(e => `
+            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg mb-2">
+              <div>
+                <p class="font-medium text-gray-900">${e.teacher_name}</p>
+                <p class="text-xs text-gray-500">${e.nama_sekolah}</p>
+              </div>
+              <div class="text-right">
+                <span class="inline-block px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm font-bold">${e.score}</span>
+                <p class="text-xs text-gray-500 mt-1">${new Date(e.evaluation_date).toLocaleDateString('id-ID')}</p>
+              </div>
+            </div>
+          `).join('');
+        } else {
+          container.innerHTML = '<p class="text-center text-gray-500 py-8">Belum ada data penilaian</p>';
+        }
+      } catch (error) {
+        console.error('Load evaluations error:', error);
+        container.innerHTML = '<p class="text-center text-red-500 py-8">Error memuat data</p>';
       }
     }
   </script>

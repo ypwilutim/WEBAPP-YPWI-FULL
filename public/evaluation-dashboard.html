@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Penilaian Guru - YPWI Lutim</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <link rel="manifest" href="manifest.json">
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    .star-rating input[type="radio"] { display: none; }
+    .star-rating label { cursor: pointer; font-size: 1.5rem; color: #d1d5db; transition: color 0.2s; }
+    .star-rating input[type="radio"]:checked ~ label,
+    .star-rating label:hover,
+    .star-rating label:hover ~ label { color: #fbbf24; }
+    .star-rating input[type="radio"]:checked + label { color: #f59e0b; }
+  </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+  <div class="flex min-h-screen">
+    <!-- Sidebar -->
+    <aside class="w-64 bg-white shadow-lg border-r">
+      <div class="p-4 border-b bg-green-50">
+        <div class="flex items-center justify-between mb-2">
+          <div class="flex items-center space-x-2">
+            <div class="w-8 h-8 bg-green-600 rounded-lg flex items-center justify-center">
+              <i class="fas fa-clipboard-check text-white text-sm"></i>
+            </div>
+            <div>
+              <h1 class="text-sm font-bold text-green-900" id="schoolNameHeader">Sekolah</h1>
+              <p class="text-xs text-green-600" id="schoolIdHeader">ID: -</p>
+            </div>
+          </div>
+          <a href="dashboard.html" class="text-gray-500 hover:text-gray-700" title="Kembali ke Dashboard">
+            <i class="fas fa-times text-xl"></i>
+          </a>
+        </div>
+        <div class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded text-center font-medium">
+          Mode Penilaian Guru
+        </div>
+      </div>
+
+      <nav class="p-4 space-y-1">
+        <button class="nav-item nav-active w-full text-left flex items-center space-x-3 px-4 py-2.5 rounded-lg hover:bg-gray-100 text-sm" data-tab="evaluate">
+          <i class="fas fa-star text-sm"></i><span>Nilai Guru</span>
+        </button>
+        <button class="nav-item w-full text-left flex items-center space-x-3 px-4 py-2.5 rounded-lg text-gray-600 hover:bg-gray-100 text-sm" data-tab="my-evaluations">
+          <i class="fas fa-history text-sm"></i><span>Riwayat Penilaian</span>
+        </button>
+        <button class="nav-item w-full text-left flex items-center space-x-3 px-4 py-2.5 rounded-lg text-gray-600 hover:bg-gray-100 text-sm" data-tab="summary">
+          <i class="fas fa-chart-bar text-sm"></i><span>Ringkasan Nilai</span>
+        </button>
+      </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 p-6">
+      <div class="flex justify-between items-center mb-6">
+        <div>
+          <h2 id="pageTitle" class="text-2xl font-bold text-gray-900">Nilai Guru</h2>
+          <p class="text-gray-500 text-sm mt-1">Mengelola penilaian untuk: <strong id="schoolTitleInline" class="text-green-600">-</strong></p>
+        </div>
+        <div class="flex items-center space-x-3">
+          <span class="text-xs text-gray-500" id="currentDate"></span>
+          <div class="flex items-center space-x-2">
+            <div class="w-7 h-7 bg-green-500 rounded-md flex items-center justify-center">
+              <i class="fas fa-user text-white text-xs"></i>
+            </div>
+            <span class="text-xs font-medium text-gray-600" id="adminRole">Penilai</span>
+          </div>
+        </div>
+      </div>
+
+<!-- Evaluate Tab -->
+       <div id="evaluateTab" class="tab-content">
+         <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+           <div class="flex justify-between items-center mb-4">
+             <h3 class="text-lg font-semibold text-gray-900">Pilih Guru untuk Dinilai</h3>
+             <button id="runAutoEvalBtn" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm">
+               <i class="fas fa-sync-alt mr-1"></i>Jalankan Auto-Evaluation
+             </button>
+           </div>
+           
+           <div class="mb-4">
+             <div class="relative">
+               <input type="text" id="teacherSearch" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500" placeholder="Ketik nama guru...">
+               <i class="fas fa-search absolute right-3 top-3 text-gray-400"></i>
+             </div>
+           </div>
+
+           <div id="teachersList" class="space-y-3 max-h-96 overflow-y-auto">
+            <div class="text-center py-8 text-gray-500">
+              <i class="fas fa-spinner fa-spin text-xl mb-2"></i>
+              <p>Memuat daftar guru...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- My Evaluations Tab -->
+      <div id="myEvaluationsTab" class="tab-content hidden">
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+          <h3 class="text-lg font-semibold text-gray-900 mb-4">Riwayat Penilaian yang Saya Berikan</h3>
+          <div id="evaluationsList" class="space-y-3 max-h-96 overflow-y-auto">
+            <div class="text-center py-8 text-gray-500">
+              <i class="fas fa-spinner fa-spin text-xl mb-2"></i>
+              <p>Memuat riwayat penilaian...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Summary Tab -->
+      <div id="summaryTab" class="tab-content hidden">
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+          <h3 class="text-lg font-semibold text-gray-900 mb-4">Ringkasan Nilai Guru</h3>
+          <div id="summaryList" class="space-y-3 max-h-96 overflow-y-auto">
+            <div class="text-center py-8 text-gray-500">
+              <i class="fas fa-spinner fa-spin text-xl mb-2"></i>
+              <p>Memuat ringkasan nilai...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Evaluation Modal -->
+  <div id="evaluationModal" class="modal fixed inset-0 bg-black bg-opacity-50 z-50 justify-center items-center hidden">
+    <div class="bg-white rounded-lg max-w-md w-full mx-4">
+      <div class="p-6">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-lg font-semibold" id="modalTitle">Beri Nilai Guru</h3>
+          <button onclick="hideEvaluationModal()" class="text-gray-400 hover:text-gray-600">
+            <i class="fas fa-times text-xl"></i>
+          </button>
+        </div>
+        
+        <form id="evaluationForm">
+          <input type="hidden" id="evalTeacherId">
+          <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-700 mb-2">Guru</label>
+            <p class="font-medium text-gray-900" id="evalTeacherName">-</p>
+          </div>
+
+          <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-700 mb-2">Kategori Penilaian</label>
+            <select id="evalCategory" class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-green-500">
+              <option value="kehadiran">Kehadiran</option>
+              <option value="disiplin">Disiplin</option>
+              <option value="profesionalisme">Profesionalisme</option>
+              <option value="komunikasi">Komunikasi</option>
+              <option value="kepemimpinan">Kepemimpinan</option>
+            </select>
+          </div>
+
+          <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-700 mb-2">Nilai (1-5)</label>
+            <div class="star-rating flex space-x-1">
+              <input type="radio" id="star5" name="evalScore" value="5"><label for="star5"><i class="fas fa-star"></i></label>
+              <input type="radio" id="star4" name="evalScore" value="4"><label for="star4"><i class="fas fa-star"></i></label>
+              <input type="radio" id="star3" name="evalScore" value="3"><label for="star3"><i class="fas fa-star"></i></label>
+              <input type="radio" id="star2" name="evalScore" value="2"><label for="star2"><i class="fas fa-star"></i></label>
+              <input type="radio" id="star1" name="evalScore" value="1"><label for="star1"><i class="fas fa-star"></i></label>
+            </div>
+          </div>
+
+          <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-700 mb-2">Catatan (opsional)</label>
+            <textarea id="evalNotes" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-green-500" placeholder="Tambahkan catatan..."></textarea>
+          </div>
+
+          <div class="flex justify-end space-x-3">
+            <button type="button" onclick="hideEvaluationModal()" class="px-4 py-2 text-gray-600 hover:text-gray-800 text-sm">Batal</button>
+            <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 text-sm">Simpan Nilai</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+   <script>
+     const token = localStorage.getItem('token');
+     if (!token) window.location.href = 'login.html';
+     const user = JSON.parse(localStorage.getItem('user') || '{}');
+
+     const urlParams = new URLSearchParams(window.location.search);
+     let tenantId = urlParams.get('tenant');
+     const schoolName = urlParams.get('school');
+     
+     // Auto-detect tenant from user assignments if not in URL
+     if (!tenantId && user.assignments && user.assignments.length > 0) {
+       const evaluatorAssignment = user.assignments.find(a => 
+         ['kepala_sekolah', 'pimpinan_pondok'].includes((a.jabatan_di_unit || '').toLowerCase().replace(/\s/g, ''))
+       );
+       if (evaluatorAssignment) {
+         tenantId = evaluatorAssignment.tenant_id;
+       } else {
+         tenantId = user.assignments[0].tenant_id;
+       }
+     }
+     
+     if (!tenantId) { 
+       alert('Tidak dapat menentukan tenant. Silakan login ulang.'); 
+       window.location.href = 'login.html'; 
+     }
+
+    document.getElementById('schoolNameHeader').textContent = schoolName || tenantId;
+    document.getElementById('schoolIdHeader').textContent = 'ID: ' + tenantId;
+    document.getElementById('schoolTitleInline').textContent = schoolName || tenantId;
+
+    // Set current date
+    document.getElementById('currentDate').textContent = new Date().toLocaleDateString('id-ID');
+
+    function switchTab(tabName) {
+      document.querySelectorAll('.tab-content').forEach(t => t.classList.add('hidden'));
+      document.querySelectorAll('.nav-item').forEach(n => {
+        n.classList.remove('nav-active', 'bg-green-600', 'text-white');
+        n.classList.add('text-gray-600');
+      });
+      document.getElementById(tabName + 'Tab').classList.remove('hidden');
+      const btn = document.querySelector(`button[data-tab="${tabName}"]`);
+      btn.classList.add('nav-active', 'bg-green-600', 'text-white');
+      btn.classList.remove('text-gray-600');
+      
+      const titles = { evaluate: 'Nilai Guru', my_evaluations: 'Riwayat Penilaian', summary: 'Ringkasan Nilai' };
+      document.getElementById('pageTitle').textContent = titles[tabName] || 'Nilai Guru';
+    }
+
+    async function loadTeachers() {
+      try {
+        const res = await fetch('/api/evaluations/teachers?tenant_id=' + tenantId, {
+          headers: { 'Authorization': 'Bearer ' + token }
+        });
+        const data = await res.json();
+        
+        if (data.success) {
+          const html = data.data.map(t => `
+            <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition">
+              <div>
+                <p class="font-medium text-gray-900">${t.nama}</p>
+                <p class="text-xs text-gray-500">ID: ${t.scan_id || t.id}</p>
+              </div>
+              <button onclick="openEvaluationModal(${t.id}, '${t.nama}')" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm">
+                <i class="fas fa-star mr-1"></i>Nilai
+              </button>
+            </div>
+          `).join('');
+          document.getElementById('teachersList').innerHTML = html || '<p class="text-center text-gray-500">Tidak ada guru ditemukan</p>';
+        }
+      } catch (e) {
+        console.error('[TEACHERS]', e);
+        document.getElementById('teachersList').innerHTML = '<p class="text-center text-red-500">Gagal memuat data</p>';
+      }
+    }
+
+    async function loadMyEvaluations() {
+      try {
+        const res = await fetch('/api/evaluations/my-evaluations', {
+          headers: { 'Authorization': 'Bearer ' + token }
+        });
+        const data = await res.json();
+        
+        if (data.success) {
+          const html = data.data.map(e => `
+            <div class="p-4 bg-gray-50 rounded-lg">
+              <div class="flex items-center justify-between mb-2">
+                <p class="font-medium text-gray-900">${e.teacher_name}</p>
+                <span class="text-xs px-2 py-1 bg-green-100 text-green-800 rounded">${e.category}</span>
+              </div>
+              <div class="flex items-center space-x-1 mb-2">
+                ${'★'.repeat(e.score)}${'☆'.repeat(5 - e.score)}
+                <span class="text-sm text-gray-600">(${e.score}/5)</span>
+              </div>
+              <p class="text-xs text-gray-500">${new Date(e.evaluation_date).toLocaleDateString('id-ID')}</p>
+              ${e.notes ? `<p class="text-sm text-gray-700 mt-2">${e.notes}</p>` : ''}
+            </div>
+          `).join('');
+          document.getElementById('evaluationsList').innerHTML = html || '<p class="text-center text-gray-500">Belum ada penilaian</p>';
+        }
+      } catch (e) {
+        console.error('[EVALUATIONS]', e);
+        document.getElementById('evaluationsList').innerHTML = '<p class="text-center text-red-500">Gagal memuat data</p>';
+      }
+    }
+
+    async function loadSummary() {
+      try {
+        const res = await fetch('/api/evaluations/summary?tenant_id=' + tenantId, {
+          headers: { 'Authorization': 'Bearer ' + token }
+        });
+        const data = await res.json();
+        
+        if (data.success) {
+          const html = data.data.map(s => {
+            const avg = parseFloat(s.avg_score).toFixed(1);
+            const percentage = (s.avg_score / 5 * 100).toFixed(0);
+            return `
+            <div class="p-4 bg-gray-50 rounded-lg">
+              <div class="flex items-center justify-between mb-2">
+                <p class="font-medium text-gray-900">${s.teacher_name}</p>
+                <span class="text-lg font-bold text-green-600">${avg}</span>
+              </div>
+              <div class="w-full bg-gray-200 rounded-full h-2">
+                <div class="bg-green-600 h-2 rounded-full" style="width: ${percentage}%"></div>
+              </div>
+              <p class="text-xs text-gray-500 mt-1">${s.evaluation_count} penilaian</p>
+            </div>
+          `;
+          }).join('');
+          document.getElementById('summaryList').innerHTML = html || '<p class="text-center text-gray-500">Tidak ada data</p>';
+        }
+      } catch (e) {
+        console.error('[SUMMARY]', e);
+        document.getElementById('summaryList').innerHTML = '<p class="text-center text-red-500">Gagal memuat data</p>';
+      }
+    }
+
+    function openEvaluationModal(teacherId, teacherName) {
+      document.getElementById('evalTeacherId').value = teacherId;
+      document.getElementById('evalTeacherName').textContent = teacherName;
+      document.getElementById('evaluationModal').classList.remove('hidden');
+    }
+
+    function hideEvaluationModal() {
+      document.getElementById('evaluationModal').classList.add('hidden');
+      document.getElementById('evaluationForm').reset();
+    }
+
+    document.getElementById('evaluationForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const teacherId = document.getElementById('evalTeacherId').value;
+      const score = document.querySelector('input[name="evalScore"]:checked')?.value;
+      const category = document.getElementById('evalCategory').value;
+      const notes = document.getElementById('evalNotes').value;
+
+      if (!score) {
+        Swal.fire('Error', 'Silakan pilih nilai terlebih dahulu', 'error');
+        return;
+      }
+
+      try {
+        const res = await fetch('/api/evaluations', {
+          method: 'POST',
+          headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + token
+          },
+          body: JSON.stringify({ teacher_id: teacherId, score, category, notes })
+        });
+        const data = await res.json();
+        
+        if (data.success) {
+          Swal.fire('Berhasil', 'Penilaian berhasil disimpan', 'success');
+          hideEvaluationModal();
+        } else {
+          Swal.fire('Error', data.message || 'Gagal menyimpan', 'error');
+        }
+      } catch (e) {
+        console.error('[SUBMIT]', e);
+        Swal.fire('Error', 'Terjadi kesalahan', 'error');
+      }
+    });
+
+// Search functionality
+     document.getElementById('teacherSearch').addEventListener('input', (e) => {
+       const term = e.target.value.toLowerCase();
+       document.querySelectorAll('#teachersList > div').forEach(div => {
+         const name = div.querySelector('.font-medium')?.textContent.toLowerCase();
+         div.style.display = name?.includes(term) ? '' : 'none';
+       });
+     });
+
+     // Auto-evaluation button
+     document.getElementById('runAutoEvalBtn').addEventListener('click', async () => {
+       const btn = document.getElementById('runAutoEvalBtn');
+       const originalHtml = btn.innerHTML;
+       btn.disabled = true;
+       btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i>Menjalankan...';
+       
+       try {
+         const res = await fetch('/api/evaluations/auto-calculate', {
+           method: 'POST',
+           headers: { 'Authorization': 'Bearer ' + token }
+         });
+         const data = await res.json();
+         if (data.success) {
+           Swal.fire('Berhasil', `Berhasil menilai ${data.data.length} guru`, 'success');
+           loadTeachers();
+         } else {
+           Swal.fire('Error', data.message || 'Gagal', 'error');
+         }
+       } catch (e) {
+         Swal.fire('Error', 'Terjadi kesalahan', 'error');
+       } finally {
+         btn.disabled = false;
+         btn.innerHTML = originalHtml;
+       }
+     });
+
+     // Initialize
+     loadTeachers();
+  </script>
+</body>
+</html>

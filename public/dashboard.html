@@ -403,31 +403,66 @@
           }
 
 // Store assignments for location detection
-           window.userAssignments = assignments;
+            window.userAssignments = assignments;
 
-           // Cek apakah user punya role admin/TU/operator
-           const adminRoles = ['admin', 'tu', 'tata usaha', 'operator'];
-           const adminAssignments = assignments.filter(a => {
-             const jabatan = (a.jabatan_di_unit || '').toLowerCase().trim();
-             return adminRoles.includes(jabatan);
-           });
+// Redirect Ketua Yayasan (jabatan_di_unit='ketua_yayasan') ke admin-dashboard
+            const ketuaYayasan = assignments.find(a => {
+              const jabatan = (a.jabatan_di_unit || '').toLowerCase().replace(/\s/g, '');
+              return jabatan === 'ketuayayasan';
+            });
+            if (ketuaYayasan) {
+              window.location.href = 'admin-dashboard.html';
+              return;
+            }
 
-           if (adminAssignments.length > 0) {
-             const adminSection = document.getElementById('adminNavSection');
-             adminSection.classList.remove('hidden');
+// Cek apakah user punya role admin/TU/operator
+            const adminRoles = ['admin', 'tu', 'tata usaha', 'operator'];
+            const adminAssignments = assignments.filter(a => {
+              const jabatan = (a.jabatan_di_unit || '').toLowerCase().trim();
+              return adminRoles.includes(jabatan);
+            });
 
-if (adminAssignments.length === 1) {
-              var a = adminAssignments[0];
-              adminSection.innerHTML = '<a href="school-admin.html?tenant=' + a.tenant_id + '&school=' + encodeURIComponent(a.nama_sekolah || a.tenant_id) + '" style="display:inline-flex;align-items:center;gap:0.4rem;padding:0.3rem 0.75rem;background:#1e40af;color:white;border-radius:0.5rem;font-size:0.8rem;font-weight:600;text-decoration:none;"><span class="fas fa-school mr-1"></span> ' + (a.nama_sekolah || a.tenant_id) + '</a>';
-            } else {
-              var html = '<div style="position:relative;"><button onclick="toggleAdminDropdown()" style="display:inline-flex;align-items:center;gap:0.4rem;padding:0.3rem 0.75rem;background:#1e40af;color:white;border:none;border-radius:0.5rem;font-size:0.8rem;font-weight:600;cursor:pointer;"><span class="fas fa-school mr-1"></span> Admin Sekolah <i class="fas fa-chevron-down" style="font-size:0.65rem;"></i></button><div id="adminDropdownMenu" style="display:none;position:absolute;right:0;top:110%;background:white;border:1px solid #e5e7eb;border-radius:0.5rem;box-shadow:0 4px 12px rgba(0,0,0,0.15);min-width:200px;z-index:100;overflow:hidden;">';
-              adminAssignments.forEach(function(a) {
-                html += '<a href="school-admin.html?tenant=' + a.tenant_id + '&school=' + encodeURIComponent(a.nama_sekolah || a.tenant_id) + '" style="display:flex;align-items:center;gap:0.5rem;padding:0.5rem 0.75rem;font-size:0.8rem;color:#374151;text-decoration:none;border-bottom:1px solid #f3f4f6;" onmouseover="this.style.background=\'#f0f4ff\'" onmouseout="this.style.background=\'white\'"><span class="fas fa-school mr-1" style="font-size:0.7rem;"></span> ' + (a.nama_sekolah || a.tenant_id) + '<span style="margin-left:auto;font-size:0.7rem;color:#6b7280;text-transform:capitalize;">' + (a.jabatan_di_unit || '') + '</span></a>';
-              });
-               html += '</div></div>';
-               adminSection.innerHTML = html;
-             }
-           }
+            if (adminAssignments.length > 0) {
+              const adminSection = document.getElementById('adminNavSection');
+              adminSection.classList.remove('hidden');
+
+              if (adminAssignments.length === 1) {
+               var a = adminAssignments[0];
+               adminSection.innerHTML = '<a href="school-admin.html?tenant=' + a.tenant_id + '&school=' + encodeURIComponent(a.nama_sekolah || a.tenant_id) + '" style="display:inline-flex;align-items:center;gap:0.4rem;padding:0.3rem 0.75rem;background:#1e40af;color:white;border-radius:0.5rem;font-size:0.8rem;font-weight:600;text-decoration:none;"><span class="fas fa-school mr-1"></span> ' + (a.nama_sekolah || a.tenant_id) + '</a>';
+             } else {
+               var html = '<div style="position:relative;"><button onclick="toggleAdminDropdown()" style="display:inline-flex;align-items:center;gap:0.4rem;padding:0.3rem 0.75rem;background:#1e40af;color:white;border:none;border-radius:0.5rem;font-size:0.8rem;font-weight:600;cursor:pointer;"><span class="fas fa-school mr-1"></span> Admin Sekolah <i class="fas fa-chevron-down" style="font-size:0.65rem;"></i></button><div id="adminDropdownMenu" style="display:none;position:absolute;right:0;top:110%;background:white;border:1px solid #e5e7eb;border-radius:0.5rem;box-shadow:0 4px 12px rgba(0,0,0,0.15);min-width:200px;z-index:100;overflow:hidden;">';
+               adminAssignments.forEach(function(a) {
+                 html += '<a href="school-admin.html?tenant=' + a.tenant_id + '&school=' + encodeURIComponent(a.nama_sekolah || a.tenant_id) + '" style="display:flex;align-items:center;gap:0.5rem;padding:0.5rem 0.75rem;font-size:0.8rem;color:#374151;text-decoration:none;border-bottom:1px solid #f3f4f6;" onmouseover="this.style.background=\'#f0f4ff\'" onmouseout="this.style.background=\'white\'"><span class="fas fa-school mr-1" style="font-size:0.7rem;"></span> ' + (a.nama_sekolah || a.tenant_id) + '<span style="margin-left:auto;font-size:0.7rem;color:#6b7280;text-transform:capitalize;">' + (a.jabatan_di_unit || '') + '</span></a>';
+               });
+                html += '</div></div>';
+                adminSection.innerHTML = html;
+              }
+            }
+
+            // Cek apakah user punya role evaluator (kepala_sekolah/pimpinan_pondok)
+            const evaluatorRoles = ['kepala_sekolah', 'pimpinan_pondok'];
+            const evaluatorAssignments = assignments.filter(a => {
+              const jabatan = (a.jabatan_di_unit || '').toLowerCase().replace(/\s/g, '');
+              return evaluatorRoles.includes(jabatan);
+            });
+
+            if (evaluatorAssignments.length > 0) {
+              const adminSection = document.getElementById('adminNavSection');
+              adminSection.classList.remove('hidden');
+              
+              if (evaluatorAssignments.length === 1) {
+                var a = evaluatorAssignments[0];
+                var evalButton = '<a href="evaluation-dashboard.html?tenant=' + a.tenant_id + '&school=' + encodeURIComponent(a.nama_sekolah || a.tenant_id) + '" style="display:inline-flex;align-items:center;gap:0.4rem;padding:0.3rem 0.75rem;background:#059669;color:white;border-radius:0.5rem;font-size:0.8rem;font-weight:600;text-decoration:none;margin-left:0.5rem;"><span class="fas fa-star mr-1"></span> Penilaian Guru</a>';
+                adminSection.innerHTML = adminAssignments.length > 0 ? adminSection.innerHTML + evalButton : evalButton;
+              } else {
+                var html = '<div style="position:relative;margin-left:0.5rem;"><button onclick="toggleEvaluatorDropdown()" style="display:inline-flex;align-items:center;gap:0.4rem;padding:0.3rem 0.75rem;background:#059669;color:white;border:none;border-radius:0.5rem;font-size:0.8rem;font-weight:600;cursor:pointer;"><span class="fas fa-star mr-1"></span> Penilaian Guru <i class="fas fa-chevron-down" style="font-size:0.65rem;"></i></button><div id="evaluatorDropdownMenu" style="display:none;position:absolute;right:0;top:110%;background:white;border:1px solid #e5e7eb;border-radius:0.5rem;box-shadow:0 4px 12px rgba(0,0,0,0.15);min-width:200px;z-index:100;overflow:hidden;">';
+                evaluatorAssignments.forEach(function(a) {
+                  html += '<a href="evaluation-dashboard.html?tenant=' + a.tenant_id + '&school=' + encodeURIComponent(a.nama_sekolah || a.tenant_id) + '" style="display:flex;align-items:center;gap:0.5rem;padding:0.5rem 0.75rem;font-size:0.8rem;color:#374151;text-decoration:none;border-bottom:1px solid #f3f4f6;" onmouseover="this.style.background=\'#ecfdf5\'" onmouseout="this.style.background=\'white\'"><span class="fas fa-star mr-1" style="font-size:0.7rem;color:#059669;"></span> ' + (a.nama_sekolah || a.tenant_id) + '<span style="margin-left:auto;font-size:0.7rem;color:#6b7280;text-transform:capitalize;">' + (a.jabatan_di_unit || '') + '</span></a>';
+                });
+                html += '</div></div>';
+                adminSection.innerHTML = adminAssignments.length > 0 ? adminSection.innerHTML + html : html;
+              }
+            }
         } else {
           document.getElementById('teacherName').textContent = user.username || 'Guru';
           document.getElementById('teacherDetails').textContent = 'Gagal memuat detail';
@@ -460,21 +495,33 @@ if (adminAssignments.length === 1) {
       }
 }
 
-     function toggleAdminDropdown() {
-       var menu = document.getElementById('adminDropdownMenu');
-       if (menu) {
-         menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
-       }
-     }
+function toggleAdminDropdown() {
+        var menu = document.getElementById('adminDropdownMenu');
+        if (menu) {
+          menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+        }
+      }
 
-     // Close dropdown when clicking outside
-     document.addEventListener('click', function(e) {
-       var menu = document.getElementById('adminDropdownMenu');
-       var section = document.getElementById('adminNavSection');
-       if (menu && section && !section.contains(e.target)) {
-         menu.style.display = 'none';
-       }
-     });
+      function toggleEvaluatorDropdown() {
+        var menu = document.getElementById('evaluatorDropdownMenu');
+        if (menu) {
+          menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+        }
+      }
+
+      // Close dropdowns when clicking outside
+      document.addEventListener('click', function(e) {
+        var adminMenu = document.getElementById('adminDropdownMenu');
+        var adminSection = document.getElementById('adminNavSection');
+        var evalMenu = document.getElementById('evaluatorDropdownMenu');
+        
+        if (adminMenu && adminSection && !adminSection.contains(e.target)) {
+          adminMenu.style.display = 'none';
+        }
+        if (evalMenu && adminSection && !adminSection.contains(e.target)) {
+          evalMenu.style.display = 'none';
+        }
+      });
 
      function enableAttendanceButtons() {
       // Don't enable buttons automatically - wait for radius validation

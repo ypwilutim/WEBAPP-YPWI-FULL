@@ -72,10 +72,13 @@
         <button class="nav-item w-full text-left flex items-center space-x-3 px-4 py-2.5 rounded-lg text-gray-600 hover:bg-gray-100 text-sm" data-tab="rules">
           <i class="fas fa-clock text-sm"></i><span>Aturan Absensi</span>
         </button>
-        <button class="nav-item w-full text-left flex items-center space-x-3 px-4 py-2.5 rounded-lg text-gray-600 hover:bg-gray-100 text-sm" data-tab="whatsapp">
+<button class="nav-item w-full text-left flex items-center space-x-3 px-4 py-2.5 rounded-lg text-gray-600 hover:bg-gray-100 text-sm" data-tab="whatsapp">
           <i class="fab fa-whatsapp text-sm"></i><span>WhatsApp</span>
         </button>
-      </nav>
+        <a href="evaluation-dashboard.html" class="w-full text-left flex items-center space-x-3 px-4 py-2.5 rounded-lg text-gray-600 hover:bg-gray-100 text-sm" id="evaluationLink" style="display:none;">
+          <i class="fas fa-clipboard-check text-sm"></i><span>Penilaian Guru</span>
+        </a>
+       </nav>
     </aside>
 
     <!-- Main Content -->
@@ -184,25 +187,57 @@
         </div>
       </div>
 
-      <!-- Attendance Tab -->
-      <div id="attendanceTab" class="tab-content hidden">
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-          <div class="flex justify-between items-center mb-6">
-            <h3 class="text-lg font-semibold text-gray-900">Log Kehadiran</h3>
-            <div class="flex space-x-2">
-              <input type="date" id="attendanceDateFilter" class="px-3 py-1.5 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500">
-              <select id="attendanceStatusFilter" class="px-3 py-1.5 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500"><option value="">Semua Status</option><option value="tepat_waktu">Tepat Waktu</option><option value="terlambat">Terlambat</option></select>
-              <button onclick="loadAttendanceLogs()" class="px-3 py-1.5 bg-blue-600 text-white rounded-md text-sm hover:bg-blue-700"><i class="fas fa-sync-alt mr-1"></i>Refresh</button>
-            </div>
-          </div>
-          <div class="overflow-x-auto">
-            <table class="w-full">
-              <thead class="bg-gray-50 border-b border-gray-100"><tr><th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Nama Guru</th><th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Jenis</th><th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Waktu</th><th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Status</th><th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Metode</th></tr></thead>
-              <tbody id="attendanceTable" class="divide-y divide-gray-100"><tr><td colspan="5" class="px-4 py-12 text-center text-gray-500"><i class="fas fa-spinner fa-spin text-xl mb-2"></i><p>Memuat data...</p></td></tr></tbody>
-            </table>
-          </div>
-        </div>
-      </div>
+<!-- Attendance Tab -->
+       <div id="attendanceTab" class="tab-content hidden">
+         <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+           <div class="flex justify-between items-center mb-4">
+             <div class="flex space-x-2">
+               <button id="schoolLogViewBtn" class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium">Log Harian</button>
+               <button id="schoolMonthlyViewBtn" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-300">Rekap Bulanan</button>
+             </div>
+             <div class="flex items-center space-x-2">
+               <select id="schoolRecapMonthSelect" class="px-3 py-1.5 border border-gray-300 rounded-md text-sm">
+                 <option value="1">Januari</option><option value="2">Februari</option><option value="3">Maret</option>
+                 <option value="4">April</option><option value="5">Mei</option><option value="6">Juni</option>
+                 <option value="7">Juli</option><option value="8">Agustus</option><option value="9">September</option>
+                 <option value="10">Oktober</option><option value="11">November</option><option value="12">Desember</option>
+               </select>
+               <select id="schoolRecapYearSelect" class="px-3 py-1.5 border border-gray-300 rounded-md text-sm"></select>
+             </div>
+           </div>
+
+           <!-- Log Harian View -->
+           <div id="schoolLogViewSection">
+             <div class="flex justify-between items-center mb-4">
+               <h3 class="text-lg font-semibold text-gray-900">Log Kehadiran</h3>
+               <div class="flex space-x-2">
+                 <input type="date" id="attendanceDateFilter" class="px-3 py-1.5 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500">
+                 <select id="attendanceStatusFilter" class="px-3 py-1.5 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500"><option value="">Semua Status</option><option value="tepat_waktu">Tepat Waktu</option><option value="terlambat">Terlambat</option></select>
+                 <button onclick="loadAttendanceLogs()" class="px-3 py-1.5 bg-blue-600 text-white rounded-md text-sm hover:bg-blue-700"><i class="fas fa-sync-alt mr-1"></i>Refresh</button>
+               </div>
+             </div>
+             <div class="overflow-x-auto">
+               <table class="w-full">
+                 <thead class="bg-gray-50 border-b border-gray-100"><tr><th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Nama Guru</th><th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Jenis</th><th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Waktu</th><th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Status</th><th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Metode</th></tr></thead>
+                 <tbody id="attendanceTable" class="divide-y divide-gray-100"><tr><td colspan="5" class="px-4 py-12 text-center text-gray-500"><i class="fas fa-spinner fa-spin text-xl mb-2"></i><p>Memuat data...</p></td></tr></tbody>
+               </table>
+             </div>
+           </div>
+
+           <!-- Monthly Recap View -->
+           <div id="schoolMonthlyRecapSection" class="hidden">
+             <div class="flex justify-between items-center mb-4">
+               <h3 class="text-lg font-semibold text-gray-900">Rekap Absensi Bulanan</h3>
+               <button onclick="exportMonthlyPdfFromRecap()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-1.5 rounded-lg text-sm flex items-center">
+                 <i class="fas fa-file-pdf mr-2"></i>Export PDF
+               </button>
+             </div>
+             <div id="schoolMonthlyRecapContent" class="overflow-x-auto max-h-[500px]">
+               <p class="text-center text-gray-500 py-8">Pilih bulan dan tahun untuk menampilkan rekap</p>
+             </div>
+           </div>
+         </div>
+       </div>
 
       <!-- Locations Tab -->
       <div id="locationsTab" class="tab-content hidden">
@@ -313,9 +348,22 @@
     const schoolName = urlParams.get('school');
     if (!tenantId) { alert('Parameter tenant tidak ditemukan.'); window.location.href = 'dashboard.html'; }
 
-    document.getElementById('schoolNameHeader').textContent = schoolName || tenantId;
-    document.getElementById('schoolIdHeader').textContent = 'ID: ' + tenantId;
-    document.getElementById('schoolTitleInline').textContent = schoolName || tenantId;
+document.getElementById('schoolNameHeader').textContent = schoolName || tenantId;
+     document.getElementById('schoolIdHeader').textContent = 'ID: ' + tenantId;
+     document.getElementById('schoolTitleInline').textContent = schoolName || tenantId;
+
+     // Show evaluation link for kepala sekolah/pimpinan pondok
+     const assignments = user.assignments || [];
+     const isEvaluator = assignments.some(a => 
+       ['kepala_sekolah', 'pimpinan_pondok'].includes((a.jabatan_di_unit || '').toLowerCase().replace(/\s/g, ''))
+     );
+     if (isEvaluator) {
+       const evalLink = document.getElementById('evaluationLink');
+       if (evalLink) {
+         evalLink.href = 'evaluation-dashboard.html?tenant=' + encodeURIComponent(tenantId) + '&school=' + encodeURIComponent(schoolName || '');
+         evalLink.style.display = 'flex';
+       }
+     }
 
 function apiUrl(path) {
        const sep = path.includes('?') ? '&' : '?';
@@ -834,11 +882,104 @@ async function editTeacher(id) {
       setTimeout(() => t.remove(), 3000);
     }
 
+    // Initialize recap view dropdowns and handlers
+    function initSchoolRecapView() {
+      const currentYear = new Date().getFullYear();
+      const yearSelects = document.querySelectorAll('#schoolRecapYearSelect');
+      yearSelects.forEach(select => {
+        for (let y = currentYear - 1; y <= currentYear + 1; y++) {
+          const opt = document.createElement('option');
+          opt.value = y;
+          opt.textContent = y;
+          if (y === currentYear) opt.selected = true;
+          select.appendChild(opt);
+        }
+      });
+
+      const currentMonth = new Date().getMonth() + 1;
+      const monthSelects = document.querySelectorAll('#schoolRecapMonthSelect');
+      monthSelects.forEach(select => select.value = currentMonth);
+
+      document.getElementById('schoolLogViewBtn')?.addEventListener('click', () => {
+        document.getElementById('schoolLogViewSection').classList.remove('hidden');
+        document.getElementById('schoolMonthlyRecapSection').classList.add('hidden');
+        document.getElementById('schoolLogViewBtn').className = 'px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium';
+        document.getElementById('schoolMonthlyViewBtn').className = 'px-4 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-300';
+      });
+
+      document.getElementById('schoolMonthlyViewBtn')?.addEventListener('click', () => {
+        document.getElementById('schoolLogViewSection').classList.add('hidden');
+        document.getElementById('schoolMonthlyRecapSection').classList.remove('hidden');
+        document.getElementById('schoolMonthlyViewBtn').className = 'px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium';
+        document.getElementById('schoolLogViewBtn').className = 'px-4 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-300';
+        loadSchoolMonthlyRecap();
+      });
+
+      document.getElementById('schoolRecapMonthSelect')?.addEventListener('change', loadSchoolMonthlyRecap);
+      document.getElementById('schoolRecapYearSelect')?.addEventListener('change', loadSchoolMonthlyRecap);
+    }
+
+    async function loadSchoolMonthlyRecap() {
+      const month = document.getElementById('schoolRecapMonthSelect').value;
+      const year = document.getElementById('schoolRecapYearSelect').value;
+      const container = document.getElementById('schoolMonthlyRecapContent');
+
+      if (!month || !year) return;
+
+      container.innerHTML = '<div class="text-center py-8"><i class="fas fa-spinner fa-spin text-xl"></i><p class="mt-2">Memuat rekap...</p></div>';
+
+      try {
+        const response = await fetch(`/api/admin/monthly-report/html?tenant_id=${encodeURIComponent(tenantId)}&month=${month}&year=${year}`, {
+          headers: { 'Authorization': `Bearer ${authToken}` }
+        });
+
+        if (response.ok) {
+          container.innerHTML = await response.text();
+        } else {
+          container.innerHTML = `
+            <div class="text-center py-8">
+              <i class="fas fa-file-pdf text-4xl text-gray-300 mb-3"></i>
+              <p class="text-gray-600">Data rekap tidak tersedia</p>
+            </div>
+          `;
+        }
+      } catch (error) {
+        console.error('Monthly recap load error:', error);
+        container.innerHTML = '<p class="text-center text-red-500 py-8">Error memuat rekap</p>';
+      }
+    }
+
+    async function exportMonthlyPdfFromRecap() {
+      const month = document.getElementById('schoolRecapMonthSelect').value;
+      const year = document.getElementById('schoolRecapYearSelect').value;
+      const pdfUrl = `/api/admin/monthly-report/pdf?tenant_id=${encodeURIComponent(tenantId)}&month=${month}&year=${year}`;
+      
+      try {
+        const response = await fetch(pdfUrl, {
+          headers: { 'Authorization': `Bearer ${authToken}` }
+        });
+        
+        if (!response.ok) {
+          const error = await response.json().catch(() => ({ message: 'Failed to generate PDF' }));
+          throw new Error(error.message || 'Failed to generate PDF');
+        }
+        
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        window.open(url, '_blank');
+        setTimeout(() => window.URL.revokeObjectURL(url), 1000);
+      } catch (error) {
+        console.error('PDF Export error:', error);
+        showToast('Gagal mengekspor PDF: ' + error.message, 'error');
+      }
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
       const now = new Date();
       setEl('currentDate', now.toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }));
       document.querySelectorAll('.nav-item').forEach(btn => btn.addEventListener('click', function() { switchTab(this.getAttribute('data-tab')); }));
       loadDashboard();
+      initSchoolRecapView();
     });
   </script>
 </body>
