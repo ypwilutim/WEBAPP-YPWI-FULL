@@ -155,11 +155,6 @@
           <i class="fas fa-cog"></i>
           <span>Pengaturan</span>
         </button>
-        <a href="/template-editor.html" target="_blank"
-          class="w-full text-left flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-100">
-          <i class="fas fa-file-edit"></i>
-          <span>Editor Template PDF</span>
-        </a>
       </nav>
     </aside>
 
@@ -1179,6 +1174,7 @@
       <div class="p-6">
         <h3 class="text-lg font-semibold mb-4" id="ruleModalTitle">Tambah Aturan</h3>
         <form id="ruleForm">
+          <input type="hidden" id="ruleId">
           <div class="mb-4">
             <label class="block text-sm font-medium text-gray-700 mb-1">SEKOLAH</label>
             <select name="tenant_id"
@@ -1588,29 +1584,6 @@
               placeholder="100" value="100">
           </div>
 
-          <!-- Toggle Aturan Pusat -->
-          <div class="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
-            <div class="flex items-center justify-between">
-              <div>
-                <label class="flex items-center cursor-pointer">
-                  <span class="text-sm font-medium text-gray-700">Gunakan Aturan Pusat</span>
-                  <div class="relative ml-3">
-                    <input type="checkbox" name="use_central_rules" id="tenantLocationUseCentralRules"
-                      class="sr-only toggle-checkbox" onchange="updateToggleVisual(this)">
-                    <div
-                      class="w-11 h-6 bg-gray-200 rounded-full toggle-track transition-colors duration-200 pointer-events-none">
-                    </div>
-                    <div
-                      class="absolute left-0.5 top-0.5 w-5 h-5 bg-white border border-gray-300 rounded-full toggle-thumb transition-transform duration-200 pointer-events-none">
-                    </div>
-                  </div>
-                </label>
-                <p class="text-xs text-blue-600 mt-1">Aktifkan agar aturan pusat juga berlaku untuk sekolah ini. Aturan
-                  sekolah tetap berlaku dan dapat menimpa aturan pusat jika terjadi konflik.</p>
-              </div>
-            </div>
-          </div>
-
           <div class="flex space-x-3">
             <button type="button" onclick="hideTenantLocationModal()"
               class="flex-1 inline-flex items-center justify-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
@@ -1759,6 +1732,193 @@
     window.loadScannerDevices = loadScannerDevices;
     window.loadQRLogs = loadQRLogs;
 
+    document.addEventListener('DOMContentLoaded', () => {
+      // ==========================================
+      // 1. LOGIKA TOMBOL OTOMATIS (AUTO DETECT)
+      // ==========================================
+      const modalDetectBtn = document.getElementById('autoDetectModalBtn');
+
+      if (modalDetectBtn) {
+        modalDetectBtn.addEventListener('click', function () {
+          if (!navigator.geolocation) {
+            alert('Browser Anda tidak mendukung fitur Geolocation.');
+            return;
+          }
+
+          // Ubah status tombol menjadi loading
+          const originalHTML = this.innerHTML;
+          this.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Mendeteksi...';
+          this.disabled = true;
+
+          // Ubah status teks petunjuk di bawah tombol
+          const statusContainer = document.getElementById('locationStatus');
+          if (statusContainer) {
+            statusContainer.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i> Menghubungi satelit GPS perangkat Anda...';
+          }
+
+          navigator.geolocation.getCurrentPosition(
+            (position) => {
+              const lat = position.coords.latitude.toFixed(6);
+              const lng = position.coords.longitude.toFixed(6);
+
+              const latInput = document.getElementById('latitudeInput');
+              const lngInput = document.getElementById('longitudeInput');
+              const previewContainer = document.getElementById('coordinatePreview');
+              const accuracyCheck = document.getElementById('coordinateAccuracy');
+
+              // Masukkan data koordinat langsung ke dalam input form modal
+              if (latInput && lngInput) {
+                latInput.value = lat;
+                lngInput.value = lng;
+
+                // Trigger event 'input' agar fungsi peta di bawah langsung membaca perubahannya
+                latInput.dispatchEvent(new Event('input', { bubbles: true }));
+                lngInput.dispatchEvent(new Event('input', { bubbles: true }));
+              }
+
+              if (previewContainer) {
+                previewContainer.innerHTML = `<span class="text-blue-600 font-bold">${lat}, ${lng}</span>`;
+              }
+
+              if (accuracyCheck) {
+                accuracyCheck.classList.remove('hidden');
+              }
+
+              if (statusContainer) {
+                statusContainer.innerHTML = `<i class="fas fa-check-circle text-green-600 mr-1"></i> Lokasi berhasil disalin ke form modal!`;
+              }
+
+              this.innerHTML = originalHTML;
+              this.disabled = false;
+            },
+            (error) => {
+              this.innerHTML = originalHTML;
+              this.disabled = false;
+
+              if (statusContainer) {
+                statusContainer.innerHTML = `<i class="fas fa-exclamation-triangle text-red-500 mr-1"></i> Gagal: ${error.message}`;
+              }
+
+              if (error.code === 1) {
+                alert('Akses GPS ditolak. Tolong izinkan hak akses lokasi pada pengaturan browser Anda.');
+              } else {
+                alert(`Gagal mendeteksi koordinat perangkat: ${error.message}`);
+              }
+            },
+            { enableHighAccuracy: true, timeout: 10000 }
+          );
+        });
+      }
+
+      // ==========================================
+      // 2. LOGIKA SINKRONISASI REAL-TIME INPUT -> PETA
+      // ==========================================
+      const latInput = document.getElementById('latitudeInput');
+      const lngInput = document.getElementById('longitudeInput');
+
+      if (latInput && lngInput) {
+        function liveSyncFormToMap() {
+          const lat = parseFloat(latInput.value);
+          const lng = parseFloat(lngInput.value);
+
+          // Validasi standar koordinat bumi
+          if (!isNaN(lat) && !isNaN(lng) && lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180) {
+
+            // A. JIKA MENGGUNAKAN LEAFLET.JS
+            if (typeof map !== 'undefined' && map !== null) {
+              if (typeof marker !== 'undefined' && marker !== null) {
+                marker.setLatLng([lat, lng]);
+              } else if (typeof mapMarker !== 'undefined' && mapMarker !== null) {
+                mapMarker.setLatLng([lat, lng]);
+              }
+
+              // Bergerak dinamis mengikuti rute koordinat baru
+              map.panTo([lat, lng]);
+
+              // Memaksa rendering ulang map agar tidak patah/blank saat modal dibuka-tutup
+              setTimeout(() => map.invalidateSize(), 50);
+            }
+
+            // B. JIKA MENGGUNAKAN GOOGLE MAPS
+            else if (typeof google !== 'undefined' && typeof google.maps !== 'undefined') {
+              const newLatLng = new google.maps.LatLng(lat, lng);
+
+              if (typeof marker !== 'undefined' && typeof marker.setPosition === 'function') {
+                marker.setPosition(newLatLng);
+              }
+
+              if (typeof map !== 'undefined' && typeof map.panTo === 'function') {
+                map.panTo(newLatLng);
+              }
+            }
+          }
+        }
+
+        // Dengarkan ketikan manual pengguna (Karakter demi karakter)
+        latInput.addEventListener('input', liveSyncFormToMap);
+        lngInput.addEventListener('input', liveSyncFormToMap);
+
+        // Dengarkan pengisian otomatis dari sistem (Termasuk fungsi dispatchEvent di atas)
+        latInput.addEventListener('change', liveSyncFormToMap);
+        lngInput.addEventListener('change', liveSyncFormToMap);
+      }
+    });
+
+    async function loadAttendanceLogs(page = 1) {
+      try {
+        console.log('Memuat log absensi halaman:', page);
+        const response = await fetch(`/api/admin/attendance-logs?page=${page}&limit=10`, {
+          headers: { 'Authorization': `Bearer ${window.authToken || localStorage.getItem('token') || ''}` }
+        });
+
+        const res = await response.json();
+
+        if (res.success) {
+          // SINKRON: Menggunakan ID asli dari HTML Anda
+          const tbody = document.getElementById('attendanceTable');
+
+          if (!tbody) {
+            console.error('Elemen tbody #attendanceTable tidak ditemukan di HTML!');
+            return;
+          }
+
+          const items = res.data || [];
+          if (items.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="6" class="px-6 py-4 text-center text-gray-500">Tidak ada log absensi hari ini</td></tr>`;
+            return;
+          }
+
+          // Suntik data log absensi ke dalam tabel HTML
+          tbody.innerHTML = items.map(log => `
+        <tr class="hover:bg-gray-50">
+          <td class="px-6 py-4 text-sm text-gray-900 font-medium">${log.nama_guru || log.teacher_id || '-'}</td>
+          <td class="px-6 py-4 text-sm text-gray-500">${log.nama_sekolah || log.tenant_id || '-'}</td>
+          <td class="px-6 py-4 text-sm text-gray-500">
+            ${log.waktu ? new Date(log.waktu).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) : '-'} WITA
+          </td>
+          <td class="px-6 py-4 text-sm text-gray-500 capitalize">${log.jenis || '-'}</td>
+          <td class="px-6 py-4 text-sm">
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
+              ${log.status === 'tepat_waktu' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">
+              ${log.status ? log.status.replace('_', ' ') : '-'}
+            </span>
+          </td>
+          <td class="px-6 py-4 text-sm text-gray-500 capitalize">${log.metode || '-'}</td>
+        </tr>
+      `).join('');
+        }
+      } catch (error) {
+        console.error('Gagal memuat log absensi:', error);
+      }
+    }
+
+    // Otomatis panggil fungsi ini saat dashboard selesai dimuat
+    document.addEventListener('DOMContentLoaded', () => {
+      if (typeof loadAttendanceLogs === 'function') {
+        loadAttendanceLogs();
+      }
+    });
+
     async function fetchDashboardData() {
       try {
         const response = await fetch('/api/admin/summary', {
@@ -1816,47 +1976,56 @@
           const items = Array.isArray(res.data) ? res.data : (res.data ? [res.data] : []);
           console.log('Teachers items count:', items.length);
 
-          // Update pagination info
-          currentPage = res.pagination.page;
-          totalPages = res.pagination.totalPages;
+          // AMAN: Menggunakan Optional Chaining (?.) dan nilai cadangan jika pagination undefined
+          currentPage = res.pagination?.page || page;
+          totalPages = res.pagination?.totalPages || 1;
 
           const tbody = document.getElementById('teachersTable');
           console.log('Teachers tbody found:', !!tbody);
-          tbody.innerHTML = items.map(t => `
-            <tr class="hover:bg-gray-50">
-              <td class="px-6 py-4">
-                <input type="checkbox" class="teacher-checkbox" value="${t.id}" onchange="updateSelectAll()">
-              </td>
-              <td class="px-6 py-4 text-sm text-gray-900">${t.nama || '-'}</td>
-              <td class="px-6 py-4 text-sm text-gray-500">${t.nik || '-'}</td>
-              <td class="px-6 py-4 text-sm text-gray-500">${t.nip || '-'}</td>
-              <td class="px-6 py-4 text-sm text-gray-500">${t.status_kepegawaian || '-'}</td>
-               <td class="px-6 py-4 text-sm text-gray-500">
-                 <div class="max-w-xs truncate" title="${t.assignments && t.assignments.length > 0 ? t.assignments.map(a => a.nama_sekolah || a.tenant_id).join(', ') : 'Belum ditugaskan'}">
-                   ${t.assignments && t.assignments.length > 0 ? t.assignments.map(a => a.nama_sekolah || a.tenant_id).join(', ') : 'Belum ditugaskan'}
-                 </div>
-               </td>
-              <td class="px-6 py-4 text-sm">
-                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${t.status_aktif ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">
-                  ${t.status_aktif ? 'Aktif' : 'Nonaktif'}
-                </span>
-              </td>
-              <td class="px-6 py-4 text-sm space-x-2">
-                <button onclick="createUser(${t.id})" class="inline-flex items-center p-1.5 text-green-600 hover:text-green-800 hover:bg-green-50 rounded-md transition-colors duration-150" title="Buat User">
-                  <i class="fas fa-user-plus text-sm"></i>
-                </button>
-                <button onclick="editTeacher(${t.id})" class="inline-flex items-center p-1.5 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-md transition-colors duration-150" title="Edit">
-                  <i class="fas fa-edit text-sm"></i>
-                </button>
-                <button onclick="deleteTeacher(${t.id})" class="inline-flex items-center p-1.5 text-red-600 hover:text-red-800 hover:bg-red-50 rounded-md transition-colors duration-150" title="Hapus">
-                  <i class="fas fa-trash text-sm"></i>
-                </button>
-              </td>
-            </tr>
-          `).join('');
 
-          // Update pagination controls
-          updatePaginationControls(res.pagination);
+          if (tbody) {
+            tbody.innerHTML = items.map(t => `
+          <tr class="hover:bg-gray-50">
+            <td class="px-6 py-4">
+              <input type="checkbox" class="teacher-checkbox" value="${t.id}" onchange="updateSelectAll()">
+            </td>
+            <td class="px-6 py-4 text-sm text-gray-900">${t.nama || '-'}</td>
+            <td class="px-6 py-4 text-sm text-gray-500">${t.nik || '-'}</td>
+            <td class="px-6 py-4 text-sm text-gray-500">${t.nip || '-'}</td>
+            <td class="px-6 py-4 text-sm text-gray-500">${t.status_kepegawaian || '-'}</td>
+            <td class="px-6 py-4 text-sm text-gray-500">
+              <div class="max-w-xs truncate" title="${Array.isArray(t.assignments)
+                ? t.assignments.map(a => a.nama_sekolah || a.tenant_id).join(', ')
+                : (typeof t.assignments === 'string' ? t.assignments : 'Belum ditugaskan')
+              }">
+                ${Array.isArray(t.assignments)
+                ? t.assignments.map(a => a.nama_sekolah || a.tenant_id).join(', ')
+                : (typeof t.assignments === 'string' ? t.assignments : 'Belum ditugaskan')
+              }
+              </div>
+            </td>
+            <td class="px-6 py-4 text-sm">
+              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${t.status_aktif ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">
+                ${t.status_aktif ? 'Aktif' : 'Nonaktif'}
+              </span>
+            </td>
+            <td class="px-6 py-4 text-sm space-x-2">
+              <button onclick="createUser(${t.id})" class="inline-flex items-center p-1.5 text-green-600 hover:text-green-800 hover:bg-green-50 rounded-md transition-colors duration-150" title="Buat User">
+                <i class="fas fa-user-plus text-sm"></i>
+              </button>
+              <button onclick="editTeacher(${t.id})" class="inline-flex items-center p-1.5 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-md transition-colors duration-150" title="Edit">
+                <i class="fas fa-edit text-sm"></i>
+              </button>
+              <button onclick="deleteTeacher(${t.id})" class="inline-flex items-center p-1.5 text-red-600 hover:text-red-800 hover:bg-red-50 rounded-md transition-colors duration-150" title="Hapus">
+                <i class="fas fa-trash text-sm"></i>
+              </button>
+            </td>
+          </tr>
+        `).join('');
+          }
+
+          // AMAN: Mengirimkan objek cadangan kosong {} jika res.pagination tidak ada
+          updatePaginationControls(res.pagination || { page: currentPage, totalPages: totalPages });
 
           console.log('Teachers table updated with', items.length, 'rows for page', currentPage);
         }
@@ -2009,7 +2178,7 @@
                     <span class="mr-2 text-sm text-gray-600">Aturan Pusat</span>
                     <div class="relative">
                       <input type="checkbox" class="sr-only toggle-checkbox" data-action="toggle-central" data-tenant-id="${tenant.tenant_id}" ${tenant.use_central_rules ? 'checked' : ''}>
-<div class="w-11 h-6 bg-gray-200 rounded-full toggle-track transition-colors duration-200 pointer-events-none ${tenant.use_central_rules ? 'bg-blue-600' : 'bg-gray-200'}"></div>
+                        <div class="w-11 h-6 bg-gray-200 rounded-full toggle-track transition-colors duration-200 pointer-events-none ${tenant.use_central_rules ? 'bg-blue-600' : 'bg-gray-200'}"></div>
                        <div class="absolute left-0.5 top-0.5 w-5 h-5 bg-white border border-gray-300 rounded-full toggle-thumb transition-transform duration-200 pointer-events-none ${tenant.use_central_rules ? 'translate-x-5' : 'translate-x-0'}"></div>
                     </div>
                   </label>
@@ -2329,6 +2498,9 @@
         const res = await response.json();
 
         if (res.success) {
+          // PERBAIKAN: Set variabel global id agar sistem tahu form ini sedang dalam mode EDIT
+          currentRuleId = id;
+
           const rule = res.data;
           document.getElementById('ruleModalTitle').textContent = 'Edit Aturan';
           const form = document.getElementById('ruleForm');
@@ -2338,6 +2510,8 @@
           form.jam_selesai.value = rule.jam_selesai;
           form.keterangan.value = rule.keterangan;
           form.status_log.value = rule.status_log;
+
+          // ... sisa kode pengisian tenant option Anda di bawahnya tetap sama ...
 
           // Populate tenant options if not already done
           const tenantSelect = document.querySelector('select[name="tenant_id"]');
@@ -2612,8 +2786,8 @@
     function createPageButton(pageNum, isActive = false) {
       const button = document.createElement('button');
       button.className = `px-3 py-2 text-sm font-medium rounded-md ${isActive
-          ? 'bg-blue-600 text-white'
-          : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-50'
+        ? 'bg-blue-600 text-white'
+        : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-50'
         }`;
       button.textContent = pageNum;
       if (!isActive) {
@@ -2646,8 +2820,8 @@
       // Create toast element
       const toast = document.createElement('div');
       toast.className = `fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg max-w-sm ${type === 'success' ? 'bg-green-500 text-white' :
-          type === 'error' ? 'bg-red-500 text-white' :
-            'bg-blue-500 text-white'
+        type === 'error' ? 'bg-red-500 text-white' :
+          'bg-blue-500 text-white'
         }`;
 
       toast.innerHTML = `
@@ -2710,11 +2884,15 @@
         return;
       }
 
-      // Show loading state
-      const button = event.target.closest('button');
-      const originalText = button.innerHTML;
-      button.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Detecting...';
-      button.disabled = true;
+      // AMAN: Mencari tombol berdasarkan atribut data, bukan menggunakan variabel 'event' yang rawan crash
+      const button = document.querySelector(`[data-action="auto-detect"][data-tenant-id="${tenantId}"]`);
+      let originalText = '<i class="fas fa-crosshairs mr-2"></i>Auto Detect';
+
+      if (button) {
+        originalText = button.innerHTML;
+        button.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Detecting...';
+        button.disabled = true;
+      }
 
       try {
         const position = await new Promise((resolve, reject) => {
@@ -2728,7 +2906,7 @@
         const latitude = position.coords.latitude.toFixed(6);
         const longitude = position.coords.longitude.toFixed(6);
 
-        // Update tenant location
+        // Ambil data form lain yang mungkin dibutuhkan oleh backend V5.0 Anda jika ada
         const response = await fetch(`/api/admin/tenants/${tenantId}`, {
           method: 'PUT',
           headers: {
@@ -2738,16 +2916,24 @@
           body: JSON.stringify({
             latitude: latitude,
             longitude: longitude,
-            location_radius: 100,
+            location_radius: 100, // Radius default geofence 100 meter
             location_name: `Auto-detected at ${new Date().toLocaleString('id-ID')}`
           })
         });
 
-        if (response.ok) {
-          fetchTenantLocations(); // Refresh the list
-          alert(`Lokasi berhasil dideteksi!\nLatitude: ${latitude}\nLongitude: ${longitude}`);
+        const res = await response.json();
+
+        // Memeriksa response.ok atau res.success sesuai standarisasi API Anda
+        if (response.ok || res.success) {
+          alert(`Lokasi berhasil dideteksi dan disimpan!\nLatitude: ${latitude}\nLongitude: ${longitude}`);
+
+          // Sinkronisasi fungsi refresh daftar tenant
+          if (typeof fetchTenantLocations === 'function') fetchTenantLocations();
+          else if (typeof loadTenants === 'function') loadTenants();
+          else if (typeof fetchTenants === 'function') fetchTenants();
+
         } else {
-          throw new Error('Failed to update location');
+          throw new Error(res.message || 'Failed to update location');
         }
 
       } catch (error) {
@@ -2760,8 +2946,10 @@
           alert('Error mendeteksi lokasi: ' + error.message);
         }
       } finally {
-        button.innerHTML = originalText;
-        button.disabled = false;
+        if (button) {
+          button.innerHTML = originalText;
+          button.disabled = false;
+        }
       }
     }
 
@@ -3031,9 +3219,6 @@
         const formData = new FormData(e.target);
         const data = Object.fromEntries(formData);
         const tenantId = data.tenant_id;
-
-        // Pastikan nilai boolean untuk use_central_rules
-        data.use_central_rules = document.getElementById('tenantLocationUseCentralRules').checked;
 
         const submitBtn = e.target.querySelector('button[type="submit"]');
         const originalText = submitBtn.textContent;
@@ -3812,11 +3997,6 @@
       modal.classList.add('hidden');
       document.getElementById('tenantLocationForm').reset();
 
-      // Reset toggle to unchecked when modal is closed
-      const checkbox = document.getElementById('tenantLocationUseCentralRules');
-      checkbox.checked = false;
-      updateToggleVisual(checkbox);
-
       // Clean up map
       if (miniMap) {
         miniMap.remove();
@@ -3905,11 +4085,6 @@
       document.getElementById('tenantLocationModalTitle').textContent = 'Tambah Lokasi Tenant';
       document.getElementById('tenantLocationForm').reset();
 
-      // Reset toggle to unchecked when opening add location modal
-      const addLocationCheckbox = document.getElementById('tenantLocationUseCentralRules');
-      addLocationCheckbox.checked = false;
-      updateToggleVisual(addLocationCheckbox);
-
       // Reset location detection status
       document.getElementById('tenantLocationStatus').innerHTML = '<i class="fas fa-info-circle mr-1"></i>Klik tombol di atas untuk mendapatkan koordinat GPS saat ini';
       document.getElementById('tenantLocationStatus').className = 'text-sm text-blue-700';
@@ -3966,6 +4141,9 @@
     // Load tenant options for location modal
     function loadTenantOptionsForModal() {
       console.log('Loading tenant options for location modal...');
+
+      // PERBAIKAN: Ambil token di baris paling atas sebelum dilakukan pengecekan atau console.log
+      const authToken = window.authToken || localStorage.getItem('token');
       console.log('Auth token available:', !!authToken);
 
       // Check if modal is visible
@@ -3974,7 +4152,6 @@
       console.log('Modal classes:', modal ? modal.className : 'N/A');
       console.log('Modal visible:', modal ? modal.classList.contains('show') : false);
 
-      const authToken = window.authToken || localStorage.getItem('token');
       if (!authToken) {
         console.error('No auth token available for tenant loading');
         const select = document.getElementById('locationTenantId');
@@ -3983,7 +4160,7 @@
       }
 
       fetch('/api/admin/tenants', {
-        headers: { 'Authorization': `Bearer ${window.authToken || localStorage.getItem('token') || ''}` }
+        headers: { 'Authorization': `Bearer ${authToken}` } // Gunakan variabel authToken lokal yang sudah bersih
       })
         .then(res => {
           console.log('Tenant API response status:', res.status);

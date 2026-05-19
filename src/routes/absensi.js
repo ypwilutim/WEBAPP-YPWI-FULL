@@ -86,7 +86,7 @@ router.post('/attendance', authenticateToken, selfieUpload.single('selfie'), asy
     if (rulesResult.length === 0) {
       return res.status(400).json({
         success: false,
-        message: `Absensi ditolak! Jam saat ini (${jamSekarangStr} WITA) berada di luar jendela waktu absensi resmi sekolah.`
+        message: `Absensi ditolak! Jam saat ini (${jamSekarangStr} ) berada di luar jendela waktu absensi resmi sekolah.`
       });
     }
 

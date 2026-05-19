@@ -126,6 +126,25 @@ router.put('/admin/tenants/:tenantId', authenticateOperator, async (req, res) =>
     const updateFields = [];
     const updateValues = [];
 
+    // --- BLOK PENYELAMAT KOORDINAT GEOFENCE ---
+    if (latitude !== undefined && latitude !== null) {
+      updateFields.push('latitude = ?');
+      updateValues.push(latitude);
+    }
+    if (longitude !== undefined && longitude !== null) {
+      updateFields.push('longitude = ?');
+      updateValues.push(longitude);
+    }
+    if (location_radius !== undefined && location_radius !== null) {
+      updateFields.push('location_radius = ?');
+      updateValues.push(location_radius);
+    }
+    if (location_name !== undefined && location_name !== null) {
+      updateFields.push('location_name = ?');
+      updateValues.push(location_name);
+    }
+    // ------------------------------------------
+
     if (use_central_rules !== undefined) {
       updateFields.push('use_central_rules = ?');
       updateValues.push(use_central_rules ? 1 : 0);
@@ -135,12 +154,18 @@ router.put('/admin/tenants/:tenantId', authenticateOperator, async (req, res) =>
       updateValues.push(tipe_unit);
     }
 
+    // Jika ada field yang dikirim untuk diupdate
     if (updateFields.length > 0) {
       updateValues.push(tenantId);
-      await db.query(`UPDATE tenants SET ${updateFields.join(', ')} WHERE tenant_id = ?`, updateValues);
+      const queryStr = `UPDATE tenants SET ${updateFields.join(', ')} WHERE tenant_id = ?`;
+      console.log(`[SQL EXECUTE] ${queryStr} with values:`, updateValues); // Untuk mempermudah monitoring log Anda
+
+      await db.query(queryStr, updateValues);
+      res.json({ success: true, message: 'Tenant berhasil diupdate' });
+    } else {
+      res.json({ success: true, message: 'Tidak ada data baru yang diupdate' });
     }
 
-    res.json({ success: true, message: 'Tenant berhasil diupdate' });
   } catch (error) {
     console.error('Update tenant error:', error);
     res.status(500).json({ success: false, message: 'Error updating tenant' });
