@@ -227,57 +227,57 @@ if (!fs.existsSync(path.join(__dirname, 'logs'))) {
   fs.mkdirSync(path.join(__dirname, 'logs'));
 }
 const logger = {
-  request: (req, message = '') => {
-    const timestamp = new Date().toISOString();
-    const { method, url, headers, body } = req;
-    const safeBody = { ...body };
-    if (safeBody.password) safeBody.password = '[HIDDEN]';
-    const logMessage = `[${timestamp}] 🌍 REQUEST  | ${method.padEnd(6)} | ${url.padEnd(40)} | Body: ${JSON.stringify(safeBody)}`;
-    console.log(logMessage);
-    fs.appendFileSync(logFilePath, logMessage + '\n', 'utf8');
-  },
-  response: (req, res, statusCode) => {
-    const timestamp = new Date().toISOString();
-    const logMessage = `[${timestamp}] 📤 RESPONSE | ${req.method.padEnd(6)} | ${req.url.padEnd(40)} | Status: ${statusCode}`;
-    console.log(logMessage);
-    fs.appendFileSync(logFilePath, logMessage + '\n', 'utf8');
-  },
-  loginDebug: {
-    receivedData: (data) => {
-      const timestamp = new Date().toISOString();
-      const safeData = { ...data };
-      if (safeData.password) safeData.password = '[HIDDEN]';
-      const logMessage = `[${timestamp}] 🔐 LOGIN_DEBUG | [1/3] Data received from body: ${JSON.stringify(safeData)}`;
-      console.log(logMessage);
-      fs.appendFileSync(logFilePath, logMessage + '\n', 'utf8');
-    },
-    queryResult: (user) => {
-      const timestamp = new Date().toISOString();
-      let logMessage;
-      if (user) {
-        logMessage = `[${timestamp}] 🔐 LOGIN_DEBUG | [2/3] User found in DB: ${JSON.stringify({ id: user.id, username: user.username, role: user.role, tenant_id: user.tenant_id, guru_id: user.guru_id, hasPassword: !!user.password, is_profile_complete: user.is_profile_complete })}`;
-      } else {
-        logMessage = `[${timestamp}] 🔐 LOGIN_DEBUG | [2/3] No records found`;
-      }
-      console.log(logMessage);
-      fs.appendFileSync(logFilePath, logMessage + '\n', 'utf8');
-    },
-    passwordCheck: (isValid) => {
-      const timestamp = new Date().toISOString();
-      const logMessage = `[${timestamp}] 🔐 LOGIN_DEBUG | [3/3] Password comparison result: ${isValid ? '✅ MATCH' : '❌ MISMATCH'}`;
-      console.log(logMessage);
-      fs.appendFileSync(logFilePath, logMessage + '\n', 'utf8');
-    }
-  },
-  error: (error, context = '') => {
-    const timestamp = new Date().toISOString();
-    const logMessage = `\n[${timestamp}] ❌ ERROR    | Context: ${context}\n[${timestamp}] ❌ ERROR    | Message: ${error.message}\n[${timestamp}] ❌ ERROR    | Stack Trace:\n${error.stack}\n`;
-    console.error(logMessage);
-    fs.appendFileSync(logFilePath, logMessage + '\n', 'utf8');
-  },
-};
-
-// Request logging middleware moved early (after body parsers) - duplicate removed to prevent empty body logs
+   request: (req, message = '') => {
+     const timestamp = new Date().toISOString();
+     const { method, url, headers, body } = req;
+     const safeBody = { ...body };
+     if (safeBody.password) safeBody.password = '[HIDDEN]';
+     const logMessage = `[${timestamp}] 🌍 REQUEST  | ${method.padEnd(6)} | ${url.padEnd(40)} | Body: ${JSON.stringify(safeBody)}`;
+     console.log(logMessage);
+     fs.appendFileSync(logFilePath, logMessage + '\n', 'utf8');
+   },
+   response: (req, res, statusCode) => {
+     const timestamp = new Date().toISOString();
+     const logMessage = `[${timestamp}] 📤 RESPONSE | ${req.method.padEnd(6)} | ${req.url.padEnd(40)} | Status: ${statusCode}`;
+     console.log(logMessage);
+     fs.appendFileSync(logFilePath, logMessage + '\n', 'utf8');
+   },
+   loginDebug: {
+     receivedData: (data) => {
+       const timestamp = new Date().toISOString();
+       const safeData = { ...data };
+       if (safeData.password) safeData.password = '[HIDDEN]';
+        const logMessage = `[${timestamp}] 🔐 LOGIN_DEBUG | [1/3] Data received from body: ${JSON.stringify(safeData)}`;
+       console.log(logMessage);
+       fs.appendFileSync(logFilePath, logMessage + '\n', 'utf8');
+     },
+     queryResult: (user) => {
+       const timestamp = new Date().toISOString();
+       let logMessage;
+       if (user) {
+          logMessage = `[${timestamp}] 🔐 LOGIN_DEBUG | [2/3] User found in DB: ${JSON.stringify({ id: user.id, username: user.username, role: user.role, tenant_id: user.tenant_id, guru_id: user.guru_id, hasPassword: !!user.password, is_profile_complete: user.is_profile_complete })}`;
+       } else {
+         logMessage = `[${timestamp}] 🔐 LOGIN_DEBUG | [2/3] No records found`;
+       }
+       console.log(logMessage);
+       fs.appendFileSync(logFilePath, logMessage + '\n', 'utf8');
+     },
+     passwordCheck: (isValid) => {
+       const timestamp = new Date().toISOString();
+       const logMessage = `[${timestamp}] 🔐 LOGIN_DEBUG | [3/3] Password comparison result: ${isValid ? '✅ MATCH' : '❌ MISMATCH'}`;
+       console.log(logMessage);
+       fs.appendFileSync(logFilePath, logMessage + '\n', 'utf8');
+     }
+   },
+   error: (error, context = '') => {
+     const timestamp = new Date().toISOString();
+     const logMessage = `\n[${timestamp}] ❌ ERROR    | Context: ${context}\n[${timestamp}] ❌ ERROR    | Message: ${error.message}\n[${timestamp}] ❌ ERROR    | Stack Trace:\n${error.stack}\n`;
+     console.error(logMessage);
+     fs.appendFileSync(logFilePath, logMessage + '\n', 'utf8');
+   },
+  };
+ 
+ // Request logging middleware moved early (after body parsers) - duplicate removed to prevent empty body logs
 
 const authenticateToken = (req, res, next) => {
   const authHeader = req.headers['authorization'];
@@ -464,28 +464,28 @@ app.post('/api/auth/login', async (req, res) => {
   //     success: false,
   //     message: 'Format email tidak valid.'
   //   });
-  // }
+// }
 
-  try {
+try {
     logger.loginDebug.receivedData({ username, password: '[HIDDEN]' });
 
-    // Validate email format (optional, comment out to allow non-email usernames)
-    // if (!validator.isEmail(username)) {
-    //   return res.status(400).json({
-    //     success: false,
-    //     message: 'Format email tidak valid.'
-    //   });
-    // }
+     // Validate email format (optional, comment out to allow non-email usernames)
+     // if (!validator.isEmail(username)) {
+     //   return res.status(400).json({
+     //     success: false,
+     //     message: 'Format email tidak valid.'
+     //   });
+     // }
 
-    const users = await db.query('SELECT * FROM users WHERE username = ?', [username]);
-    logger.loginDebug.queryResult(users[0]);
+     const users = await db.query('SELECT * FROM users WHERE username = ?', [username]);
+     logger.loginDebug.queryResult(users[0]);
 
-    if (users.length === 0) {
-      return res.status(401).json({
-        success: false,
-        message: 'Username atau password salah.'
-      });
-    }
+     if (users.length === 0) {
+       return res.status(401).json({
+         success: false,
+         message: 'Username atau password salah.'
+       });
+     }
 
     const user = users[0];
     const isPasswordValid = await bcrypt.compare(password, user.password);
@@ -513,18 +513,18 @@ app.post('/api/auth/login', async (req, res) => {
     };
 
 
-    // Cari assignments guru untuk akses admin sekolah
-    if (user.role !== 'admin' && user.guru_id) {
-      try {
-        var tokenAssignments = await db.query(
-          'SELECT ta.tenant_id, ta.jabatan_di_unit, t.nama_sekolah FROM teacher_assignments ta JOIN tenants t ON ta.tenant_id = t.tenant_id WHERE ta.teacher_id = ?',
-          [user.guru_id]
-        );
-        tokenPayload.assignments = tokenAssignments;
-      } catch (e) {
-        tokenPayload.assignments = [];
-      }
-    }
+     // Cari assignments guru untuk akses admin sekolah
+     if (user.role !== 'admin' && user.guru_id) {
+       try {
+         var tokenAssignments = await db.query(
+           'SELECT ta.tenant_id, ta.jabatan_di_unit, t.nama_sekolah FROM teacher_assignments ta JOIN tenants t ON ta.tenant_id = t.tenant_id WHERE ta.teacher_id = ?',
+           [user.guru_id]
+         );
+         tokenPayload.assignments = tokenAssignments;
+       } catch (e) {
+         tokenPayload.assignments = [];
+       }
+     }
     const token = jwt.sign(tokenPayload, SECRET_KEY, { expiresIn: '8h' });
 
     if (!isProfileComplete) {
@@ -650,50 +650,6 @@ app.get('/api/search/teachers', async (req, res) => {
   }
 });
 
-function formatIslamicMessage(nama, jenisKelamin, content) {
-  const panggilan = jenisKelamin === 'P' ? 'Ustadzah' : 'Ustadz';
-  const generateIslamicGreeting = (nama, panggilan) => {
-    return `Assalamu'alaikum ${panggilan} ${nama}`;
-  };
-
-  const generateIslamicDua = (panggilan) => {
-    const duas = [
-      "Semoga Allah SWT senantiasa memberikan kesehatan, kekuatan, dan kemudahan dalam menjalankan tugas sebagai pendidik.",
-      "Semoga Allah SWT memberikan pahala yang berlipat ganda atas pengabdian Bapak/Ibu di dunia pendidikan.",
-      `Semoga Allah SWT memudahkan segala urusan ${panggilan} dan keluarga, serta memberikan keberkahan di setiap langkah.`,
-      "Semoga Allah SWT menjadikan Bapak/Ibu sebagai teladan yang baik bagi para siswa dan masyarakat.",
-      "Semoga Allah SWT memberikan ilmu yang bermanfaat dan amal yang diterima di dunia dan akhirat."
-    ];
-    return duas[Math.floor(Math.random() * duas.length)];
-  };
-
-  const generateIslamicMotivation = (panggilan) => {
-    const motivations = [
-      "Ingatlah, setiap langkah kecil dalam pendidikan adalah investasi untuk generasi penerus umat.",
-      `Dengan sabar dan istiqamah, ${panggilan} telah berkontribusi besar dalam membangun karakter bangsa.`,
-      "Semangat terus menginspirasi siswa-siswi dengan akhlak mulia dan ilmu yang bermanfaat.",
-      `Setiap doa dan nasihat ${panggilan} adalah cahaya yang menerangi masa depan anak bangsa.`,
-      "Teruslah berjuang di jalan pendidikan, karena pahala orang-orang yang mengajarkan kebaikan tidak akan pernah terputus."
-    ];
-    return motivations[Math.floor(Math.random() * motivations.length)];
-  };
-
-  const salam = generateIslamicGreeting(nama, panggilan);
-  const dua = generateIslamicDua(panggilan);
-  const motivasi = generateIslamicMotivation(panggilan);
-
-  return `${salam}
-
-${content}
-
-${dua}
-
-${motivasi}
-
-Barakallahu fiikum,
-*YPWI Lutim*`;
-}
-
 // Public endpoint for WhatsApp notifications (used in profile completion)
 app.post('/api/send-whatsapp-public', async (req, res) => {
   try {
@@ -725,16 +681,16 @@ app.post('/api/send-whatsapp-public', async (req, res) => {
   }
 });
 
-// Test endpoint
-app.get('/api/test-history', function (req, res) {
-  res.json({ success: true, message: 'Test endpoint working' });
-});
+  // Test endpoint
+  app.get('/api/test-history', function(req, res) {
+    res.json({ success: true, message: 'Test endpoint working' });
+  });
 
-// Test teacher completion progress (bypass auth for testing)
-app.get('/api/test-teacher-progress', async (req, res) => {
-  try {
-    // Get all active teachers with their completion data
-    const teachers = await db.query(`
+  // Test teacher completion progress (bypass auth for testing)
+  app.get('/api/test-teacher-progress', async (req, res) => {
+    try {
+      // Get all active teachers with their completion data
+      const teachers = await db.query(`
         SELECT
           t.id,
           t.nama,
@@ -760,164 +716,121 @@ app.get('/api/test-teacher-progress', async (req, res) => {
         LIMIT 5
       `);
 
-    console.log('Raw teachers data:', teachers);
+      console.log('Raw teachers data:', teachers);
 
-    // Calculate completion percentage for each teacher
-    const completionData = teachers.map(teacher => {
-      // Define fields to check (excluding system fields and NIY if exists)
-      const fieldsToCheck = [
-        'nama', 'nik', 'nip', 'email', 'tempat_lahir', 'tanggal_lahir',
-        'jenis_kelamin', 'alamat', 'no_wa', 'status_kepegawaian', 'tmt'
-      ];
+      // Calculate completion percentage for each teacher
+      const completionData = teachers.map(teacher => {
+        // Define fields to check (excluding system fields and NIY if exists)
+        const fieldsToCheck = [
+          'nama', 'nik', 'nip', 'email', 'tempat_lahir', 'tanggal_lahir',
+          'jenis_kelamin', 'alamat', 'no_wa', 'status_kepegawaian', 'tmt'
+        ];
 
-      let filledFields = 0;
-      let totalFields = fieldsToCheck.length;
+        let filledFields = 0;
+        let totalFields = fieldsToCheck.length;
 
-      // Check each field
-      fieldsToCheck.forEach(field => {
-        if (teacher[field] && teacher[field].toString().trim() !== '') {
-          filledFields++;
+        // Check each field
+        fieldsToCheck.forEach(field => {
+          if (teacher[field] && teacher[field].toString().trim() !== '') {
+            filledFields++;
+          }
+        });
+
+        // Bonus for having assignments (minimum 1)
+        const hasAssignments = teacher.assignment_count > 0;
+        if (hasAssignments) {
+          filledFields += 1; // Bonus point for assignments
+          totalFields += 1;
         }
+
+        // Calculate percentage
+        const percentage = Math.round((filledFields / totalFields) * 100);
+
+        return {
+          id: teacher.id,
+          nama: teacher.nama,
+          filled_fields: filledFields,
+          total_fields: totalFields,
+          has_assignments: hasAssignments,
+          completion_percentage: percentage
+        };
       });
 
-      // Bonus for having assignments (minimum 1)
-      const hasAssignments = teacher.assignment_count > 0;
-      if (hasAssignments) {
-        filledFields += 1; // Bonus point for assignments
-        totalFields += 1;
-      }
+      console.log('Calculated completion data:', completionData);
 
-      // Calculate percentage
-      const percentage = Math.round((filledFields / totalFields) * 100);
+      res.json({
+        success: true,
+        message: 'Teacher completion progress test endpoint',
+        data: completionData
+      });
+    } catch (error) {
+      console.error('Test teacher completion progress error:', error);
+      res.status(500).json({ success: false, message: 'Error testing teacher completion progress' });
+    }
+  });
 
-      return {
-        id: teacher.id,
-        nama: teacher.nama,
-        filled_fields: filledFields,
-        total_fields: totalFields,
-        has_assignments: hasAssignments,
-        completion_percentage: percentage
-      };
-    });
-
-    console.log('Calculated completion data:', completionData);
-
-    res.json({
-      success: true,
-      message: 'Teacher completion progress test endpoint',
-      data: completionData
-    });
-  } catch (error) {
-    console.error('Test teacher completion progress error:', error);
-    res.status(500).json({ success: false, message: 'Error testing teacher completion progress' });
-  }
-});
-
-// Simple test endpoint for teacher progress
-app.get('/api/test-progress-simple', async (req, res) => {
-  try {
-    const count = await db.query('SELECT COUNT(*) as count FROM teachers WHERE status_aktif = 1');
-    res.json({
-      success: true,
-      message: 'Simple teacher count test',
-      teacher_count: count[0].count,
-      timestamp: new Date().toISOString()
-    });
-  } catch (error) {
-    console.error('Simple test error:', error);
-    res.status(500).json({ success: false, message: 'Database error' });
-  }
-});
+  // Simple test endpoint for teacher progress
+  app.get('/api/test-progress-simple', async (req, res) => {
+    try {
+      const count = await db.query('SELECT COUNT(*) as count FROM teachers WHERE status_aktif = 1');
+      res.json({
+        success: true,
+        message: 'Simple teacher count test',
+        teacher_count: count[0].count,
+        timestamp: new Date().toISOString()
+      });
+    } catch (error) {
+      console.error('Simple test error:', error);
+      res.status(500).json({ success: false, message: 'Database error' });
+    }
+  });
 
 // Dashboard route
 app.get('/api/dashboard', authenticateToken, async (req, res) => {
   try {
-    console.log('Dashboard req.user ID:', req.user.id);
+    console.log('Dashboard req.user:', req.user);
+    console.log('guru_id value:', req.user.guru_id, 'id value:', req.user.id, 'role:', req.user.role);
 
-    let rawUserData, attendanceQuery, todayRecords;
-
-    // 1. Ambil data dengan metode variabel murni (TANPA kurung siku di kiri)
+    let userQuery, attendanceQuery, todayRecords;
     if (req.user.role === 'admin') {
-      rawUserData = await db.query(
-        'SELECT id, username, role, tenant_id, guru_id, is_default_password FROM users WHERE id = ?',
-        [req.user.id]
-      );
+      userQuery = await db.query('SELECT * FROM users WHERE id = ?', [req.user.id]);
       attendanceQuery = await db.query('SELECT COUNT(*) as total FROM attendance_logs');
       todayRecords = await db.query('SELECT jenis FROM attendance_logs WHERE DATE(waktu_scan) = CURDATE()');
     } else {
-      rawUserData = await db.query(
-        'SELECT id, username, role, tenant_id, guru_id, is_default_password FROM users WHERE id = ?',
-        [req.user.id]
-      );
+      userQuery = await db.query('SELECT * FROM users WHERE guru_id = ?', [req.user.guru_id]);
       attendanceQuery = await db.query('SELECT COUNT(*) as total FROM attendance_logs WHERE teacher_id = ?', [req.user.guru_id]);
       todayRecords = await db.query('SELECT jenis FROM attendance_logs WHERE teacher_id = ? AND DATE(waktu_scan) = CURDATE()', [req.user.guru_id]);
     }
 
-    // 2. Ekstraksi data user secara aman (Logika adaptif untuk mengatasi double-array)
-    let currentUser = null;
-    if (rawUserData) {
-      // Jika strukturnya array berlapis (nested array)
-      if (Array.isArray(rawUserData[0]) && rawUserData[0].length > 0) {
-        currentUser = rawUserData[0][0];
-      }
-      // Jika strukturnya array datar biasa (flat array) seperti di rute login Anda
-      else if (Array.isArray(rawUserData) && rawUserData.length > 0) {
-        currentUser = rawUserData[0];
-      }
+    console.log('todayRecords:', todayRecords);
+    const hasMasuk = todayRecords.some(r => r.jenis === 'masuk');
+    const hasPulang = todayRecords.some(r => r.jenis === 'pulang');
+
+    let absensiToday;
+    if (hasMasuk && hasPulang) {
+      absensiToday = 'Sudah absen lengkap';
+    } else if (hasMasuk) {
+      absensiToday = 'Sudah absen masuk';
+    } else {
+      absensiToday = 'Belum absen';
     }
 
-    // 3. CETAK LOG UNTUK MEMASTIKAN ISI DATABASE TERBACA DI TERMINAL
-    console.log('=== DEBUG DATA USER DARI MYSQL ===');
-    console.log('Data User Ditemukan:', currentUser ? 'YA' : 'TIDAK');
-    if (currentUser) {
-      console.log('Isi Kolom is_default_password di DB:', currentUser.is_default_password);
-    }
-    console.log('==================================');
+    console.log('Dashboard user query result:', userQuery);
+    console.log('User[0]:', userQuery[0]);
+    console.log('hasMasuk:', hasMasuk, 'hasPulang:', hasPulang, 'absensiToday:', absensiToday);
 
-    // 4. Hitung status absensi hari ini
-    const recordsArray = Array.isArray(todayRecords) ? (todayRecords[0] || todayRecords) : [];
-    const finalRecords = Array.isArray(recordsArray) ? recordsArray : [];
-
-    const hasMasuk = finalRecords.some(r => r.jenis === 'masuk');
-    const hasPulang = finalRecords.some(r => r.jenis === 'pulang');
-
-    let absensiToday = 'Belum absen';
-    if (hasMasuk && hasPulang) absensiToday = 'Sudah absen lengkap';
-    else if (hasMasuk) absensiToday = 'Sudah absen masuk';
-
-    // 5. Penentuan status password secara ketat berdasarkan database
-    let finalPasswordStatus = 1; // Standar awal jika akun gaib
-    if (currentUser && currentUser.is_default_password !== undefined && currentUser.is_default_password !== null) {
-      finalPasswordStatus = Number(currentUser.is_default_password); // Membaca nilai asli database (0 atau 1)
-    }
-
-    // 6. Ambil total absensi secara aman
-    const cleanAttendance = Array.isArray(attendanceQuery) ? (attendanceQuery[0] || attendanceQuery) : attendanceQuery;
-    const totalAbsensiCount = cleanAttendance?.total || 0;
-
-    // 7. Kirim respons final ke frontend
     res.json({
       success: true,
       data: {
-        totalAbsensi: totalAbsensiCount,
+        totalAbsensi: attendanceQuery[0]?.total || 0,
         absensiToday: absensiToday,
         hasMasuk: hasMasuk,
         hasPulang: hasPulang,
-        user: {
-          id: req.user.id,
-          username: req.user.username,
-          nama: req.user.username,
-          role: req.user.role,
-          guru_id: req.user.guru_id,
-          tenant_id: req.user.tenant_id,
-          is_default_password: finalPasswordStatus, // <--- 100% PASTI IKUT DATABASE SEKARANG!
-          assignments: req.user.assignments || []
-        }
+        user: userQuery[0]
       }
     });
-
   } catch (error) {
-    console.error('Dashboard route error:', error);
+    logger.error(error, 'Dashboard route');
     res.status(500).json({ success: false, message: 'Error fetching dashboard data' });
   }
 });
@@ -972,9 +885,384 @@ app.get('/api/admin/teacher-progress', authenticateOperator, async (req, res) =>
 });
 
 // Attendance route
+app.post('/api/attendance', authenticateToken, selfieUpload.single('selfie'), async (req, res) => {
+  try {
+    const { jenis, metode, latitude, longitude, dinas_luar, kegiatan_dinas } = req.body;
+    const currentTime = new Date().toTimeString().slice(0, 8);
+    let selfie_url = null;
+    let is_dinas_luar = dinas_luar === 'true' || dinas_luar === true;
+    let tenant_id = req.user.tenant_id; // Default to assigned tenant
 
+    if (req.file) {
+      selfie_url = req.file.path;
+    }
 
-//====================  MONTHLY ATTENDANCE REPORT (PDF)  ====================
+    // Validate location if coordinates provided
+    if (latitude && longitude) {
+      try {
+        const userLat = parseFloat(latitude);
+        const userLng = parseFloat(longitude);
+
+        // Get all tenant locations
+        const allLocations = await db.query(
+          'SELECT tl.*, t.nama_sekolah FROM tenant_locations tl JOIN tenants t ON tl.tenant_id = t.tenant_id WHERE tl.latitude IS NOT NULL AND tl.longitude IS NOT NULL AND tl.is_active = 1'
+        );
+
+        let withinAssigned = false;
+        let withinOther = false;
+        let assignedLocation = null;
+        let otherLocation = null;
+
+        // Check assigned tenant locations first
+        const assignedLocations = await db.query(
+          'SELECT tl.*, t.nama_sekolah FROM tenant_locations tl JOIN tenants t ON tl.tenant_id = t.tenant_id JOIN teacher_assignments ta ON t.tenant_id = ta.tenant_id WHERE ta.teacher_id = ? AND tl.latitude IS NOT NULL AND tl.longitude IS NOT NULL AND tl.is_active = 1',
+          [req.user.guru_id]
+        );
+
+        for (const location of assignedLocations) {
+          const distance = calculateDistance(userLat, userLng, parseFloat(location.latitude), parseFloat(location.longitude));
+          const radius = location.location_radius || 100;
+          if (distance * 1000 <= radius) {
+            withinAssigned = true;
+            assignedLocation = location;
+            break;
+          }
+        }
+
+        // If not within assigned locations, check other tenant locations
+        if (!withinAssigned) {
+          for (const location of allLocations) {
+            // Skip locations of assigned tenants
+            if (assignedLocations.some(a => a.tenant_id === location.tenant_id)) continue;
+
+            const distance = calculateDistance(userLat, userLng, parseFloat(location.latitude), parseFloat(location.longitude));
+            const radius = location.location_radius || 100;
+            if (distance * 1000 <= radius) {
+              withinOther = true;
+              otherLocation = location;
+              tenant_id = location.tenant_id; // Change tenant to the location where they are
+              is_dinas_luar = true;
+              break;
+            }
+          }
+        }
+
+        console.log(`[LOCATION VALIDATION] User at ${userLat},${userLng}`);
+        if (withinAssigned) {
+          console.log(`[LOCATION VALIDATION] ✅ Within assigned location: ${assignedLocation.location_name} (${assignedLocation.nama_sekolah})`);
+        } else if (withinOther) {
+          console.log(`[LOCATION VALIDATION] ✅ Within other location (dinas luar): ${otherLocation.location_name} (${otherLocation.nama_sekolah})`);
+        } else {
+          return res.status(403).json({
+            success: false,
+            message: 'Absensi gagal! Anda berada di luar radius lokasi semua unit sekolah.'
+          });
+        }
+
+      } catch (locationError) {
+        console.error('[LOCATION VALIDATION] Error validating location:', locationError);
+        // Continue with attendance if location validation fails
+      }
+    } else {
+      console.log(`[LOCATION VALIDATION] No GPS coordinates provided`);
+    }
+
+    let rules = [];
+    // Check if tenant uses central rules
+    let rulesTenantId = req.user.tenant_id;
+    try {
+      const [tenantData] = await db.query('SELECT use_central_rules FROM tenants WHERE tenant_id = ?', [req.user.tenant_id]);
+      if (tenantData && tenantData.use_central_rules) {
+        rulesTenantId = 'YPWILUTIM';
+        console.log(`[ATTENDANCE] Using central rules (YPWILUTIM) for tenant ${req.user.tenant_id}`);
+      }
+    } catch (tenantError) {
+      console.log('[ATTENDANCE] Could not check central rules setting, using tenant rules');
+    }
+
+    // Get current day for rule filtering
+    const currentDay = new Date().toLocaleDateString('id-ID', { weekday: 'long' }).toLowerCase();
+
+    try {
+      // Get all potential rules and filter by day in JavaScript
+      const allRules = await db.query(
+        'SELECT status_log, hari, jam_mulai FROM attendance_rules WHERE tenant_id = ? AND tipe = ? AND ? BETWEEN jam_mulai AND jam_selesai ORDER BY jam_mulai DESC',
+        [rulesTenantId, jenis === 'masuk' ? 'Datang' : 'Pulang', currentTime]
+      );
+
+      // Filter rules that match the current day
+      const matchingRules = allRules.filter(rule => isDayMatch(rule.hari, currentDay));
+
+      // Take the first matching rule (earliest jam_mulai)
+      rules = matchingRules.length > 0 ? [matchingRules[0]] : [];
+    } catch (dbError) {
+      console.log('[ATTENDANCE] attendance_rules table not found or error, using default status');
+      rules = []; // Fallback to empty array
+    }
+
+    const status = (rules && rules.length > 0) ? rules[0].status_log : 'terlambat';
+
+    const result = await db.query(
+      'INSERT INTO attendance_logs (teacher_id, tenant_id, waktu_scan, jenis, metode, status, dinas_luar, kegiatan_dinas, selfie_url, latitude, longitude) VALUES (?, ?, NOW(), ?, ?, ?, ?, ?, ?, ?, ?)',
+      [req.user.guru_id, tenant_id, jenis, metode || 'scanner', status, is_dinas_luar ? 1 : 0, kegiatan_dinas || null, selfie_url, latitude || null, longitude || null]
+    );
+
+    // Send WhatsApp notification after successful attendance
+    try {
+      const [teacherData] = await db.query(
+        'SELECT nama, no_wa, jenis_kelamin FROM teachers WHERE id = ? AND status_aktif = 1',
+        [req.user.guru_id]
+      );
+
+      if (teacherData && teacherData.no_wa && teacherData.nama) {
+        const waktuSekarang = new Date().toLocaleString('id-ID', {
+          weekday: 'long',
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit'
+        });
+
+        const statusText = status === 'tepat_waktu' ? 'Tepat Waktu ⏰' :
+                          status === 'terlambat' ? 'Terlambat ⏰' : status;
+
+        let content = `🔔 *NOTIFIKASI ABSENSI*
+
+Absensi Anda telah berhasil dicatat:
+
+📅 *Waktu:* ${waktuSekarang}
+📍 *Jenis:* ${jenis === 'masuk' ? 'Masuk' : 'Pulang'}
+📊 *Status:* ${statusText}
+📱 *Metode:* ${metode || 'Scanner'}
+🏫 *Unit:* ${tenant_id}`;
+
+        if (is_dinas_luar) {
+          content += `
+🚗 *Dinas Luar:* Ya
+📝 *Kegiatan:* ${kegiatan_dinas || 'Tidak disebutkan'}`;
+        }
+
+        content += `
+
+Terima kasih telah melakukan absensi tepat waktu!`;
+
+        const message = formatIslamicMessage(teacherData.nama, teacherData.jenis_kelamin, content);
+
+        // Send WhatsApp notification (don't wait for response)
+sendWhatsAppMessage(teacherData.no_wa, message).catch(err =>
+          console.log('[WHATSAPP ATTENDANCE ERROR]', err.message)
+        );
+      }
+    } catch (error) {
+      console.error('[WHATSAPP NOTIFICATION ERROR]', error.message);
+    }
+  } catch (error) {
+    console.error('[ATTENDANCE ERROR]', error.message);
+    res.status(500).json({ success: false, message: 'Error recording attendance' });
+  }
+});
+
+// Admin tenants list
+app.get('/api/admin/tenants', authenticateOperator, async (req, res) => {
+  try {
+    const tenantId = req.query.tenant_id;
+    console.log('Fetching tenants...', tenantId ? 'tenant=' + tenantId : 'all');
+    var query = 'SELECT tenant_id, nama_sekolah, absensi_method, use_central_rules, latitude, longitude, COALESCE(location_radius, 100) as location_radius, location_name FROM tenants';
+    var params = [];
+    if (tenantId) {
+      query += ' WHERE tenant_id = ? ';
+      params.push(tenantId);
+    }
+    query += ' ORDER BY nama_sekolah ASC';
+    var tenants = await db.query(query, params);
+    console.log('Tenants fetched:', tenants.length);
+
+    // Format data for frontend
+    const result = tenants.map(tenant => ({
+      tenant_id: tenant.tenant_id,
+      nama_sekolah: tenant.nama_sekolah,
+      absensi_method: tenant.absensi_method,
+      use_central_rules: tenant.use_central_rules,
+      latitude: tenant.latitude,
+      longitude: tenant.longitude,
+      location_radius: tenant.location_radius,
+      location_name: tenant.location_name,
+      has_location: !!(tenant.latitude && tenant.longitude)
+    }));
+
+    res.json({ success: true, data: result });
+  } catch (error) {
+    console.error('Admin tenants error:', error);
+    res.status(500).json({ success: false, message: 'Error fetching tenants' });
+  }
+});
+
+// Admin summary endpoint
+app.get('/api/admin/summary', authenticateOperator, async (req, res) => {
+  try {
+    let tenantId = req.query.tenant_id;
+
+    // Operator: force tenant_id dari assignment jika tidak disediakan
+    if (req.user.role !== 'admin' && !tenantId) {
+      const adminAssignments = (req.user.assignments || []).filter(a => {
+        const roles = ['tu', 'tatausaha', 'operator', 'ta', 'tata_usaha', 'admin'];
+        return roles.includes((a.jabatan_di_unit || '').toLowerCase().replace(/\s/g, ''));
+      });
+      if (adminAssignments.length === 1) {
+        tenantId = adminAssignments[0].tenant_id;
+      } else if (adminAssignments.length > 1) {
+        tenantId = adminAssignments[0].tenant_id;
+      }
+    }
+
+    // Verify tenant access
+    if (tenantId && !verifyTenantAccess(req, tenantId)) {
+      return res.status(403).json({ success: false, message: 'Akses ditolak: Anda tidak berwenang mengakses data sekolah ini' });
+    }
+
+    // Get total teachers
+    let teacherQuery = 'SELECT COUNT(DISTINCT t.id) as count FROM teachers t';
+    let teacherParams = [];
+    if (tenantId) {
+      teacherQuery += ' JOIN teacher_assignments ta ON t.id = ta.teacher_id AND ta.tenant_id = ? ';
+      teacherParams.push(tenantId);
+    }
+    teacherQuery += ' WHERE t.status_aktif = 1';
+    const [totalTeachersResult] = await db.query(teacherQuery, teacherParams);
+    const totalTeachers = totalTeachersResult.count;
+
+    // Get active today (teachers who have attendance today)
+    let activeQuery = `
+      SELECT COUNT(DISTINCT a.teacher_id) as count
+      FROM attendance_logs a
+      LEFT JOIN teachers t ON a.teacher_id = t.id
+      LEFT JOIN teacher_assignments ta ON t.id = ta.teacher_id
+      WHERE DATE(a.waktu_scan) = CURDATE()
+    `;
+    let activeParams = [];
+    if (tenantId) {
+      activeQuery += ' AND ta.tenant_id = ? ';
+      activeParams.push(tenantId);
+    }
+    const [activeTodayResult] = await db.query(activeQuery, activeParams);
+    const activeToday = activeTodayResult.count;
+
+    // Get late today
+    let lateQuery = `
+      SELECT COUNT(*) as count
+      FROM attendance_logs a
+      LEFT JOIN teachers t ON a.teacher_id = t.id
+      LEFT JOIN teacher_assignments ta ON t.id = ta.teacher_id
+      WHERE DATE(a.waktu_scan) = CURDATE() AND a.status = 'terlambat'
+    `;
+    let lateParams = [];
+    if (tenantId) {
+      lateQuery += ' AND ta.tenant_id = ? ';
+      lateParams.push(tenantId);
+    }
+    const [lateTodayResult] = await db.query(lateQuery, lateParams);
+    const lateToday = lateTodayResult.count;
+
+    // Get total locations for this tenant
+    let locQuery = 'SELECT COUNT(*) as count FROM tenant_locations WHERE 1=1';
+    let locParams = [];
+    if (tenantId) {
+      locQuery += ' AND tenant_id = ? ';
+      locParams = [tenantId];
+    }
+    const [totalLocationsResult] = await db.query(locQuery, locParams);
+    const totalLocations = totalLocationsResult.count;
+
+    res.json({
+      success: true,
+      data: {
+        totalTeachers,
+        activeToday,
+        lateToday,
+        totalLocations
+      }
+    });
+  } catch (error) {
+    console.error('Admin summary error:', error);
+    res.status(500).json({ success: false, message: 'Error fetching admin summary' });
+  }
+});
+
+// Admin attendance logs
+app.get('/api/admin/attendance-logs', authenticateOperator, async (req, res) => {
+  try {
+    const dateFilter = req.query.date;
+    const statusFilter = req.query.status;
+    let tenantId = req.query.tenant_id;
+
+    // Operator: force tenant_id dari assignment jika tidak disediakan
+    if (req.user.role !== 'admin' && !tenantId) {
+      const adminAssignments = (req.user.assignments || []).filter(a => {
+        const roles = ['tu', 'tatausaha', 'operator', 'ta', 'tata_usaha', 'admin'];
+        return roles.includes((a.jabatan_di_unit || '').toLowerCase().replace(/\s/g, ''));
+      });
+      if (adminAssignments.length === 1) {
+        tenantId = adminAssignments[0].tenant_id;
+      }
+    }
+
+    // Verify tenant access jika tenantId ada
+    if (tenantId && !verifyTenantAccess(req, tenantId)) {
+      return res.status(403).json({ success: false, message: 'Akses ditolak: Anda tidak berwenang mengakses data kehadiran sekolah ini' });
+    }
+
+    let query = '';
+    let params = [];
+
+    if (tenantId) {
+      query = `
+        SELECT
+          al.id, al.teacher_id, al.waktu_scan, al.jenis, al.status, al.metode,
+          t.nama, t.nip
+        FROM attendance_logs al
+        JOIN teachers t ON al.teacher_id = t.id
+        LEFT JOIN teacher_assignments ta ON t.id = ta.teacher_id
+        WHERE ta.tenant_id = ?
+      `;
+      params.push(tenantId);
+    } else {
+      query = `
+        SELECT
+          al.id, al.teacher_id, al.waktu_scan, al.jenis, al.status, al.metode,
+          t.nama, t.nip
+        FROM attendance_logs al
+        JOIN teachers t ON al.teacher_id = t.id
+        WHERE 1=1
+      `;
+    }
+
+    if (dateFilter) {
+      query += ' AND DATE(al.waktu_scan) = ?';
+      params.push(dateFilter);
+    }
+
+    if (statusFilter && statusFilter !== '') {
+       query += ' AND al.status = ?';
+       params.push(statusFilter);
+     }
+
+     query += ' ORDER BY al.waktu_scan DESC LIMIT 100';
+
+     const logs = await db.query(query, params);
+
+     res.json({
+       success: true,
+       data: logs
+     });
+} catch (error) {
+       console.error('Admin attendance logs error:', error);
+       res.status(500).json({ success: false, message: 'Error fetching attendance logs', error: error.message });
+     }
+  });
+
+  // ====================  MONTHLY ATTENDANCE REPORT (PDF)  ====================
 /**
  * Generate a landscape PDF with daily attendance columns (1-31) for a month.
  * Query parameters:
@@ -1040,7 +1328,7 @@ app.get('/api/admin/monthly-report/pdf', authenticateOperator, async (req, res) 
     // Create PDF in Landscape
     const doc = new PDFKit({ size: 'A4', layout: 'landscape', margin: 20 });
     res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader('Content-Disposition', `attachment; filename="rekap_absensi_${tenant_id}_${y}_${String(m).padStart(2, '0')}.pdf"`);
+    res.setHeader('Content-Disposition', `attachment; filename="rekap_absensi_${tenant_id}_${y}_${String(m).padStart(2,'0')}.pdf"`);
     doc.pipe(res);
 
     // Declare pageWidth at the top (needed for header image and table calculations)
@@ -1125,7 +1413,7 @@ app.get('/api/admin/monthly-report/pdf', authenticateOperator, async (req, res) 
         }
         doc.font('Helvetica').fontSize(7);
       }
-
+      
 
       // Draw row background (alternating)
       if (rowIndex % 2 === 0) {
@@ -1228,32 +1516,32 @@ app.get('/api/admin/monthly-report/html', authenticateOperator, async (req, res)
           <tr class="bg-blue-600 text-white">
             <th class="border border-gray-300 px-2 py-1 w-10">No</th>
             <th class="border border-gray-300 px-2 py-1 w-40">Nama</th>`;
-
+    
     for (let d = 1; d <= lastDay; d++) {
       const dow = new Date(y, m - 1, d).getDay();
       const isWeekend = dow === 0 || dow === 6;
       html += `<th class="border border-gray-300 px-1 py-1 w-12 ${isWeekend ? 'bg-red-50' : ''}">${d}<br><span class="text-[10px]">${dayNames[dow]}</span></th>`;
     }
-
+    
     html += `</tr></thead><tbody>`;
-
+    
     let rowIndex = 0;
     for (const [teacherId, data] of Object.entries(teacherData)) {
       html += `<tr class="${rowIndex % 2 === 0 ? 'bg-gray-50' : 'bg-white'} hover:bg-blue-50">
         <td class="border border-gray-300 px-2 py-1 text-center">${rowIndex + 1}</td>
         <td class="border border-gray-300 px-2 py-1 font-medium">${data.name}</td>`;
-
+      
       for (let d = 1; d <= lastDay; d++) {
         const dow = new Date(y, m - 1, d).getDay();
         const isWeekend = dow === 0 || dow === 6;
         const cellData = data.dates[d] || { masuk: '', pulang: '' };
         html += `<td class="border border-gray-300 px-1 py-1 text-center ${isWeekend ? 'bg-red-50' : ''}"><div class="text-[10px] leading-tight">${cellData.masuk || '-'}<br>${cellData.pulang || '-'}</div></td>`;
       }
-
+      
       html += `</tr>`;
       rowIndex++;
     }
-
+    
     html += `</tbody></table></div>
       <div class="mt-4 text-xs text-gray-600">
         <p><strong>Keterangan:</strong> Format: Jam Masuk / Jam Pulang. Kolom berwarna merah adalah akhir pekan.</p>
@@ -1269,12 +1557,12 @@ app.get('/api/admin/monthly-report/html', authenticateOperator, async (req, res)
 // Admin teachers list with pagination
 app.get('/api/admin/teachers', authenticateOperator, async (req, res) => {
   try {
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10;
-    const offset = (page - 1) * limit;
-    const search = req.query.search ? req.query.search.trim() : '';
-    const getAll = req.query.all === '1';
-    const hasWa = req.query.has_wa === '1';
+const page = parseInt(req.query.page) || 1;
+     const limit = parseInt(req.query.limit) || 10;
+     const offset = (page - 1) * limit;
+     const search = req.query.search ? req.query.search.trim() : '';
+     const getAll = req.query.all === '1';
+     const hasWa = req.query.has_wa === '1';
     let tenantId = req.query.tenant_id;
 
     // Operator: force tenant_id dari assignment jika tidak disediakan
@@ -1382,12 +1670,12 @@ app.get('/api/admin/rules', authenticateOperator, async (req, res) => {
 app.get('/api/admin/tenant-locations', authenticateOperator, async (req, res) => {
   try {
     const tenantId = req.query.tenant_id;
-    var query = 'SELECT tl.*, t.nama_sekolah FROM tenant_locations tl JOIN tenants t ON tl.tenant_id  = t.tenant_id ';
-    var params = [];
-    if (tenantId) {
-      query += ' WHERE tl.tenant_id = ? ';
-      params.push(tenantId);
-    }
+var query = 'SELECT tl.*, t.nama_sekolah FROM tenant_locations tl JOIN tenants t ON tl.tenant_id  = t.tenant_id ';
+     var params = [];
+     if (tenantId) {
+       query += ' WHERE tl.tenant_id = ? ';
+       params.push(tenantId);
+     }
     query += ' ORDER BY tl.tenant_id, tl.location_name';
     var locations = await db.query(query, params);
     res.json({ success: true, data: locations });
@@ -1404,10 +1692,10 @@ app.get('/api/admin/tenant-locations/:tenantId', authenticateOperator, async (re
     if (!verifyTenantAccess(req, tenantId)) {
       return res.status(403).json({ success: false, message: 'Akses ditolak: Anda tidak berwenang mengakses lokasi sekolah ini' });
     }
-    const locations = await db.query(
-      'SELECT * FROM tenant_locations WHERE tenant_id = ?  ORDER BY location_name',
-      [tenantId]
-    );
+const locations = await db.query(
+       'SELECT * FROM tenant_locations WHERE tenant_id = ?  ORDER BY location_name',
+       [tenantId]
+     );
     res.json({ success: true, data: locations });
   } catch (error) {
     console.error('[TENANT LOCATIONS BY TENANT ERROR]', error.message);
@@ -1617,14 +1905,14 @@ app.delete('/api/admin/tenant-locations/:id', authenticateOperator, async (req, 
 app.get('/api/admin/tenants/:tenantId', authenticateOperator, async (req, res) => {
   try {
     const { tenantId } = req.params;
-    // Verify operator access to this tenant
-    if (req.user.role === 'guru' && req.user.assignments) {
-      var allowedTenants = (req.user.assignments || []).map(a => a.tenant_id);
-      if (!allowedTenants.includes(tenantId)) {
-        return res.status(403).json({ success: false, message: 'Akses ditolak: Anda tidak berwenang mengakses data sekolah ini' });
-      }
-    }
-    const [tenant] = await db.query('SELECT * FROM tenants WHERE tenant_id = ?', [tenantId]);
+// Verify operator access to this tenant
+     if (req.user.role === 'guru' && req.user.assignments) {
+       var allowedTenants = (req.user.assignments || []).map(a => a.tenant_id);
+       if (!allowedTenants.includes(tenantId)) {
+         return res.status(403).json({ success: false, message: 'Akses ditolak: Anda tidak berwenang mengakses data sekolah ini' });
+       }
+     }
+     const [tenant] = await db.query('SELECT * FROM tenants WHERE tenant_id = ?', [tenantId]);
 
     if (!tenant) {
       return res.status(404).json({ success: false, message: 'Tenant not found' });
@@ -1641,14 +1929,14 @@ app.get('/api/admin/tenants/:tenantId', authenticateOperator, async (req, res) =
 app.put('/api/admin/tenants/:tenantId', authenticateOperator, async (req, res) => {
   try {
     const { tenantId } = req.params;
-    // Verify operator access to this tenant
-    if (req.user.role === 'guru' && req.user.assignments) {
-      var allowedTenants = (req.user.assignments || []).map(a => a.tenant_id);
-      if (!allowedTenants.includes(tenantId)) {
-        return res.status(403).json({ success: false, message: 'Akses ditolak: Anda tidak berwenang mengedit data sekolah ini' });
-      }
-    }
-    const { latitude, longitude, location_radius, location_name, use_central_rules } = req.body;
+// Verify operator access to this tenant
+     if (req.user.role === 'guru' && req.user.assignments) {
+       var allowedTenants = (req.user.assignments || []).map(a => a.tenant_id);
+       if (!allowedTenants.includes(tenantId)) {
+         return res.status(403).json({ success: false, message: 'Akses ditolak: Anda tidak berwenang mengedit data sekolah ini' });
+       }
+     }
+     const { latitude, longitude, location_radius, location_name, use_central_rules } = req.body;
 
     // Validate input
     if (latitude !== undefined && (latitude < -90 || latitude > 90)) {
@@ -1859,24 +2147,24 @@ app.delete('/api/admin/rules/:id', authenticateOperator, async (req, res) => {
 
 // Admin rule detail
 app.get('/api/admin/rules/:id', authenticateOperator, async (req, res) => {
-  try {
-    const { id } = req.params;
-    const [rule] = await db.query('SELECT * FROM attendance_rules WHERE id = ?', [id]);
+   try {
+     const { id } = req.params;
+     const [rule] = await db.query('SELECT * FROM attendance_rules WHERE id = ?', [id]);
 
-    if (!rule) {
-      return res.status(404).json({ success: false, message: 'Rule not found' });
-    }
+     if (!rule) {
+       return res.status(404).json({ success: false, message: 'Rule not found' });
+     }
 
-    if (!verifyTenantAccess(req, rule.tenant_id)) {
-      return res.status(403).json({ success: false, message: 'Akses ditolak: Anda tidak berwenang mengakses aturan sekolah ini' });
-    }
+     if (!verifyTenantAccess(req, rule.tenant_id)) {
+       return res.status(403).json({ success: false, message: 'Akses ditolak: Anda tidak berwenang mengakses aturan sekolah ini' });
+     }
 
-    res.json({ success: true, data: rule });
-  } catch (error) {
-    console.error('Admin rule detail error:', error);
-    res.status(500).json({ success: false, message: 'Error fetching rule' });
-  }
-});
+     res.json({ success: true, data: rule });
+   } catch (error) {
+     console.error('Admin rule detail error:', error);
+     res.status(500).json({ success: false, message: 'Error fetching rule' });
+   }
+ });
 
 // Admin create user for teacher
 app.post('/api/admin/teachers/:teacherId/create-user', authenticateOperator, async (req, res) => {
@@ -1969,23 +2257,12 @@ app.post('/api/admin/send-whatsapp-single/:teacherId', authenticateOperator, asy
     const { teacherId } = req.params;
     const { message } = req.body;
 
-    // PERBAIKAN UTAMA: Ambil tenant_id menggunakan LEFT JOIN ke teacher_assignments
-    const rows = await db.query(`
-      SELECT t.nama, t.no_wa, t.jenis_kelamin, ta.tenant_id 
-      FROM teachers t
-      LEFT JOIN teacher_assignments ta ON t.id = ta.teacher_id
-      WHERE t.id = ? AND t.status_aktif = 1
-      LIMIT 1
-    `, [teacherId]);
-
-    // db.query biasanya mengembalikan array. Kita ambil index pertama [0]
-    const teacher = rows[0] || rows;
-
+    const [teacher] = await db.query('SELECT nama, no_wa, jenis_kelamin, tenant_id FROM teachers WHERE id = ? AND status_aktif = 1', [teacherId]);
     if (!teacher || !teacher.no_wa) {
       return res.status(400).json({ success: false, message: 'Teacher not found or no WhatsApp number' });
     }
 
-    // Verify tenant access menggunakan tenant_id yang sudah kita dapatkan dari tabel assignment
+    // Verify tenant access
     if (!verifyTenantAccess(req, teacher.tenant_id)) {
       return res.status(403).json({ success: false, message: 'Akses ditolak: Anda tidak berwenang mengirim pesan ke guru ini' });
     }
@@ -2292,10 +2569,10 @@ function calculateDistance(lat1, lng1, lat2, lng2) {
   const dLat = (lat2 - lat1) * Math.PI / 180;
   const dLng = (lng2 - lng1) * Math.PI / 180;
   const a =
-    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.sin(dLat/2) * Math.sin(dLat/2) +
     Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-    Math.sin(dLng / 2) * Math.sin(dLng / 2);
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    Math.sin(dLng/2) * Math.sin(dLng/2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
   const distance = R * c;
   return distance;
 }
@@ -2810,20 +3087,20 @@ async function startServer() {
     console.log('Database initialized, starting server');
 
     // Admin teacher completion progress
-    app.get('/api/admin/teacher-completion-progress', authenticateOperator, async (req, res) => {
-      try {
-        console.log('Teacher completion progress endpoint called');
+  app.get('/api/admin/teacher-completion-progress', authenticateOperator, async (req, res) => {
+    try {
+      console.log('Teacher completion progress endpoint called');
 
-        // Simple query first to test database
-        const simpleCount = await db.query('SELECT COUNT(*) as count FROM teachers WHERE status_aktif = 1');
-        console.log('Total active teachers:', simpleCount[0].count);
+      // Simple query first to test database
+      const simpleCount = await db.query('SELECT COUNT(*) as count FROM teachers WHERE status_aktif = 1');
+      console.log('Total active teachers:', simpleCount[0].count);
 
-        // Get basic teacher data first
-        const basicTeachers = await db.query('SELECT id, nama FROM teachers WHERE status_aktif = 1 ORDER BY nama ASC LIMIT 5');
-        console.log('Sample teachers:', basicTeachers);
+      // Get basic teacher data first
+      const basicTeachers = await db.query('SELECT id, nama FROM teachers WHERE status_aktif = 1 ORDER BY nama ASC LIMIT 5');
+      console.log('Sample teachers:', basicTeachers);
 
-        // Get all active teachers with their completion data
-        const teachers = await db.query(`
+      // Get all active teachers with their completion data
+      const teachers = await db.query(`
         SELECT
           t.id,
           t.nama,
@@ -2848,82 +3125,82 @@ async function startServer() {
         ORDER BY t.nama ASC
       `);
 
-        console.log('Teacher completion progress query result:', teachers.length, 'teachers found');
+      console.log('Teacher completion progress query result:', teachers.length, 'teachers found');
 
-        // Calculate completion percentage for each teacher
-        const completionData = teachers.map(teacher => {
-          // Define fields to check (excluding system fields and NIY if exists)
-          const fieldsToCheck = [
-            'nama', 'nik', 'nip', 'email', 'tempat_lahir', 'tanggal_lahir',
-            'jenis_kelamin', 'alamat', 'no_wa', 'status_kepegawaian', 'tmt'
-          ];
+      // Calculate completion percentage for each teacher
+      const completionData = teachers.map(teacher => {
+        // Define fields to check (excluding system fields and NIY if exists)
+        const fieldsToCheck = [
+          'nama', 'nik', 'nip', 'email', 'tempat_lahir', 'tanggal_lahir',
+          'jenis_kelamin', 'alamat', 'no_wa', 'status_kepegawaian', 'tmt'
+        ];
 
-          let filledFields = 0;
-          let totalFields = fieldsToCheck.length;
+        let filledFields = 0;
+        let totalFields = fieldsToCheck.length;
 
-          // Check each field
-          fieldsToCheck.forEach(field => {
-            if (teacher[field] && teacher[field].toString().trim() !== '') {
-              filledFields++;
-            }
-          });
-
-          // Bonus for having assignments (minimum 1)
-          const hasAssignments = teacher.assignment_count > 0;
-          if (hasAssignments) {
-            filledFields += 1; // Bonus point for assignments
-            totalFields += 1;
+        // Check each field
+        fieldsToCheck.forEach(field => {
+          if (teacher[field] && teacher[field].toString().trim() !== '') {
+            filledFields++;
           }
-
-          // Calculate percentage
-          const percentage = Math.round((filledFields / totalFields) * 100);
-
-          return {
-            id: teacher.id,
-            nama: teacher.nama,
-            nik: teacher.nik,
-            nip: teacher.nip,
-            email: teacher.email,
-            filled_fields: filledFields,
-            total_fields: totalFields,
-            has_assignments: hasAssignments,
-            assignment_count: teacher.assignment_count,
-            jabatan_list: teacher.jabatan_list,
-            sekolah_list: teacher.sekolah_list,
-            completion_percentage: percentage,
-            status: percentage >= 100 ? 'Lengkap' :
-              percentage >= 80 ? 'Hampir Lengkap' :
-                percentage >= 50 ? 'Sedang Dilengkapi' : 'Perlu Dilengkapi'
-          };
         });
 
-        console.log('Calculated completion data sample:', completionData.slice(0, 3));
+        // Bonus for having assignments (minimum 1)
+        const hasAssignments = teacher.assignment_count > 0;
+        if (hasAssignments) {
+          filledFields += 1; // Bonus point for assignments
+          totalFields += 1;
+        }
 
-        // Calculate overall statistics
-        const stats = {
-          total_teachers: completionData.length,
-          complete_teachers: completionData.filter(t => t.completion_percentage >= 100).length,
-          average_completion: completionData.length > 0 ? Math.round(completionData.reduce((sum, t) => sum + t.completion_percentage, 0) / completionData.length) : 0,
-          completion_distribution: {
-            lengkap: completionData.filter(t => t.completion_percentage >= 100).length,
-            hampir_lengkap: completionData.filter(t => t.completion_percentage >= 80 && t.completion_percentage < 100).length,
-            sedang_dilengkapi: completionData.filter(t => t.completion_percentage >= 50 && t.completion_percentage < 80).length,
-            perlu_dilengkapi: completionData.filter(t => t.completion_percentage < 50).length
-          }
+        // Calculate percentage
+        const percentage = Math.round((filledFields / totalFields) * 100);
+
+        return {
+          id: teacher.id,
+          nama: teacher.nama,
+          nik: teacher.nik,
+          nip: teacher.nip,
+          email: teacher.email,
+          filled_fields: filledFields,
+          total_fields: totalFields,
+          has_assignments: hasAssignments,
+          assignment_count: teacher.assignment_count,
+          jabatan_list: teacher.jabatan_list,
+          sekolah_list: teacher.sekolah_list,
+          completion_percentage: percentage,
+          status: percentage >= 100 ? 'Lengkap' :
+                  percentage >= 80 ? 'Hampir Lengkap' :
+                  percentage >= 50 ? 'Sedang Dilengkapi' : 'Perlu Dilengkapi'
         };
+      });
 
-        console.log('Completion stats:', stats);
+      console.log('Calculated completion data sample:', completionData.slice(0, 3));
 
-        res.json({
-          success: true,
-          data: completionData,
-          stats: stats
-        });
-      } catch (error) {
-        console.error('Teacher completion progress error:', error);
-        res.status(500).json({ success: false, message: 'Error fetching teacher completion progress', error: error.message });
-      }
-    });
+      // Calculate overall statistics
+      const stats = {
+        total_teachers: completionData.length,
+        complete_teachers: completionData.filter(t => t.completion_percentage >= 100).length,
+        average_completion: completionData.length > 0 ? Math.round(completionData.reduce((sum, t) => sum + t.completion_percentage, 0) / completionData.length) : 0,
+        completion_distribution: {
+          lengkap: completionData.filter(t => t.completion_percentage >= 100).length,
+          hampir_lengkap: completionData.filter(t => t.completion_percentage >= 80 && t.completion_percentage < 100).length,
+          sedang_dilengkapi: completionData.filter(t => t.completion_percentage >= 50 && t.completion_percentage < 80).length,
+          perlu_dilengkapi: completionData.filter(t => t.completion_percentage < 50).length
+        }
+      };
+
+      console.log('Completion stats:', stats);
+
+      res.json({
+        success: true,
+        data: completionData,
+        stats: stats
+      });
+    } catch (error) {
+      console.error('Teacher completion progress error:', error);
+      res.status(500).json({ success: false, message: 'Error fetching teacher completion progress', error: error.message });
+    }
+  });
 
   } catch (dbError) {
     console.log('Database connection failed:', dbError.message);
@@ -2960,28 +3237,28 @@ async function startServer() {
    * @param {string} signature - HMAC signature to verify
    * @returns {boolean} true if valid
    */
-  const verifyQRSignature = (scanId, timestamp, tenantId, type, signature) => {
-    try {
-      const expected = generateQRSignature(scanId, timestamp, tenantId, type);
-      // Accept exact legacy signature (for backward compatibility with old QR codes)
-      const legacySignature = 'legacy-' + scanId;
-      if (signature === legacySignature) {
-        console.log(`[SCANNER] Legacy signature accepted for scan_id ${scanId}`);
-        return true;
-      }
-      // Ensure both buffers have same length before timingSafeEqual
-      const sigBuf = Buffer.from(signature);
-      const expBuf = Buffer.from(expected);
-      if (sigBuf.length !== expBuf.length) {
-        console.log(`[SCANNER] Signature length mismatch: provided ${sigBuf.length}, expected ${expBuf.length}`);
-        return false;
-      }
-      return crypto.timingSafeEqual(sigBuf, expBuf);
-    } catch (error) {
-      console.log('[SCANNER] Signature verification error:', error.message);
-      return false;
-    }
-  };
+   const verifyQRSignature = (scanId, timestamp, tenantId, type, signature) => {
+     try {
+       const expected = generateQRSignature(scanId, timestamp, tenantId, type);
+       // Accept exact legacy signature (for backward compatibility with old QR codes)
+       const legacySignature = 'legacy-' + scanId;
+       if (signature === legacySignature) {
+         console.log(`[SCANNER] Legacy signature accepted for scan_id ${scanId}`);
+         return true;
+       }
+       // Ensure both buffers have same length before timingSafeEqual
+       const sigBuf = Buffer.from(signature);
+       const expBuf = Buffer.from(expected);
+       if (sigBuf.length !== expBuf.length) {
+         console.log(`[SCANNER] Signature length mismatch: provided ${sigBuf.length}, expected ${expBuf.length}`);
+         return false;
+       }
+       return crypto.timingSafeEqual(sigBuf, expBuf);
+     } catch (error) {
+       console.log('[SCANNER] Signature verification error:', error.message);
+       return false;
+     }
+   };
 
   /**
    * POST /api/scanner/register
@@ -3248,123 +3525,123 @@ Terima kasih telah melakukan absensi!`;
     } catch (error) {
       console.error('[SCANNER ATTENDANCE ERROR]', error.message);
       console.error(error.stack);
-      res.status(500).json({ success: false, message: 'Error processing scanner attendance', error: error.message });
+       res.status(500).json({ success: false, message: 'Error processing scanner attendance', error: error.message });
     }
   });
 
-  /**
-       * GET /api/public/tenants
-       * Public endpoint for scanner device setup (no auth required)
-       */
-  app.get('/api/public/tenants', async (req, res) => {
-    try {
-      const tenants = await db.query('SELECT tenant_id, nama_sekolah FROM tenants ORDER BY nama_sekolah ASC');
-      res.json({ success: true, data: tenants });
-    } catch (error) {
-      console.error('[PUBLIC TENANTS] Error:', error.message);
-      res.status(500).json({ success: false, message: 'Error fetching tenants' });
-    }
-  });
+/**
+     * GET /api/public/tenants
+     * Public endpoint for scanner device setup (no auth required)
+     */
+    app.get('/api/public/tenants', async (req, res) => {
+      try {
+        const tenants = await db.query('SELECT tenant_id, nama_sekolah FROM tenants ORDER BY nama_sekolah ASC');
+        res.json({ success: true, data: tenants });
+      } catch (error) {
+        console.error('[PUBLIC TENANTS] Error:', error.message);
+        res.status(500).json({ success: false, message: 'Error fetching tenants' });
+      }
+    });
 
-  /**
-   * GET /api/scanner/check-status
-   * Public endpoint to check if teacher already scanned today (for masuk/pulang logic)
-   */
-  app.get('/api/scanner/check-status', async (req, res) => {
-    const { scan_id } = req.query;
-    if (!scan_id) {
-      return res.status(400).json({ success: false, message: 'scan_id required' });
-    }
+    /**
+     * GET /api/scanner/check-status
+     * Public endpoint to check if teacher already scanned today (for masuk/pulang logic)
+     */
+    app.get('/api/scanner/check-status', async (req, res) => {
+      const { scan_id } = req.query;
+      if (!scan_id) {
+        return res.status(400).json({ success: false, message: 'scan_id required' });
+      }
 
-    try {
-      // Check if teacher has 'masuk' today
-      const today = new Date().toISOString().split('T')[0];
-      const masukCheck = await db.query(
-        'SELECT id FROM attendance_logs WHERE teacher_id = (SELECT id FROM teachers WHERE scan_id = ?) AND jenis = \'masuk\' AND DATE(waktu_scan) = ?',
-        [scan_id, today]
-      );
+      try {
+        // Check if teacher has 'masuk' today
+        const today = new Date().toISOString().split('T')[0];
+        const masukCheck = await db.query(
+          'SELECT id FROM attendance_logs WHERE teacher_id = (SELECT id FROM teachers WHERE scan_id = ?) AND jenis = \'masuk\' AND DATE(waktu_scan) = ?',
+          [scan_id, today]
+        );
 
-      const pulangCheck = await db.query(
-        'SELECT id FROM attendance_logs WHERE teacher_id = (SELECT id FROM teachers WHERE scan_id = ?) AND jenis = \'pulang\' AND DATE(waktu_scan) = ?',
-        [scan_id, today]
-      );
+        const pulangCheck = await db.query(
+          'SELECT id FROM attendance_logs WHERE teacher_id = (SELECT id FROM teachers WHERE scan_id = ?) AND jenis = \'pulang\' AND DATE(waktu_scan) = ?',
+          [scan_id, today]
+        );
 
-      // Get allowed pulang time from rules
-      const ruleCheck = await db.query(
-        'SELECT jam_mulai as jam_pulang_buka FROM attendance_rules WHERE tipe = \'Pulang\' AND jam_mulai IS NOT NULL ORDER BY jam_mulai ASC LIMIT 1'
-      );
+        // Get allowed pulang time from rules
+        const ruleCheck = await db.query(
+          'SELECT jam_mulai as jam_pulang_buka FROM attendance_rules WHERE tipe = \'Pulang\' AND jam_mulai IS NOT NULL ORDER BY jam_mulai ASC LIMIT 1'
+        );
+
+        res.json({
+          success: true,
+          has_masuk: masukCheck.length > 0,
+          has_pulang: pulangCheck.length > 0,
+          jam_pulang_buka: ruleCheck[0]?.jam_pulang_buka || null
+        });
+      } catch (error) {
+        console.error('[CHECK-STATUS] Error:', error.message);
+        res.status(500).json({ success: false, message: 'Error checking status' });
+      }
+    });
+
+    /**
+     * GET /api/version
+     * Public endpoint to get current app version
+     */
+    app.get('/api/version', (req, res) => {
+      res.json({
+        success: true,
+        version: '1.0.3',
+        timestamp: new Date().toISOString(),
+        features: [
+          'Scanner offline-capable',
+          'Auto masuk/pulang detection',
+          'Force refresh for PWA',
+          'iOS compatibility'
+        ]
+      });
+    });
+
+    /**
+     * GET /api/test-buttons
+     * Test endpoint to verify button functionality
+     */
+    app.get('/api/test-buttons', (req, res) => {
+      res.json({
+        success: true,
+        message: 'Server is running and buttons should work',
+        timestamp: new Date().toISOString(),
+        buttons: {
+          torch: 'Toggle flashlight',
+          switch_camera: 'Switch front/back camera',
+          sync: 'Sync offline data',
+          manual_scan: 'Start manual scan',
+          force_refresh: 'Force app refresh',
+          test: 'Test button'
+        }
+      });
+    });
+
+    /**
+     * POST /api/log-click
+     * Log button clicks from scanner (for mobile debugging)
+     */
+    app.post('/api/log-click', (req, res) => {
+      const { button, userAgent, timestamp } = req.body;
+      console.log(`[BUTTON-CLICK] ${button} clicked at ${timestamp}`);
+      console.log(`[BUTTON-CLICK] User-Agent: ${req.get('User-Agent')}`);
+      console.log(`[BUTTON-CLICK] IP: ${req.ip}`);
 
       res.json({
         success: true,
-        has_masuk: masukCheck.length > 0,
-        has_pulang: pulangCheck.length > 0,
-        jam_pulang_buka: ruleCheck[0]?.jam_pulang_buka || null
+        message: `Button ${button} click logged`,
+        timestamp: new Date().toISOString()
       });
-    } catch (error) {
-      console.error('[CHECK-STATUS] Error:', error.message);
-      res.status(500).json({ success: false, message: 'Error checking status' });
-    }
-  });
-
-  /**
-   * GET /api/version
-   * Public endpoint to get current app version
-   */
-  app.get('/api/version', (req, res) => {
-    res.json({
-      success: true,
-      version: '1.0.3',
-      timestamp: new Date().toISOString(),
-      features: [
-        'Scanner offline-capable',
-        'Auto masuk/pulang detection',
-        'Force refresh for PWA',
-        'iOS compatibility'
-      ]
     });
-  });
 
-  /**
-   * GET /api/test-buttons
-   * Test endpoint to verify button functionality
-   */
-  app.get('/api/test-buttons', (req, res) => {
-    res.json({
-      success: true,
-      message: 'Server is running and buttons should work',
-      timestamp: new Date().toISOString(),
-      buttons: {
-        torch: 'Toggle flashlight',
-        switch_camera: 'Switch front/back camera',
-        sync: 'Sync offline data',
-        manual_scan: 'Start manual scan',
-        force_refresh: 'Force app refresh',
-        test: 'Test button'
-      }
-    });
-  });
-
-  /**
-   * POST /api/log-click
-   * Log button clicks from scanner (for mobile debugging)
-   */
-  app.post('/api/log-click', (req, res) => {
-    const { button, userAgent, timestamp } = req.body;
-    console.log(`[BUTTON-CLICK] ${button} clicked at ${timestamp}`);
-    console.log(`[BUTTON-CLICK] User-Agent: ${req.get('User-Agent')}`);
-    console.log(`[BUTTON-CLICK] IP: ${req.ip}`);
-
-    res.json({
-      success: true,
-      message: `Button ${button} click logged`,
-      timestamp: new Date().toISOString()
-    });
-  });
-
-  /**
-   * GET /api/scanner/status
-   * Admin endpoint to check scanner device status
-   */
+   /**
+    * GET /api/scanner/status
+    * Admin endpoint to check scanner device status
+    */
   app.get('/api/scanner/status', authenticateToken, async (req, res) => {
     try {
       // Only admin can access
@@ -3684,111 +3961,111 @@ Terima kasih telah melakukan absensi!`;
     }
   });
 
-  // ============================================
-  // EVALUATION ENDPOINTS
-  // ============================================
-
-  // Get teachers for evaluation (by evaluator's tenant)
-  app.get('/api/evaluations/teachers', authenticateToken, async (req, res) => {
-    try {
-      let tenantId = req.query.tenant_id;
-
-      // Determine accessible tenants based on user role
-      if (req.user.role === 'admin' && !tenantId) {
-        return res.status(400).json({ success: false, message: 'tenant_id required for admin' });
-      }
-
-      // For guru with kepala_sekolah/pimpinan_pondok role, use their assigned tenant
-      if (!tenantId) {
-        const assignments = req.user.assignments || [];
-        const relevantAssignments = assignments.filter(a =>
-          ['kepala_sekolah', 'pimpinan_pondok'].includes((a.jabatan_di_unit || '').toLowerCase().replace(/\s/g, ''))
-        );
-        if (relevantAssignments.length > 0) {
-          tenantId = relevantAssignments[0].tenant_id;
+// ============================================
+    // EVALUATION ENDPOINTS
+    // ============================================
+    
+    // Get teachers for evaluation (by evaluator's tenant)
+    app.get('/api/evaluations/teachers', authenticateToken, async (req, res) => {
+      try {
+        let tenantId = req.query.tenant_id;
+        
+        // Determine accessible tenants based on user role
+        if (req.user.role === 'admin' && !tenantId) {
+          return res.status(400).json({ success: false, message: 'tenant_id required for admin' });
         }
-      }
-
-      if (!tenantId) {
-        return res.status(400).json({ success: false, message: 'No accessible tenant found' });
-      }
-
-      // Verify access for non-admin
-      if (req.user.role === 'guru') {
-        const assignments = req.user.assignments || [];
-        const hasAccess = assignments.some(a =>
-          a.tenant_id === tenantId &&
-          ['kepala_sekolah', 'pimpinan_pondok'].includes((a.jabatan_di_unit || '').toLowerCase().replace(/\s/g, ''))
-        );
-        if (!hasAccess) {
-          return res.status(403).json({ success: false, message: 'Access denied to this tenant' });
+        
+        // For guru with kepala_sekolah/pimpinan_pondok role, use their assigned tenant
+        if (!tenantId) {
+          const assignments = req.user.assignments || [];
+          const relevantAssignments = assignments.filter(a => 
+            ['kepala_sekolah', 'pimpinan_pondok'].includes((a.jabatan_di_unit || '').toLowerCase().replace(/\s/g, ''))
+          );
+          if (relevantAssignments.length > 0) {
+            tenantId = relevantAssignments[0].tenant_id;
+          }
         }
-      }
-
-      // Get teachers for this tenant
-      const teachers = await db.query(`
+        
+        if (!tenantId) {
+          return res.status(400).json({ success: false, message: 'No accessible tenant found' });
+        }
+        
+        // Verify access for non-admin
+        if (req.user.role === 'guru') {
+          const assignments = req.user.assignments || [];
+          const hasAccess = assignments.some(a => 
+            a.tenant_id === tenantId && 
+            ['kepala_sekolah', 'pimpinan_pondok'].includes((a.jabatan_di_unit || '').toLowerCase().replace(/\s/g, ''))
+          );
+          if (!hasAccess) {
+            return res.status(403).json({ success: false, message: 'Access denied to this tenant' });
+          }
+        }
+        
+        // Get teachers for this tenant
+        const teachers = await db.query(`
           SELECT t.id, t.nama, t.scan_id, t.jenis_kelamin
           FROM teachers t
           JOIN teacher_assignments ta ON t.id = ta.teacher_id
           WHERE ta.tenant_id = ? AND t.status_aktif = 1
           ORDER BY t.nama ASC
         `, [tenantId]);
-
-      res.json({ success: true, data: teachers });
-    } catch (error) {
-      console.error('Get teachers for evaluation error:', error);
-      res.status(500).json({ success: false, message: 'Error fetching teachers' });
-    }
-  });
-
-  // Get my evaluations (for kepala sekolah/pimpinan pondok to see their given evaluations)
-  app.get('/api/evaluations/my-evaluations', authenticateToken, async (req, res) => {
-    try {
-      if (req.user.role !== 'guru' && req.user.role !== 'admin') {
-        return res.status(403).json({ success: false, message: 'Access denied' });
+        
+        res.json({ success: true, data: teachers });
+      } catch (error) {
+        console.error('Get teachers for evaluation error:', error);
+        res.status(500).json({ success: false, message: 'Error fetching teachers' });
       }
+    });
 
-      let query = `
+    // Get my evaluations (for kepala sekolah/pimpinan pondok to see their given evaluations)
+    app.get('/api/evaluations/my-evaluations', authenticateToken, async (req, res) => {
+      try {
+        if (req.user.role !== 'guru' && req.user.role !== 'admin') {
+          return res.status(403).json({ success: false, message: 'Access denied' });
+        }
+        
+        let query = `
           SELECT e.*, t.nama as teacher_name, tn.nama_sekolah
           FROM evaluations e
           JOIN teachers t ON e.teacher_id = t.id
           LEFT JOIN tenants tn ON e.tenant_id = tn.tenant_id
           WHERE 1=1
         `;
-      let params = [];
-
-      if (req.user.role === 'guru') {
-        query += ' AND e.evaluator_id = ?';
-        params.push(req.user.id);
-      }
-
-      query += ' ORDER BY e.evaluation_date DESC, e.created_at DESC LIMIT 100';
-
-      const evaluations = await db.query(query, params);
-      res.json({ success: true, data: evaluations });
-    } catch (error) {
-      console.error('Get my evaluations error:', error);
-      res.status(500).json({ success: false, message: 'Error fetching evaluations' });
-    }
-  });
-
-  // Get evaluations summary (average score per teacher)
-  app.get('/api/evaluations/summary', authenticateToken, async (req, res) => {
-    try {
-      let tenantId = req.query.tenant_id;
-
-      // Determine accessible tenant for non-admin
-      if (req.user.role === 'guru' && !tenantId) {
-        const assignments = req.user.assignments || [];
-        const relevantAssignments = assignments.filter(a =>
-          ['kepala_sekolah', 'pimpinan_pondok'].includes((a.jabatan_di_unit || '').toLowerCase().replace(/\s/g, ''))
-        );
-        if (relevantAssignments.length > 0) {
-          tenantId = relevantAssignments[0].tenant_id;
+        let params = [];
+        
+        if (req.user.role === 'guru') {
+          query += ' AND e.evaluator_id = ?';
+          params.push(req.user.id);
         }
+        
+        query += ' ORDER BY e.evaluation_date DESC, e.created_at DESC LIMIT 100';
+        
+        const evaluations = await db.query(query, params);
+        res.json({ success: true, data: evaluations });
+      } catch (error) {
+        console.error('Get my evaluations error:', error);
+        res.status(500).json({ success: false, message: 'Error fetching evaluations' });
       }
+    });
 
-      let query = `
+    // Get evaluations summary (average score per teacher)
+    app.get('/api/evaluations/summary', authenticateToken, async (req, res) => {
+      try {
+        let tenantId = req.query.tenant_id;
+        
+        // Determine accessible tenant for non-admin
+        if (req.user.role === 'guru' && !tenantId) {
+          const assignments = req.user.assignments || [];
+          const relevantAssignments = assignments.filter(a => 
+            ['kepala_sekolah', 'pimpinan_pondok'].includes((a.jabatan_di_unit || '').toLowerCase().replace(/\s/g, ''))
+          );
+          if (relevantAssignments.length > 0) {
+            tenantId = relevantAssignments[0].tenant_id;
+          }
+        }
+        
+        let query = `
           SELECT 
             t.id as teacher_id,
             t.nama as teacher_name,
@@ -3798,141 +4075,141 @@ Terima kasih telah melakukan absensi!`;
           JOIN teacher_assignments ta ON t.id = ta.teacher_id
           LEFT JOIN evaluations e ON t.id = e.teacher_id
         `;
-      let params = [];
-      let whereAdded = false;
-
-      if (tenantId) {
-        query += ' WHERE ta.tenant_id = ?';
-        params.push(tenantId);
-        whereAdded = true;
-      }
-
-      query += ' GROUP BY t.id, t.nama ORDER BY avg_score DESC';
-
-      const summary = await db.query(query, params);
-      res.json({ success: true, data: summary });
-    } catch (error) {
-      console.error('Get evaluations summary error:', error);
-      res.status(500).json({ success: false, message: 'Error fetching summary' });
-    }
-  });
-
-  // Create evaluation
-  app.post('/api/evaluations', authenticateToken, async (req, res) => {
-    try {
-      const { teacher_id, score, category, notes, evaluation_date } = req.body;
-
-      if (!teacher_id || score === undefined) {
-        return res.status(400).json({ success: false, message: 'teacher_id and score required' });
-      }
-
-      // Validate score (1-5)
-      if (score < 1 || score > 5) {
-        return res.status(400).json({ success: false, message: 'Score must be between 1 and 5' });
-      }
-
-      // Determine tenant from teacher's assignment
-      const [assignment] = await db.query(
-        'SELECT tenant_id FROM teacher_assignments WHERE teacher_id = ? LIMIT 1',
-        [teacher_id]
-      );
-
-      if (!assignment) {
-        return res.status(404).json({ success: false, message: 'Teacher not found or not assigned to any tenant' });
-      }
-
-      const tenant_id = assignment.tenant_id;
-
-      // Verify evaluator access - only kepala_sekolah/pimpinan_pondok can evaluate
-      if (req.user.role === 'guru') {
-        const assignments = req.user.assignments || [];
-        const hasAccess = assignments.some(a =>
-          a.tenant_id === tenant_id &&
-          ['kepala_sekolah', 'pimpinan_pondok'].includes((a.jabatan_di_unit || '').toLowerCase().replace(/\s/g, ''))
-        );
-        if (!hasAccess) {
-          return res.status(403).json({ success: false, message: 'Only kepala sekolah or pimpinan pondok can evaluate teachers' });
+        let params = [];
+        let whereAdded = false;
+        
+        if (tenantId) {
+          query += ' WHERE ta.tenant_id = ?';
+          params.push(tenantId);
+          whereAdded = true;
         }
-      } else if (req.user.role === 'admin') {
-        // Admin can evaluate anyone - access granted
-      } else {
-        return res.status(403).json({ success: false, message: 'Insufficient permissions' });
+        
+        query += ' GROUP BY t.id, t.nama ORDER BY avg_score DESC';
+        
+        const summary = await db.query(query, params);
+        res.json({ success: true, data: summary });
+      } catch (error) {
+        console.error('Get evaluations summary error:', error);
+        res.status(500).json({ success: false, message: 'Error fetching summary' });
       }
+    });
 
-      const evaluator_id = req.user.id;
-
-      const result = await db.query(
-        `INSERT INTO evaluations (teacher_id, evaluator_id, tenant_id, score, category, notes, evaluation_date) 
+    // Create evaluation
+    app.post('/api/evaluations', authenticateToken, async (req, res) => {
+      try {
+        const { teacher_id, score, category, notes, evaluation_date } = req.body;
+        
+        if (!teacher_id || score === undefined) {
+          return res.status(400).json({ success: false, message: 'teacher_id and score required' });
+        }
+        
+        // Validate score (1-5)
+        if (score < 1 || score > 5) {
+          return res.status(400).json({ success: false, message: 'Score must be between 1 and 5' });
+        }
+        
+        // Determine tenant from teacher's assignment
+        const [assignment] = await db.query(
+          'SELECT tenant_id FROM teacher_assignments WHERE teacher_id = ? LIMIT 1',
+          [teacher_id]
+        );
+        
+        if (!assignment) {
+          return res.status(404).json({ success: false, message: 'Teacher not found or not assigned to any tenant' });
+        }
+        
+        const tenant_id = assignment.tenant_id;
+        
+        // Verify evaluator access - only kepala_sekolah/pimpinan_pondok can evaluate
+        if (req.user.role === 'guru') {
+          const assignments = req.user.assignments || [];
+          const hasAccess = assignments.some(a => 
+            a.tenant_id === tenant_id && 
+            ['kepala_sekolah', 'pimpinan_pondok'].includes((a.jabatan_di_unit || '').toLowerCase().replace(/\s/g, ''))
+          );
+          if (!hasAccess) {
+            return res.status(403).json({ success: false, message: 'Only kepala sekolah or pimpinan pondok can evaluate teachers' });
+          }
+        } else if (req.user.role === 'admin') {
+          // Admin can evaluate anyone - access granted
+        } else {
+          return res.status(403).json({ success: false, message: 'Insufficient permissions' });
+        }
+        
+        const evaluator_id = req.user.id;
+        
+        const result = await db.query(
+          `INSERT INTO evaluations (teacher_id, evaluator_id, tenant_id, score, category, notes, evaluation_date) 
            VALUES (?, ?, ?, ?, ?, ?, ?)`,
-        [teacher_id, evaluator_id, tenant_id, score, category || 'kehadiran', notes || '', evaluation_date || new Date().toISOString().split('T')[0]]
-      );
-
-      res.json({ success: true, message: 'Evaluation recorded', data: { id: result.insertId } });
-    } catch (error) {
-      console.error('Create evaluation error:', error);
-      res.status(500).json({ success: false, message: 'Error creating evaluation' });
-    }
-  });
-
-  // Get evaluations (for viewing)
-  app.get('/api/evaluations', authenticateToken, async (req, res) => {
-    try {
-      let tenantId = req.query.tenant_id;
-      const teacherId = req.query.teacher_id;
-
-      // Determine accessible tenant for non-admin
-      if (req.user.role === 'guru' && !tenantId) {
-        const assignments = req.user.assignments || [];
-        const relevantAssignments = assignments.filter(a =>
-          ['kepala_sekolah', 'pimpinan_pondok'].includes((a.jabatan_di_unit || '').toLowerCase().replace(/\s/g, ''))
+          [teacher_id, evaluator_id, tenant_id, score, category || 'kehadiran', notes || '', evaluation_date || new Date().toISOString().split('T')[0]]
         );
-        if (relevantAssignments.length > 0) {
-          tenantId = relevantAssignments[0].tenant_id;
-        }
+        
+        res.json({ success: true, message: 'Evaluation recorded', data: { id: result.insertId } });
+      } catch (error) {
+        console.error('Create evaluation error:', error);
+        res.status(500).json({ success: false, message: 'Error creating evaluation' });
       }
+    });
 
-      let query = `
+    // Get evaluations (for viewing)
+    app.get('/api/evaluations', authenticateToken, async (req, res) => {
+      try {
+        let tenantId = req.query.tenant_id;
+        const teacherId = req.query.teacher_id;
+        
+        // Determine accessible tenant for non-admin
+        if (req.user.role === 'guru' && !tenantId) {
+          const assignments = req.user.assignments || [];
+          const relevantAssignments = assignments.filter(a => 
+            ['kepala_sekolah', 'pimpinan_pondok'].includes((a.jabatan_di_unit || '').toLowerCase().replace(/\s/g, ''))
+          );
+          if (relevantAssignments.length > 0) {
+            tenantId = relevantAssignments[0].tenant_id;
+          }
+        }
+        
+        let query = `
           SELECT e.*, t.nama as teacher_name, u.username as evaluator_name
           FROM evaluations e
           JOIN teachers t ON e.teacher_id = t.id
           JOIN users u ON e.evaluator_id = u.id
           WHERE 1=1
         `;
-      const params = [];
+        const params = [];
+        
+        if (tenantId) {
+          query += ' AND e.tenant_id = ?';
+          params.push(tenantId);
+        }
+        
+        if (teacherId) {
+          query += ' AND e.teacher_id = ?';
+          params.push(teacherId);
+        }
+        
+        query += ' ORDER BY e.evaluation_date DESC, e.created_at DESC LIMIT 100';
+        
+        const evaluations = await db.query(query, params);
+        
+        res.json({ success: true, data: evaluations });
+      } catch (error) {
+        console.error('Get evaluations error:', error);
+        res.status(500).json({ success: false, message: 'Error fetching evaluations' });
+      }
+    });
 
-      if (tenantId) {
-        query += ' AND e.tenant_id = ?';
-        params.push(tenantId);
+// ============================================
+    // AUTOMATIC EVALUATION FROM ATTENDANCE
+    // ============================================
+
+    async function calculateAutoEvaluation(teacher_id, tenant_id, month = null) {
+      if (!month) {
+        const now = new Date();
+        month = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
       }
 
-      if (teacherId) {
-        query += ' AND e.teacher_id = ?';
-        params.push(teacherId);
-      }
-
-      query += ' ORDER BY e.evaluation_date DESC, e.created_at DESC LIMIT 100';
-
-      const evaluations = await db.query(query, params);
-
-      res.json({ success: true, data: evaluations });
-    } catch (error) {
-      console.error('Get evaluations error:', error);
-      res.status(500).json({ success: false, message: 'Error fetching evaluations' });
-    }
-  });
-
-  // ============================================
-  // AUTOMATIC EVALUATION FROM ATTENDANCE
-  // ============================================
-
-  async function calculateAutoEvaluation(teacher_id, tenant_id, month = null) {
-    if (!month) {
-      const now = new Date();
-      month = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
-    }
-
-    try {
-      const stats = await db.query(`
+      try {
+        const stats = await db.query(`
           SELECT 
             COUNT(*) as total_days,
             SUM(CASE WHEN status = 'hadir' THEN 1 ELSE 0 END) as present_days,
@@ -3943,92 +4220,92 @@ Terima kasih telah melakukan absensi!`;
           AND (status = 'hadir' OR status = 'telat' OR status = 'alpha')
         `, [teacher_id, tenant_id, month]);
 
-      const stat = stats[0] || { total_days: 0, present_days: 0, late_days: 0, alpha_days: 0 };
-
-      let score = 0;
-      if (stat.total_days > 0) {
-        const rate = (stat.present_days / stat.total_days) * 100;
-        if (rate >= 95) score = 5.0;
-        else if (rate >= 90) score = 4.5;
-        else if (rate >= 85) score = 4.0;
-        else if (rate >= 80) score = 3.5;
-        else if (rate >= 75) score = 3.0;
-        else if (rate >= 70) score = 2.5;
-        else if (rate >= 65) score = 2.0;
-        else score = 1.0;
-      }
-
-      return {
-        score: parseFloat(score.toFixed(2)),
-        total_days: stat.total_days,
-        present_days: stat.present_days,
-        late_days: stat.late_days,
-        alpha_days: stat.alpha_days
-      };
-    } catch (error) {
-      console.error('Auto evaluation error:', error);
-      return { score: 0, total_days: 0, present_days: 0, late_days: 0, alpha_days: 0 };
-    }
-  }
-
-  // Run auto evaluation for all teachers
-  app.post('/api/evaluations/auto-calculate', authenticateToken, async (req, res) => {
-    try {
-      const userRole = req.user.role;
-      const isAdmin = userRole === 'admin';
-
-      // Get user's assigned tenant if not admin
-      let tenantId = null;
-      if (!isAdmin) {
-        const assignments = await db.query(
-          'SELECT tenant_id FROM teacher_assignments WHERE user_id = ? AND jabatan_di_unit IN (?, ?) LIMIT 1',
-          [req.user.id, 'kepala_sekolah', 'pimpinan_pondok']
-        );
-        if (assignments.length === 0) {
-          return res.status(403).json({ success: false, message: 'Akses ditolak' });
+        const stat = stats[0] || { total_days: 0, present_days: 0, late_days: 0, alpha_days: 0 };
+        
+        let score = 0;
+        if (stat.total_days > 0) {
+          const rate = (stat.present_days / stat.total_days) * 100;
+          if (rate >= 95) score = 5.0;
+          else if (rate >= 90) score = 4.5;
+          else if (rate >= 85) score = 4.0;
+          else if (rate >= 80) score = 3.5;
+          else if (rate >= 75) score = 3.0;
+          else if (rate >= 70) score = 2.5;
+          else if (rate >= 65) score = 2.0;
+          else score = 1.0;
         }
-        tenantId = assignments[0].tenant_id;
+
+        return {
+          score: parseFloat(score.toFixed(2)),
+          total_days: stat.total_days,
+          present_days: stat.present_days,
+          late_days: stat.late_days,
+          alpha_days: stat.alpha_days
+        };
+      } catch (error) {
+        console.error('Auto evaluation error:', error);
+        return { score: 0, total_days: 0, present_days: 0, late_days: 0, alpha_days: 0 };
       }
+    }
 
-      // Get teachers based on role
-      let teachers;
-      if (isAdmin) {
-        teachers = await db.query('SELECT id, tenant_id FROM teachers WHERE status_aktif = 1');
-      } else {
-        teachers = await db.query('SELECT id, tenant_id FROM teachers WHERE status_aktif = 1 AND tenant_id = ?', [tenantId]);
-      }
+    // Run auto evaluation for all teachers
+    app.post('/api/evaluations/auto-calculate', authenticateToken, async (req, res) => {
+      try {
+        const userRole = req.user.role;
+        const isAdmin = userRole === 'admin';
+        
+        // Get user's assigned tenant if not admin
+        let tenantId = null;
+        if (!isAdmin) {
+          const assignments = await db.query(
+            'SELECT tenant_id FROM teacher_assignments WHERE user_id = ? AND jabatan_di_unit IN (?, ?) LIMIT 1',
+            [req.user.id, 'kepala_sekolah', 'pimpinan_pondok']
+          );
+          if (assignments.length === 0) {
+            return res.status(403).json({ success: false, message: 'Akses ditolak' });
+          }
+          tenantId = assignments[0].tenant_id;
+        }
 
-      const results = [];
+        // Get teachers based on role
+        let teachers;
+        if (isAdmin) {
+          teachers = await db.query('SELECT id, tenant_id FROM teachers WHERE status_aktif = 1');
+        } else {
+          teachers = await db.query('SELECT id, tenant_id FROM teachers WHERE status_aktif = 1 AND tenant_id = ?', [tenantId]);
+        }
+        
+        const results = [];
 
-      for (const teacher of teachers) {
-        const evalData = await calculateAutoEvaluation(teacher.id, teacher.tenant_id);
-
-        if (evalData.total_days > 0 && evalData.score > 0) {
-          await db.query(`
+        for (const teacher of teachers) {
+          const evalData = await calculateAutoEvaluation(teacher.id, teacher.tenant_id);
+          
+          if (evalData.total_days > 0 && evalData.score > 0) {
+            await db.query(`
               INSERT INTO evaluations (teacher_id, evaluator_id, tenant_id, score, category, notes, evaluation_date)
               VALUES (?, NULL, ?, ?, 'kehadiran', ?, CURDATE())
               ON DUPLICATE KEY UPDATE score = VALUES(score), notes = VALUES(notes)
             `, [teacher.id, teacher.tenant_id, evalData.score, `Otomatis: ${evalData.present_days}/${evalData.total_days} hari hadir`]);
-
-          results.push({ teacher_id: teacher.id, score: evalData.score });
+            
+            results.push({ teacher_id: teacher.id, score: evalData.score });
+          }
         }
+
+        res.json({ success: true, message: `Berhasil menilai ${results.length} guru`, data: results });
+      } catch (error) {
+        console.error('Auto calculate error:', error);
+        res.status(500).json({ success: false, message: 'Error auto calculating evaluations' });
       }
+    });
 
-      res.json({ success: true, message: `Berhasil menilai ${results.length} guru`, data: results });
-    } catch (error) {
-      console.error('Auto calculate error:', error);
-      res.status(500).json({ success: false, message: 'Error auto calculating evaluations' });
-    }
-  });
+    // Get all evaluations (for Ketua Yayasan - admin can see all)
+    app.get('/api/evaluations/all', authenticateToken, async (req, res) => {
+      try {
+        if (req.user.role !== 'admin') {
+          return res.status(403).json({ success: false, message: 'Hanya Ketua Yayasan yang bisa melihat semua nilai' });
+        }
 
-  // Get all evaluations (for Ketua Yayasan - admin can see all)
-  app.get('/api/evaluations/all', authenticateToken, async (req, res) => {
-    try {
-      if (req.user.role !== 'admin') {
-        return res.status(403).json({ success: false, message: 'Hanya Ketua Yayasan yang bisa melihat semua nilai' });
-      }
-
-      const query = `
+        const query = `
           SELECT e.*, t.nama as teacher_name, tn.nama_sekolah, u.username as evaluator_name
           FROM evaluations e
           JOIN teachers t ON e.teacher_id = t.id
@@ -4037,22 +4314,22 @@ Terima kasih telah melakukan absensi!`;
           ORDER BY e.tenant_id, e.evaluation_date DESC
         `;
 
-      const evaluations = await db.query(query);
-      res.json({ success: true, data: evaluations });
-    } catch (error) {
-      console.error('Get all evaluations error:', error);
-      res.status(500).json({ success: false, message: 'Error fetching all evaluations' });
-    }
-  });
-
-  // Get evaluation summary across all schools (for Ketua Yayasan dashboard)
-  app.get('/api/evaluations/yayasan-summary', authenticateToken, async (req, res) => {
-    try {
-      if (req.user.role !== 'admin') {
-        return res.status(403).json({ success: false, message: 'Hanya Ketua Yayasan yang bisa melihat ringkasan yayasan' });
+        const evaluations = await db.query(query);
+        res.json({ success: true, data: evaluations });
+      } catch (error) {
+        console.error('Get all evaluations error:', error);
+        res.status(500).json({ success: false, message: 'Error fetching all evaluations' });
       }
+    });
 
-      const summary = await db.query(`
+    // Get evaluation summary across all schools (for Ketua Yayasan dashboard)
+    app.get('/api/evaluations/yayasan-summary', authenticateToken, async (req, res) => {
+      try {
+        if (req.user.role !== 'admin') {
+          return res.status(403).json({ success: false, message: 'Hanya Ketua Yayasan yang bisa melihat ringkasan yayasan' });
+        }
+
+        const summary = await db.query(`
           SELECT 
             e.tenant_id,
             tn.nama_sekolah,
@@ -4067,29 +4344,28 @@ Terima kasih telah melakukan absensi!`;
           ORDER BY avg_score DESC
         `);
 
-      res.json({ success: true, data: summary });
-    } catch (error) {
-      console.error('Yayasan summary error:', error);
-      res.status(500).json({ success: false, message: 'Error fetching yayasan summary' });
-    }
-  });
+        res.json({ success: true, data: summary });
+      } catch (error) {
+        console.error('Yayasan summary error:', error);
+        res.status(500).json({ success: false, message: 'Error fetching yayasan summary' });
+      }
+    });
 
-  // ============================================
-  // END EVALUATION ENDPOINTS
-  // ============================================
+    // ============================================
+    // END EVALUATION ENDPOINTS
+    // ============================================
 
-  app.listen(PORT, '0.0.0.0', () => {
-    console.log('🚀 Server YPWI Lutim berjalan di http://localhost:' + PORT);
-    console.log('🌐 Juga dapat diakses di http://0.0.0.0:' + PORT + ' atau IP lokal Anda');
-    console.log('🔐 Login endpoint: POST /api/auth/login');
-    console.log('📊 Dashboard endpoint: GET /api/dashboard (protected)');
-    console.log('📱 Scanner endpoints: POST /api/scanner/attendance, POST /api/scanner/register');
-    console.log('🔍 QR Generator: GET /api/scanner/qr/generate?scan_id=XXX');
-  });
-}
+    app.listen(PORT, '0.0.0.0', () => {
+      console.log('🚀 Server YPWI Lutim berjalan di http://localhost:' + PORT);
+      console.log('🌐 Juga dapat diakses di http://0.0.0.0:' + PORT + ' atau IP lokal Anda');
+      console.log('🔐 Login endpoint: POST /api/auth/login');
+      console.log('📊 Dashboard endpoint: GET /api/dashboard (protected)');
+      console.log('📱 Scanner endpoints: POST /api/scanner/attendance, POST /api/scanner/register');
+      console.log('🔍 QR Generator: GET /api/scanner/qr/generate?scan_id=XXX');
+    });
+  }
 
 startServer().catch(err => {
   console.error('Server start failed:', err.message);
   process.exit(1);
 });
-

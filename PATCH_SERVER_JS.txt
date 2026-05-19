@@ -1,0 +1,35 @@
+// ============================================================
+// PATCH FOR SERVER.JS - Add these lines to integrate the absensi router
+// ============================================================
+
+// --- ADD THIS IMPORT after the existing requires (around line 18) ---
+
+// const absensiRoutes = require('./src/routes/absensi');  // <-- Add this line near other routes
+
+// --- ADD THIS MOUNT POINT before app.listen() (around line 4350) ---
+/*
+app.use('/api', absensiRoutes);
+
+// Also add this at the top after requires for tipe_unit support in queries
+*/
+
+// ============================================================
+// INSTRUCTIONS FOR INTEGRATION:
+// ============================================================
+// 1. In server.js, find this section (around line 18 after other requires):
+//    const db = require('./db');
+//    Add below it:
+//    const absensiRoutes = require('./src/routes/absensi');
+//
+// 2. Before app.listen() (around line 4357), add:
+//    app.use('/api', absensiRoutes);
+//
+// 3. The extracted endpoints from server.js that should be REMOVED after verification:
+//    Lines 880-1058: app.post('/api/attendance', ...)
+//    Lines 2657-2669: app.get('/api/attendance-history', ...)
+//    Lines 2555-2629: app.get('/api/units/nearby', ...) + app.get('/api/units/all', ...)
+//    Lines 2632-2640: app.get('/api/tenants', ...)
+//    Lines 2642-2655: app.get('/api/tenants/:id', ...)
+//    Lines 4250-4284: app.post('/api/evaluations/auto-calculate', ...)
+//
+// 4. The attendance_logs INSERT statement has been updated to include rule_id column

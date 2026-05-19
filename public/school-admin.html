@@ -319,19 +319,83 @@
     </div>
   </div>
 
-  <!-- Location Modal -->
+  <!-- Location Modal (sama seperti admin-dashboard.html) -->
   <div id="locationModal" class="modal fixed inset-0 bg-black bg-opacity-50 z-50 justify-center items-center">
-    <div class="bg-white rounded-lg max-w-xl w-full mx-4 max-h-[90vh] overflow-y-auto">
-      <div class="p-6"><div class="flex items-center justify-between mb-6"><div class="flex items-center"><div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center mr-3"><i class="fas fa-map-marker-alt text-blue-600"></i></div><div><h3 id="locationModalTitle" class="text-lg font-semibold text-gray-900">Konfigurasi Lokasi Sekolah</h3><p class="text-gray-600 text-sm">Atur koordinat GPS untuk validasi absensi</p></div></div><button onclick="hideLocationModal()" class="text-gray-400 hover:text-gray-600"><i class="fas fa-times text-xl"></i></button></div>
+    <div class="bg-white rounded-lg max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+      <div class="p-6">
+        <div class="flex items-center justify-between mb-6">
+          <div class="flex items-center">
+            <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
+              <i class="fas fa-map-marker-alt text-blue-600"></i>
+            </div>
+            <div>
+              <h3 id="locationModalTitle" class="text-lg font-semibold text-gray-900">Konfigurasi Lokasi Sekolah</h3>
+              <p class="text-gray-600 text-sm">Atur koordinat GPS untuk validasi absensi</p>
+            </div>
+          </div>
+          <button onclick="hideLocationModal()" class="text-gray-400 hover:text-gray-600">
+            <i class="fas fa-times text-xl"></i>
+          </button>
+        </div>
+
         <form id="locationForm">
-          <div class="mb-4"><label class="block text-sm font-medium text-gray-700 mb-2">Nama Lokasi</label><input type="text" name="location_name" class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500" placeholder="Contoh: Kampus Utama"></div>
-          <div class="mb-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200"><div class="flex items-center justify-between mb-3"><h4 class="font-medium text-blue-900 text-sm">Deteksi Lokasi Otomatis</h4><button type="button" id="modalAutoDetectBtn" class="inline-flex items-center px-3 py-1.5 bg-blue-600 border border-transparent rounded-md text-sm font-medium text-white hover:bg-blue-700"><i class="fas fa-crosshairs mr-2"></i>Detect Location</button></div><div id="modalLocationStatus" class="text-sm text-blue-700"><i class="fas fa-info-circle mr-1"></i>Klik tombol di atas untuk mendapatkan koordinat GPS</div></div>
-          <div class="grid grid-cols-2 gap-4 mb-4"><div><label class="block text-sm font-medium text-gray-700 mb-2">Latitude</label><input type="number" step="0.000001" name="latitude" id="modalLatitudeInput" class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500" placeholder="-6.2088"></div><div><label class="block text-sm font-medium text-gray-700 mb-2">Longitude</label><input type="number" step="0.000001" name="longitude" id="modalLongitudeInput" class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500" placeholder="106.8456"></div></div>
-          <div class="mb-4 p-3 bg-gradient-to-r from-slate-50 to-gray-50 rounded-lg border border-gray-200"><div class="flex items-center justify-between mb-2"><h5 class="font-semibold text-gray-900 flex items-center text-sm"><i class="fas fa-map-pin mr-2 text-blue-600"></i>Koordinat</h5><button type="button" onclick="copySchoolAdminCoords()" class="inline-flex items-center px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded-md hover:bg-blue-200"><i class="fas fa-copy mr-1"></i>Copy</button></div><div id="schoolAdminCoordPreview" class="text-sm font-mono bg-white px-3 py-2 rounded-md border border-gray-300 cursor-pointer hover:border-blue-400"><span class="text-gray-500">Belum ada koordinat</span></div></div>
-          <div class="mb-6"><label class="block text-sm font-medium text-gray-700 mb-2">Peta Lokasi</label><div id="schoolAdminMiniMap" class="w-full h-48 bg-gray-200 rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center"><div class="text-center text-gray-500"><i class="fas fa-map-marked-alt text-3xl mb-2"></i><p>Peta akan muncul setelah koordinat dimasukkan</p></div></div></div>
+          <input type="hidden" name="tenant_id" id="locationTenantIdHidden">
+
+          <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-700 mb-2">Nama Sekolah</label>
+            <input type="text" name="nama_sekolah" id="locationNamaSekolah" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50" readonly>
+          </div>
+
+          <!-- Auto Detect -->
+          <div class="mb-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200">
+            <div class="flex items-center justify-between mb-3">
+              <h4 class="font-medium text-blue-900">Auto Detect Lokasi</h4>
+              <button type="button" id="modalAutoDetectBtn" class="inline-flex items-center px-3 py-2 bg-blue-600 border border-transparent rounded-md text-sm font-medium text-white hover:bg-blue-700">
+                <i class="fas fa-crosshairs mr-2"></i>Detect Location
+              </button>
+            </div>
+            <div id="modalLocationStatus" class="text-sm text-blue-700">
+              <i class="fas fa-info-circle mr-1"></i>Klik tombol di atas untuk mendapatkan koordinat GPS
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-4 mb-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2"><i class="fas fa-globe-asia mr-1"></i>Latitude</label>
+              <input type="number" step="0.000001" name="latitude" id="modalLatitudeInput" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500" placeholder="-6.208763" required>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2"><i class="fas fa-globe-asia mr-1"></i>Longitude</label>
+              <input type="number" step="0.000001" name="longitude" id="modalLongitudeInput" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500" placeholder="106.845599" required>
+            </div>
+          </div>
+
           <div class="mb-4"><label class="block text-sm font-medium text-gray-700 mb-2"><i class="fas fa-ruler-combined mr-1"></i>Radius Lokasi (meter)</label><input type="number" name="location_radius" class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500" min="10" max="1000" value="100"></div>
-          <div class="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200"><div class="flex items-center justify-between"><div><label class="flex items-center cursor-pointer"><span class="text-sm font-medium text-gray-700">Gunakan Aturan Pusat</span><div class="relative ml-3"><input type="checkbox" name="use_central_rules" id="schoolAdminCentralToggle" class="sr-only toggle-checkbox" onchange="updateToggleVisual(this)"><div class="w-11 h-6 bg-gray-200 rounded-full toggle-track transition-colors duration-200 pointer-events-none"></div><div class="absolute left-0.5 top-0.5 w-5 h-5 bg-white border border-gray-300 rounded-full toggle-thumb transition-transform duration-200 pointer-events-none"></div></div></label><p class="text-xs text-blue-600 mt-1">Aktifkan agar aturan pusat juga berlaku.</p></div></div></div>
-          <div class="flex space-x-3 pt-4 border-t border-gray-200"><button type="button" onclick="hideLocationModal()" class="flex-1 inline-flex items-center justify-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"><i class="fas fa-times mr-2"></i>Batal</button><button type="submit" id="locationFormSubmitBtn" class="flex-1 inline-flex items-center justify-center px-4 py-2 bg-blue-600 border border-transparent rounded-lg text-sm font-medium text-white hover:bg-blue-700"><i class="fas fa-save mr-2"></i>Simpan Lokasi</button></div>
+
+          <div class="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+            <div class="flex items-center justify-between">
+              <div>
+                <label class="flex items-center cursor-pointer">
+                  <span class="text-sm font-medium text-gray-700">Gunakan Aturan Pusat</span>
+                  <div class="relative ml-3">
+                    <input type="checkbox" name="use_central_rules" id="schoolAdminCentralToggle" class="sr-only toggle-checkbox" onchange="updateToggleVisual(this)">
+                    <div class="w-11 h-6 bg-gray-200 rounded-full toggle-track transition-colors duration-200 pointer-events-none"></div>
+                    <div class="absolute left-0.5 top-0.5 w-5 h-5 bg-white border border-gray-300 rounded-full toggle-thumb transition-transform duration-200 pointer-events-none"></div>
+                  </div>
+                </label>
+                <p class="text-xs text-blue-600 mt-1">Aktifkan agar aturan pusat juga berlaku.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex space-x-3 pt-4 border-t border-gray-200">
+            <button type="button" onclick="hideLocationModal()" class="flex-1 inline-flex items-center justify-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+              <i class="fas fa-times mr-2"></i>Batal
+            </button>
+            <button type="submit" id="locationFormSubmitBtn" class="flex-1 inline-flex items-center justify-center px-4 py-2 bg-blue-600 border border-transparent rounded-lg text-sm font-medium text-white hover:bg-blue-700">
+              <i class="fas fa-save mr-2"></i>Simpan Lokasi
+            </button>
+          </div>
         </form>
       </div>
     </div>
@@ -340,11 +404,15 @@
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script>
     const token = localStorage.getItem('token');
-    if (!token) window.location.href = 'login.html';
+    if (!token) {
+      console.error('[SCHOOL-ADMIN] No token found in localStorage - redirecting to login');
+      window.location.href = 'login.html';
+    }
     const user = JSON.parse(localStorage.getItem('user') || '{}');
 
     const urlParams = new URLSearchParams(window.location.search);
-    const tenantId = urlParams.get('tenant');
+    window.tenantId = urlParams.get('tenant');
+    const tenantId = window.tenantId;
     const schoolName = urlParams.get('school');
     if (!tenantId) { alert('Parameter tenant tidak ditemukan.'); window.location.href = 'dashboard.html'; }
 
@@ -387,7 +455,7 @@ function apiUrl(path) {
     }
 
     function checkAuth401403(response) {
-      if (response.status === 401 || response.status === 403) { localStorage.clear(); window.location.replace('login.html'); return true; }
+      if (response.status === 401 || response.status === 403) { localStorage.removeItem('token'); localStorage.removeItem('user'); window.location.replace('login.html'); return true; }
       return false;
     }
 
@@ -477,7 +545,8 @@ function apiUrl(path) {
         const d = await r.json();
         if (d.success) {
           const items = d.data || [];
-          currentPage = d.pagination.page; totalPages = d.pagination.totalPages;
+          currentPage = d.pagination ? d.pagination.page : page;
+          totalPages = d.pagination ? d.pagination.totalPages : 1;
           const tb = document.getElementById('teachersTable');
           tb.innerHTML = items.length === 0 ? '<tr><td colspan="5" class="px-4 py-12 text-center text-gray-500">Belum ada data guru</td></tr>' : items.map(t => `<tr class="hover:bg-gray-50"><td class="px-4 py-3 text-sm text-gray-900 font-medium">${t.nama||'-'}</td><td class="px-4 py-3 text-sm text-gray-500">${t.nik||'-'}</td><td class="px-4 py-3 text-sm text-gray-500">${t.nip||'-'}</td><td class="px-4 py-3 text-sm"><span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${t.status_aktif?'bg-green-100 text-green-800':'bg-red-100 text-red-800'}">${t.status_aktif?'Aktif':'Nonaktif'}</span></td><td class="px-4 py-3 text-sm space-x-1"><button onclick="editTeacher(${t.id})" class="inline-flex items-center p-1.5 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-md" title="Edit"><i class="fas fa-edit text-xs"></i></button><button onclick="deleteTeacher(${t.id})" class="inline-flex items-center p-1.5 text-red-600 hover:text-red-800 hover:bg-red-50 rounded-md" title="Hapus"><i class="fas fa-trash text-xs"></i></button></td></tr>`).join('');
           updatePaginationControls(d.pagination);
@@ -485,8 +554,8 @@ function apiUrl(path) {
       } catch (e) { console.error('[TEACHERS]', e); }
     }
 
-    function updatePaginationControls(p) {
-      const { page, totalPages: tp, total, limit } = p;
+    function updatePaginationControls(p = {}) {
+      const { page = 1, totalPages: tp = 1, total = 0, limit = 10 } = p;
       setEl('paginationInfo', `Menampilkan ${(page-1)*limit+1}-${Math.min(page*limit, total)} dari ${total} data`);
       const pb = document.getElementById('prevPageBtn'), nb = document.getElementById('nextPageBtn');
       pb.disabled = page <= 1; nb.disabled = page >= tp;
@@ -576,15 +645,37 @@ async function editTeacher(id) {
     // ===== LOCATIONS =====
     async function loadSchoolLocations() {
       try {
+        const c = document.getElementById('schoolLocations');
+        // Ambil lokasi utama dari tenants
+        const tr = await fetch(apiUrl('/admin/tenants'), { headers: { 'Authorization': `Bearer ${authToken}` } });
+        const td = await tr.json();
+        const tenant = (td.success && td.data && td.data[0]) ? td.data[0] : null;
+
+        // Ambil lokasi pecahan
         const r = await fetch(apiUrl('/admin/tenant-locations'), { headers: { 'Authorization': `Bearer ${authToken}` } });
         if (checkAuth401403(r)) return;
         const d = await r.json();
-        const c = document.getElementById('schoolLocations');
-        if (d.success) {
-          const items = d.data || [];
-          if (items.length === 0) { c.innerHTML = '<div class="text-center py-8 text-gray-500"><p>Belum ada lokasi.</p></div>'; return; }
-          c.innerHTML = items.map(l => `<div class="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-sm"><div class="flex items-start justify-between mb-3"><div class="flex-1"><h5 class="font-medium text-gray-900">${l.location_name || 'Lokasi Utama'}</h5><p class="text-xs text-gray-500 mt-1">ID: ${l.id} | Radius: ${l.location_radius||100}m</p></div><span class="px-2 py-1 text-xs font-semibold rounded-full ${l.is_active?'bg-green-100 text-green-800':'bg-red-100 text-red-800'}">${l.is_active?'Aktif':'Nonaktif'}</span></div><div class="grid grid-cols-2 gap-2 mb-3"><div class="text-xs text-gray-500">Lat: <span class="font-mono text-gray-700">${l.latitude?parseFloat(l.latitude).toFixed(6):'-'}</span></div><div class="text-xs text-gray-500">Lng: <span class="font-mono text-gray-700">${l.longitude?parseFloat(l.longitude).toFixed(6):'-'}</span></div></div><div class="flex space-x-2 pt-2 border-t border-gray-100"><button onclick="editSchoolLocation(${l.id})" class="inline-flex items-center px-2 py-1 border border-blue-300 rounded-md text-xs font-medium text-blue-700 bg-blue-50 hover:bg-blue-100"><i class="fas fa-edit mr-1"></i>Edit</button><button onclick="toggleLocStatus(${l.id},${l.is_active})" class="inline-flex items-center px-2 py-1 border ${l.is_active?'border-orange-300 text-orange-700 bg-orange-50 hover:bg-orange-100':'border-green-300 text-green-700 bg-green-50 hover:bg-green-100'} rounded-md text-xs font-medium"><i class="fas fa-${l.is_active?'pause':'play'} mr-1"></i>${l.is_active?'Nonaktifkan':'Aktifkan'}</button><button onclick="deleteSchoolLocation(${l.id})" class="inline-flex items-center px-2 py-1 border border-red-300 rounded-md text-xs font-medium text-red-700 bg-red-50 hover:bg-red-100"><i class="fas fa-trash mr-1"></i>Hapus</button></div></div>`).join('');
+        const items = (d.success ? d.data : []) || [];
+
+        let html = '';
+
+        // Tampilkan lokasi utama dari tenants terlebih dahulu
+        if (tenant && tenant.latitude && tenant.longitude) {
+          html += `<div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-3"><div class="flex items-start justify-between mb-3"><div class="flex-1"><h5 class="font-semibold text-blue-900">Lokasi Utama (Tabel Tenants)</h5><p class="text-xs text-blue-600 mt-1">Radius: ${tenant.location_radius||100}m | Nama: ${tenant.location_name || '-'}</p></div><span class="px-2 py-1 text-xs font-semibold rounded-full bg-blue-200 text-blue-800">Utama</span></div><div class="grid grid-cols-2 gap-2 mb-3"><div class="text-xs text-blue-600">Lat: <span class="font-mono text-blue-900">${parseFloat(tenant.latitude).toFixed(6)}</span></div><div class="text-xs text-blue-600">Lng: <span class="font-mono text-blue-900">${parseFloat(tenant.longitude).toFixed(6)}</span></div></div><div class="pt-2 border-t border-blue-200"><button onclick="editMainLocation()" class="inline-flex items-center px-3 py-1 border border-blue-300 rounded-md text-xs font-medium text-blue-700 bg-white hover:bg-blue-100"><i class="fas fa-edit mr-1"></i>Lengkapi / Edit Lokasi Utama</button></div></div>`;
+        } else {
+          html += `<div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-3"><div class="flex items-center justify-between"><div><h5 class="font-medium text-yellow-900">Lokasi Utama Belum Diatur</h5><p class="text-xs text-yellow-600">Lengkapi lokasi utama di tabel tenants</p></div><button onclick="editMainLocation()" class="px-3 py-1 bg-yellow-600 text-white text-xs rounded-md">Atur Sekarang</button></div></div>`;
+          // Auto popup jika lokasi utama kosong
+          setTimeout(() => showMainLocationModal(), 800);
         }
+
+        // Lokasi pecahan dari tenant_locations
+        if (items.length > 0) {
+          html += items.map(l => `<div class="bg-white border border-gray-200 rounded-lg p-4 mb-2"><div class="flex items-start justify-between mb-3"><div class="flex-1"><h5 class="font-medium text-gray-900">${l.location_name || 'Lokasi Pecahan'}</h5><p class="text-xs text-gray-500 mt-1">ID: ${l.id} | Radius: ${l.location_radius||100}m</p></div><span class="px-2 py-1 text-xs font-semibold rounded-full ${l.is_active?'bg-green-100 text-green-800':'bg-red-100 text-red-800'}">${l.is_active?'Aktif':'Nonaktif'}</span></div><div class="grid grid-cols-2 gap-2 mb-3"><div class="text-xs text-gray-500">Lat: <span class="font-mono text-gray-700">${l.latitude?parseFloat(l.latitude).toFixed(6):'-'}</span></div><div class="text-xs text-gray-500">Lng: <span class="font-mono text-gray-700">${l.longitude?parseFloat(l.longitude).toFixed(6):'-'}</span></div></div><div class="flex space-x-2 pt-2 border-t border-gray-100"><button onclick="editSchoolLocation(${l.id})" class="inline-flex items-center px-2 py-1 border border-blue-300 rounded-md text-xs font-medium text-blue-700 bg-blue-50 hover:bg-blue-100"><i class="fas fa-edit mr-1"></i>Edit</button><button onclick="toggleLocStatus(${l.id},${l.is_active})" class="inline-flex items-center px-2 py-1 border ${l.is_active?'border-orange-300 text-orange-700 bg-orange-50 hover:bg-orange-100':'border-green-300 text-green-700 bg-green-50 hover:bg-green-100'} rounded-md text-xs font-medium"><i class="fas fa-${l.is_active?'pause':'play'} mr-1"></i>${l.is_active?'Nonaktifkan':'Aktifkan'}</button><button onclick="deleteSchoolLocation(${l.id})" class="inline-flex items-center px-2 py-1 border border-red-300 rounded-md text-xs font-medium text-red-700 bg-red-50 hover:bg-red-100"><i class="fas fa-trash mr-1"></i>Hapus</button></div></div>`).join('');
+        } else {
+          html += '<div class="text-center py-4 text-gray-500 text-sm">Belum ada lokasi pecahan.</div>';
+        }
+
+        c.innerHTML = html;
       } catch (e) { console.error('[LOCATIONS]', e); }
     }
 
@@ -611,7 +702,139 @@ async function editTeacher(id) {
     }
 
     // ===== LOCATION MODAL =====
-    function showAddLocationModal() { currentMapContext = 'add'; document.getElementById('locationModalTitle').textContent = 'Tambah Lokasi Baru'; document.getElementById('locationForm').reset(); resetLocationModal(); document.getElementById('locationModal').classList.add('show'); setTimeout(initMiniMap, 100); }
+    function showAddLocationModal() {
+      const modal = document.getElementById('tenantLocationModal');
+      document.getElementById('tenantLocationModalTitle').textContent = 'Tambah Lokasi Baru';
+      document.getElementById('tenantLocationForm').reset();
+      document.getElementById('locationId').value = '';
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+
+      // Attach submit handler setiap kali modal dibuka (karena modal ditambahkan setelah script)
+      const form = document.getElementById('tenantLocationForm');
+      if (form && !form.dataset.listenerAdded) {
+          form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (!tenantId) {
+              alert('Parameter tenant tidak ditemukan.');
+              return;
+            }
+
+            const latVal = parseFloat(document.getElementById('locationLat').value);
+            const lngVal = parseFloat(document.getElementById('locationLng').value);
+
+            if (!document.getElementById('locationName').value) {
+              showToast('Nama lokasi wajib diisi', 'error');
+              return;
+            }
+            if (isNaN(latVal) || isNaN(lngVal)) {
+              showToast('Latitude dan Longitude wajib diisi', 'error');
+              return;
+            }
+
+            const formData = {
+              tenant_id: tenantId,
+              location_name: document.getElementById('locationName').value,
+              latitude: Number(latVal),
+              longitude: Number(lngVal),
+              location_radius: parseInt(document.getElementById('locationRadius').value) || 100,
+              use_central_rules: document.getElementById('tenantLocationUseCentralRules').checked
+            };
+          try {
+            const r = await fetch(apiUrl('/admin/tenant-locations'), {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` },
+              body: JSON.stringify(formData)
+            });
+            const d = await r.json();
+            if (d.success) {
+              hideTenantLocationModal();
+              loadSchoolLocations();
+              showToast('Lokasi pecahan berhasil ditambahkan', 'success');
+            } else {
+              showToast(d.message || 'Gagal menambah lokasi', 'error');
+            }
+          } catch (err) {
+            console.error('[TENANT LOC]', err);
+            showToast('Terjadi kesalahan', 'error');
+          }
+        });
+        form.dataset.listenerAdded = 'true';
+      }
+
+      // Attach detect button listener
+      const detectBtn = document.getElementById('detectLocationBtn');
+      if (detectBtn && !detectBtn.dataset.listenerAdded) {
+        detectBtn.addEventListener('click', function() {
+          if (!navigator.geolocation) { alert('Browser tidak mendukung geolokasi'); return; }
+          const btn = this, ot = btn.innerHTML;
+          btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Detecting...';
+          btn.disabled = true;
+
+          navigator.geolocation.getCurrentPosition(function(pos) {
+            document.getElementById('locationLat').value = pos.coords.latitude.toFixed(6);
+            document.getElementById('locationLng').value = pos.coords.longitude.toFixed(6);
+            btn.innerHTML = ot; btn.disabled = false;
+          }, function() {
+            btn.innerHTML = ot; btn.disabled = false;
+          }, { enableHighAccuracy: true });
+        });
+        detectBtn.dataset.listenerAdded = 'true';
+      }
+    }
+
+    function hideTenantLocationModal() {
+      const modal = document.getElementById('tenantLocationModal');
+      modal.classList.remove('flex');
+      modal.classList.add('hidden');
+    }
+
+    async function submitTenantLocation() {
+      if (!tenantId) {
+        alert('Parameter tenant tidak ditemukan.');
+        return;
+      }
+
+      const latVal = parseFloat(document.getElementById('locationLat').value);
+      const lngVal = parseFloat(document.getElementById('locationLng').value);
+
+      if (!document.getElementById('locationName').value) {
+        showToast('Nama lokasi wajib diisi', 'error');
+        return;
+      }
+      if (isNaN(latVal) || isNaN(lngVal)) {
+        showToast('Latitude dan Longitude wajib diisi', 'error');
+        return;
+      }
+
+      const formData = {
+        tenant_id: tenantId,
+        location_name: document.getElementById('locationName').value,
+        latitude: Number(latVal),
+        longitude: Number(lngVal),
+        location_radius: parseInt(document.getElementById('locationRadius').value) || 100,
+        use_central_rules: document.getElementById('tenantLocationUseCentralRules').checked
+      };
+
+      try {
+        const r = await fetch(apiUrl('/admin/tenant-locations'), {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` },
+          body: JSON.stringify(formData)
+        });
+        const d = await r.json();
+        if (d.success) {
+          hideTenantLocationModal();
+          loadSchoolLocations();
+          showToast('Lokasi pecahan berhasil ditambahkan', 'success');
+        } else {
+          showToast(d.message || 'Gagal menambah lokasi', 'error');
+        }
+      } catch (err) {
+        console.error('[TENANT LOC]', err);
+        showToast('Terjadi kesalahan', 'error');
+      }
+    }
 
     async function editSchoolLocation(id) {
       currentMapContext = 'edit';
@@ -637,16 +860,46 @@ async function editTeacher(id) {
     }
 
     function resetLocationModal() {
-      document.getElementById('modalLatitudeInput').value = '';
-      document.getElementById('modalLongitudeInput').value = '';
-      document.getElementById('schoolAdminCentralToggle').checked = false;
-      updateToggleVisual(document.getElementById('schoolAdminCentralToggle'));
-      document.getElementById('schoolAdminCoordPreview').innerHTML = '<span class="text-gray-500">Belum ada koordinat</span>';
+      const latInput = document.getElementById('modalLatitudeInput');
+      const lngInput = document.getElementById('modalLongitudeInput');
+      const toggle = document.getElementById('schoolAdminCentralToggle');
+      const preview = document.getElementById('schoolAdminCoordPreview');
+
+      if (latInput) latInput.value = '';
+      if (lngInput) lngInput.value = '';
+      if (toggle) {
+        toggle.checked = false;
+        updateToggleVisual(toggle);
+      }
+      if (preview) preview.innerHTML = '<span class="text-gray-500">Belum ada koordinat</span>';
       if (schoolAdminMap) { schoolAdminMap.remove(); schoolAdminMap = null; }
       schoolAdminMarker = null;
     }
 
     function hideLocationModal() { document.getElementById('locationModal').classList.remove('show'); resetLocationModal(); }
+
+    function editMainLocation() {
+      showMainLocationModal();
+    }
+
+    function showMainLocationModal() {
+      const modal = document.getElementById('locationModal');
+      document.getElementById('locationModalTitle').textContent = 'Lengkapi Lokasi Utama Sekolah';
+      document.getElementById('locationForm').reset();
+      document.getElementById('locationForm').dataset.mode = 'main';
+
+      // Isi nama sekolah (readonly & permanen)
+      const schoolName = document.getElementById('schoolInfoName')?.textContent || 'Sekolah';
+      const namaInput = document.getElementById('locationNamaSekolah');
+      if (namaInput) namaInput.value = schoolName;
+
+      modal.classList.add('show');
+      setTimeout(() => initMiniMap(), 100);
+    }
+
+
+
+
 
     function initMiniMap(lat, lng) {
       const mc = document.getElementById('schoolAdminMiniMap');
@@ -672,10 +925,12 @@ async function editTeacher(id) {
     }
 
     function updateCoordPreview() {
-      const lat = document.getElementById('modalLatitudeInput').value;
-      const lng = document.getElementById('modalLongitudeInput').value;
+      const lat = document.getElementById('modalLatitudeInput')?.value;
+      const lng = document.getElementById('modalLongitudeInput')?.value;
       const p = document.getElementById('schoolAdminCoordPreview');
-      p.innerHTML = lat && lng ? `<span class="text-green-600">📍 ${parseFloat(lat).toFixed(6)}, ${parseFloat(lng).toFixed(6)}</span>` : '<span class="text-gray-500">Belum ada koordinat</span>';
+      if (p) {
+        p.innerHTML = lat && lng ? `<span class="text-green-600">📍 ${parseFloat(lat).toFixed(6)}, ${parseFloat(lng).toFixed(6)}</span>` : '<span class="text-gray-500">Belum ada koordinat</span>';
+      }
     }
 
     document.getElementById('modalAutoDetectBtn')?.addEventListener('click', function() {
@@ -982,5 +1237,77 @@ async function editTeacher(id) {
       initSchoolRecapView();
     });
   </script>
+
+  <!-- Tenant Location Modal (disalin dari admin-dashboard.html) -->
+  <div id="tenantLocationModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center hidden">
+    <div class="bg-white rounded-lg max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+      <div class="p-6">
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center">
+            <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
+              <i class="fas fa-map-marker-alt text-blue-600"></i>
+            </div>
+            <h3 id="tenantLocationModalTitle" class="text-lg font-semibold text-gray-900">Tambah Lokasi</h3>
+          </div>
+          <button onclick="hideTenantLocationModal()" class="text-gray-400 hover:text-gray-600">
+            <i class="fas fa-times text-xl"></i>
+          </button>
+        </div>
+
+        <form id="tenantLocationForm">
+          <input type="hidden" id="locationId">
+
+          <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-700 mb-2">Nama Lokasi</label>
+            <input type="text" id="locationName" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Contoh: Kampus Utama / Lab Komputer" required>
+          </div>
+
+          <div class="mb-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200">
+            <div class="flex items-center justify-between mb-3">
+              <h4 class="font-medium text-blue-900">Deteksi Lokasi Otomatis</h4>
+              <button type="button" id="detectLocationBtn" class="inline-flex items-center px-3 py-2 bg-blue-600 border border-transparent rounded-md text-sm font-medium text-white hover:bg-blue-700">
+                <i class="fas fa-crosshairs mr-2"></i>Detect Location
+              </button>
+            </div>
+            <div id="tenantLocationStatus" class="text-sm text-blue-700 mb-3">
+              <i class="fas fa-info-circle mr-1"></i>Klik tombol di atas untuk mendapatkan koordinat GPS
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-4 mb-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Latitude</label>
+              <input type="number" step="0.000001" id="locationLat" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500" placeholder="-6.208763" required>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Longitude</label>
+              <input type="number" step="0.000001" id="locationLng" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500" placeholder="106.845599" required>
+            </div>
+          </div>
+
+          <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-700 mb-2">Radius (meter)</label>
+            <input type="number" id="locationRadius" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500" min="10" max="1000" value="100">
+          </div>
+
+          <div class="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+            <label class="flex items-center cursor-pointer">
+              <span class="text-sm font-medium text-gray-700">Gunakan Aturan Pusat</span>
+              <div class="relative ml-3">
+                <input type="checkbox" id="tenantLocationUseCentralRules" class="sr-only toggle-checkbox" onchange="updateToggleVisual(this)">
+                <div class="w-11 h-6 bg-gray-200 rounded-full toggle-track transition-colors duration-200 pointer-events-none"></div>
+                <div class="absolute left-0.5 top-0.5 w-5 h-5 bg-white border border-gray-300 rounded-full toggle-thumb transition-transform duration-200 pointer-events-none"></div>
+              </div>
+            </label>
+          </div>
+
+          <div class="flex space-x-3 pt-4 border-t border-gray-200">
+            <button type="button" onclick="hideTenantLocationModal()" class="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">Batal</button>
+            <button type="button" onclick="submitTenantLocation()" class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700">Simpan Lokasi</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
 </body>
 </html>

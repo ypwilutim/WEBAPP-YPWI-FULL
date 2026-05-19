@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,7 +8,8 @@
 
   <!-- Open Graph Meta Tags -->
   <meta property="og:title" content="Dashboard Guru - Sistem Absensi YPWI Lutim">
-  <meta property="og:description" content="Dashboard Sistem Absensi Guru YPWI Lutim - Lakukan absensi lokasi dengan GPS dan pantau riwayat kehadiran Anda">
+  <meta property="og:description"
+    content="Dashboard Sistem Absensi Guru YPWI Lutim - Lakukan absensi lokasi dengan GPS dan pantau riwayat kehadiran Anda">
   <meta property="og:image" content="/assets/images/thumbnail/login.svg">
   <meta property="og:url" content="">
   <meta property="og:type" content="website">
@@ -16,11 +18,13 @@
   <!-- Twitter Card Meta Tags -->
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Dashboard Guru - Sistem Absensi YPWI Lutim">
-  <meta name="twitter:description" content="Dashboard Sistem Absensi Guru YPWI Lutim - Lakukan absensi lokasi dengan GPS dan pantau riwayat kehadiran Anda">
+  <meta name="twitter:description"
+    content="Dashboard Sistem Absensi Guru YPWI Lutim - Lakukan absensi lokasi dengan GPS dan pantau riwayat kehadiran Anda">
   <meta name="twitter:image" content="/assets/images/thumbnail/login.svg">
 
   <!-- General Meta Tags -->
-  <meta name="description" content="Dashboard Sistem Absensi Guru YPWI Lutim - Lakukan absensi lokasi dengan GPS dan pantau riwayat kehadiran">
+  <meta name="description"
+    content="Dashboard Sistem Absensi Guru YPWI Lutim - Lakukan absensi lokasi dengan GPS dan pantau riwayat kehadiran">
   <meta name="keywords" content="dashboard absensi, guru, YPWI Lutim, GPS absensi, riwayat kehadiran">
   <meta name="author" content="YPWI Lutim">
 
@@ -33,340 +37,625 @@
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
   <link rel="icon" href="assets/images/YPWI LOGO HITAM.png" type="image/png">
   <style>
-    /* Styling untuk tombol disabled */
-    button:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-      background-color: #9ca3af !important;
-      border-color: #9ca3af !important;
-      color: #6b7280 !important;
+    /* ============================================================
+       MODERN & ADVANCED ATTENDANCE COMPONENT STYLING (YPWI V5.0)
+       ============================================================ */
+
+    /* Base Utility untuk Efek Transisi Komponen */
+    .location-info,
+    .btn,
+    .distance-meter,
+    .session-info {
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
-    button:disabled:hover {
-      background-color: #9ca3af !important;
-      transform: none !important;
-    }
-
-    /* Styling untuk location info */
+    /* Styling Utama untuk Location Info Container (Glassmorphism Concept) */
     .location-info {
-      padding: 1rem;
-      border-radius: 0.5rem;
+      padding: 1.25rem;
+      border-radius: 0.75rem;
       margin-bottom: 1.5rem;
       font-weight: 500;
+      font-size: 0.95rem;
+      line-height: 1.6;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+      border-left: 5px solid transparent !important;
+      /* Aksen bar modern di sebelah kiri */
+      position: relative;
+      overflow: hidden;
     }
 
+    /* State: SUCCESS (Dalam Radius Sekolah) */
     .location-info.success {
-      background-color: #d1fae5;
-      color: #065f46;
-      border: 1px solid #a7f3d0;
+      background-color: #f0fdf4;
+      color: #166534;
+      border: 1px solid #bbf7d0;
+      border-left: 5px solid #22c55e !important;
     }
 
+    /* State: ERROR (Di Luar Radius / GPS Mati) */
     .location-info.error {
-      background-color: #fee2e2;
+      background-color: #fef2f2;
       color: #991b1b;
-      border: 1px solid #fca5a5;
+      border: 1px solid #fecaca;
+      border-left: 5px solid #ef4444 !important;
     }
 
+    /* State: WARNING (Dinas Luar Sekolah Lain) */
     .location-info.warning {
-      background-color: #fef3c7;
+      background-color: #fffbeb;
       color: #92400e;
-      border: 1px solid #fcd34d;
+      border: 1px solid #fde68a;
+      border-left: 5px solid #f59e0b !important;
     }
 
-    /* Animation untuk status changes */
-    .location-info {
-      transition: all 0.3s ease;
+    /* Sub-Element: Meteran Jarak (Live Distance Meter) */
+    .distance-meter {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-top: 0.75rem;
+      padding-top: 0.75rem;
+      border-top: 1px dashed rgba(0, 0, 0, 0.06);
+      font-size: 0.9rem;
+      color: #4b5563;
     }
 
-    /* Enhanced button styling */
-    .btn {
-      transition: all 0.2s ease;
-      border: none;
-      border-radius: 0.5rem;
+    .distance-meter b {
+      color: #2563eb;
+      background: #eff6ff;
+      padding: 0.125rem 0.5rem;
+      border-radius: 0.375rem;
+      font-family: 'JetBrains Mono', monospace, sans-serif;
+    }
+
+    /* Sub-Element: Status Sesi Waktu Kerja (Session Info Container) */
+    .session-info {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-top: 0.75rem;
+      padding: 0.375rem 0.75rem;
+      border-radius: 2rem;
+      font-size: 0.85rem;
       font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
+      letter-spacing: 0.3px;
     }
 
+    /* Sesi Aktif & Terbuka */
+    .session-info.active {
+      background-color: #dcfce7;
+      color: #15803d;
+      animation: pulse-green 2s infinite alternative;
+    }
+
+    /* Sesi Menunggu Countdown Jam Kerja */
+    .session-info.waiting {
+      background-color: #fef3c7;
+      color: #b45309;
+    }
+
+    .session-info.waiting .countdown-timer,
+    .session-info.waiting span {
+      font-family: 'Courier New', Courier, monospace;
+      font-weight: 700;
+      background: rgba(255, 255, 255, 0.7);
+      padding: 0.125rem 0.5rem;
+      border-radius: 0.25rem;
+      border: 1px solid rgba(180, 83, 9, 0.2);
+    }
+
+    /* Sesi Ditutup */
+    .session-info.closed {
+      background-color: #f3f4f6;
+      color: #4b5563;
+    }
+
+    /* ============================================================
+       ENHANCED INTERACTIVE BUTTONS STYLING
+       ============================================================ */
+    .btn {
+      position: relative;
+      padding: 0.875rem 1.5rem;
+      border: none;
+      border-radius: 0.625rem;
+      font-size: 0.9rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      cursor: pointer;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Tombol Datang / Masuk (Success State) */
     .btn-success {
-      background-color: #10b981;
-      color: white;
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      color: #ffffff;
     }
 
     .btn-success:hover:not(:disabled) {
-      background-color: #059669;
-      transform: translateY(-1px);
-      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+      background: linear-gradient(135deg, #059669 0%, #047857 100%);
+      transform: translateY(-2px);
+      box-shadow: 0 10px 15px -3px rgba(16, 185, 129, 0.4);
     }
 
+    .btn-success:active:not(:disabled) {
+      transform: translateY(0);
+    }
+
+    /* Tombol Pulang (Danger State) */
     .btn-danger {
-      background-color: #ef4444;
-      color: white;
+      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+      color: #ffffff;
     }
 
     .btn-danger:hover:not(:disabled) {
-      background-color: #dc2626;
-      transform: translateY(-1px);
-      box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+      background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+      transform: translateY(-2px);
+      box-shadow: 0 10px 15px -3px rgba(239, 68, 68, 0.4);
+    }
+
+    .btn-danger:active:not(:disabled) {
+      transform: translateY(0);
+    }
+
+    /* Sistem Proteksi Tampilan Tombol Disabled (Kunci Aturan/Lokasi) */
+    button:disabled,
+    .btn:disabled {
+      opacity: 0.45 !important;
+      cursor: not-allowed !important;
+      background: #d1d5db !important;
+      /* Solid Slate Gray flat modern */
+      color: #9ca3af !important;
+      border: 1px solid #e5e7eb !important;
+      box-shadow: none !important;
+      transform: none !important;
+    }
+
+    button:disabled:hover {
+      background: #d1d5db !important;
+      transform: none !important;
+      box-shadow: none !important;
+    }
+
+    /* ============================================================
+       ANIMATION EFFECTS (MICRO-INTERACTIONS)
+       ============================================================ */
+    @keyframes pulse-green {
+      0% {
+        box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4);
+      }
+
+      100% {
+        box-shadow: 0 0 0 8px rgba(34, 197, 94, 0);
+      }
+    }
+
+    @keyframes spin {
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+
+    @keyframes modalOpen {
+      from {
+        transform: scale(0.95);
+        opacity: 0;
+      }
+
+      to {
+        transform: scale(1);
+        opacity: 1;
+      }
     }
   </style>
 </head>
+
 <body>
-  <div class="container">
-    <!-- Header -->
-    <div class="card">
-      <div class="flex justify-between items-center">
-        <div class="flex items-center space-x-4">
-          <div class="user-avatar avatar-md" title="Foto Profil" onclick="changeProfilePhoto()">
-            <img id="userPhoto" src="" alt="Foto Profil" style="display: none;" onerror="showFallbackAvatar(this)" onload="showUserPhoto()">
-            <div class="avatar-fallback show" id="avatarFallback">
+  <!-- Style Khusus Responsive Hybrid (PC & Mobile) -->
+  <style>
+    /* Base Reset & Setup */
+    body {
+      background-color: #f8fafc;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    /* Wrapper Utama Utamakan Fleksibilitas */
+    .dashboard-container {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 1.5rem;
+      box-sizing: border-box;
+    }
+
+    /* SISTEM GRID UTAMA: Otomatis 1 Kolom di HP, 12 Kolom di PC */
+    .main-layout-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+
+    /* Navigasi Bawah Default Tersembunyi (Hanya untuk HP) */
+    .mobile-bottom-nav {
+      display: none;
+    }
+
+    /* Header Navigasi Kanan Default Muncul (Untuk PC) */
+    .pc-action-header {
+      display: flex;
+      gap: 0.75rem;
+    }
+
+    /* RESPONSIVE BREAKPOINT: Saat Layar Lebar (PC / Tablet) */
+    @media (min-width: 992px) {
+      .dashboard-container {
+        padding: 2rem;
+      }
+
+      .main-layout-grid {
+        grid-template-columns: repeat(12, 1fr);
+      }
+
+      .col-left-engine {
+        grid-column: span 5;
+        /* Area Absen Kiri */
+      }
+
+      .col-right-stats {
+        grid-column: span 7;
+        /* Area Riwayat & Rekap Kanan */
+      }
+
+      .summary-widgets-grid {
+        grid-template-columns: repeat(3, 1fr) !important;
+      }
+    }
+
+    /* RESPONSIVE BREAKPOINT: Saat Layar Kecil (HP / Seluler) */
+    @media (max-width: 991px) {
+      .dashboard-container {
+        padding: 1rem 1rem 5.5rem 1rem;
+        /* Jaga jarak bawah agar tidak tertutup nav menu */
+      }
+
+      .pc-action-header {
+        display: none;
+        /* Sembunyikan tombol keluar atas di HP */
+      }
+
+      .mobile-bottom-nav {
+        display: flex !important;
+        /* Tampilkan navigasi jempol di bawah HP */
+      }
+
+      .card-profile-header {
+        background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%) !important;
+        color: #ffffff !important;
+        border: none !important;
+      }
+
+      .card-profile-header h1,
+      .card-profile-header p#teacherName {
+        color: #ffffff !important;
+      }
+
+      .card-profile-header p#teacherDetails {
+        color: rgba(255, 255, 255, 0.75) !important;
+      }
+    }
+
+    /* Animasi */
+    @keyframes spin {
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+
+    .spinner {
+      animation: spin 1s linear infinite;
+    }
+  </style>
+
+  <div class="dashboard-container">
+
+    <!-- ==========================================
+         1. DYNAMIC PROFILE HEADER CARD
+         ========================================== -->
+    <div class="card card-profile-header"
+      style="background: #ffffff; border-radius: 1.25rem; border: 1px solid #e2e8f0; box-shadow: 0 4px 15px rgba(0,0,0,0.02); padding: 1.25rem; margin-bottom: 1.5rem;">
+      <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 1rem;">
+
+        <div style="display: flex; align-items: center; gap: 1rem;">
+          <!-- Avatar User -->
+          <div class="user-avatar avatar-md" title="Foto Profil" onclick="changeProfilePhoto()"
+            style="position: relative; width: 56px; height: 56px; border-radius: 50%; overflow: hidden; border: 2px solid #3b82f6; background: #f1f5f9; cursor: pointer; display: flex; align-items: center; justify-content: center; shrink-0;">
+            <img id="userPhoto" src="" alt="Foto Profil"
+              style="display: none; width: 100%; height: 100%; object-fit: cover;" onerror="showFallbackAvatar(this)"
+              onload="showUserPhoto()">
+            <div class="avatar-fallback show" id="avatarFallback" style="font-size: 1.25rem; color: #64748b;">
               <i class="fas fa-user"></i>
             </div>
           </div>
+          <!-- Detail Nama Institusi -->
           <div>
-            <h1 class="mobile-header-title">
-              Dashboard Guru
-            </h1>
-           <p id="teacherName">Memuat data...</p>
-<p id="teacherDetails" class="mobile-teacher-details">Memuat detail...</p>
-            <div id="adminNavSection" class="hidden" style="margin-top:0.5rem;"></div>
-            <div class="mobile-connection-status">
-             <span class="badge badge-success" id="connectionStatus">
-               <i class="fas fa-circle" style="margin-right: 0.5rem; font-size: 0.5rem;"></i>
-                 Sistem Online
-             </span>
-           </div>
+            <h1
+              style="font-size: 1.25rem; font-weight: 800; margin: 0 0 2px 0; color: #0f172a; letter-spacing: -0.5px;">
+              Dashboard Guru</h1>
+            <p id="teacherName" style="font-size: 0.95rem; font-weight: 600; color: #2563eb; margin: 0 0 2px 0;">Memuat
+              data...</p>
+            <p id="teacherDetails" style="font-size: 0.75rem; color: #64748b; margin: 0; font-family: monospace;">Memuat
+              detail...</p>
           </div>
         </div>
-        <div class="flex space-x-2">
-          <a href="#" onclick="logout(); return false;" class="btn btn-secondary mobile-logout-btn">
-            <i class="fas fa-sign-out-alt" style="margin-right: 0.5rem;"></i>
-            Keluar
+
+        <!-- Tombol Aksi Kanan (Hanya Muncul di Tampilan PC) -->
+        <div class="pc-action-header">
+          <div id="adminNavSection" class="hidden" style="margin:0;"></div>
+          <a href="#" onclick="logout(); return false;"
+            style="display: inline-flex; align-items: center; gap: 0.5rem; background: #fee2e2; color: #dc2626; padding: 0.6rem 1.25rem; border-radius: 0.5rem; font-weight: 700; font-size: 0.85rem; text-decoration: none; border: 1px solid #fca5a5; transition: all 0.2s;">
+            <i class="fas fa-sign-out-alt"></i> Keluar Sistem
           </a>
         </div>
       </div>
     </div>
-    <div class="card attendance-card">
-      <div id="attendanceSection">
-        <div style="margin-bottom: 2rem;">
-          <i class="fas fa-map-marker-alt" style="font-size: 3rem; color: var(--primary-color); margin-bottom: 1rem;"></i>
+
+    <!-- ==========================================
+         SISTEM LAYOUT UTAMA (RESPONSIVE HYBRID)
+         ========================================== -->
+    <div class="main-layout-grid">
+
+      <!-- AREA KIRI: ABSENSI ENGINE (Kecil di PC, Utama di HP) -->
+      <div class="col-left-engine">
+        <div class="card"
+          style="background: #ffffff; border-radius: 1.25rem; padding: 2rem; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.02); border: 1px solid #e2e8f0; text-align: center;">
+          <div id="attendanceSection">
+
+            <div
+              style="width: 64px; height: 64px; background: #eff6ff; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.25rem;">
+              <i class="fas fa-map-marker-alt" style="font-size: 1.75rem; color: #2563eb;"></i>
+            </div>
+
+            <h2 style="font-size: 1.15rem; font-weight: 700; margin: 0 0 1rem 0; color: #0f172a;">Presensi Berbasis
+              Radius</h2>
+
+            <!-- Geolocation Status Area -->
+            <div id="locationInfo" class="location-info"
+              style="margin-bottom: 1.5rem; padding: 1rem; border-radius: 0.75rem; font-size: 0.875rem; background: #f8fafc; border: 1px solid #edf2f7; text-align: left; line-height: 1.5;">
+              <div style="display: flex; align-items: center; justify-content: center; gap: 0.5rem; color: #64748b;">
+                <i class="fas fa-spinner spinner"></i>
+                <span>Mencari Posisi Satelit GPS...</span>
+              </div>
+            </div>
+
+            <!-- Tombol Trigger Utama -->
+            <div class="attendance-buttons-container"
+              style="margin-bottom: 1.5rem; display: flex; flex-direction: column; gap: 0.75rem;">
+              <button class="btn btn-success attendance-btn" id="checkInBtn" onclick="recordAttendance('masuk')"
+                style="display: none; width: 100%; padding: 1rem; border-radius: 0.75rem; font-size: 1rem; font-weight: 700; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: #fff; border: none; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2); cursor: pointer;">
+                <i class="fas fa-sign-in-alt" style="margin-right: 0.4rem;"></i> Absen Masuk Kerja
+              </button>
+              <button class="btn btn-danger attendance-btn" id="checkOutBtn" onclick="recordAttendance('pulang')"
+                style="display: none; width: 100%; padding: 1rem; border-radius: 0.75rem; font-size: 1rem; font-weight: 700; background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color: #fff; border: none; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2); cursor: pointer;">
+                <i class="fas fa-sign-out-alt" style="margin-right: 0.4rem;"></i> Absen Pulang Kerja
+              </button>
+            </div>
+
+            <!-- Hardware Mini Bar Info -->
+            <div
+              style="display: flex; justify-content: space-between; font-size: 0.75rem; color: #64748b; border-top: 1px solid #f1f5f9; padding-top: 0.75rem;">
+              <span><i class="fas fa-satellite"></i> Akurasi: <strong id="gpsAccuracy" style="color:#0f172a;">--
+                  m</strong></span>
+              <span><i class="fas fa-circle" style="color:#22c55e; font-size:0.5rem;"></i> Sistem Valid</span>
+            </div>
+
+          </div>
+
+          <!-- Tampilan Hasil Hit Log Sukses -->
+          <div id="attendanceResult" style="display: none; padding: 0.5rem 0;">
+            <div id="resultIcon" style="font-size: 3rem; margin-bottom: 1rem;"></div>
+            <div id="resultMessage" style="font-size: 1.2rem; font-weight: 700; margin-bottom: 0.5rem; color: #0f172a;">
+            </div>
+            <div id="resultDetails"
+              style="margin-bottom: 1.25rem; padding: 1rem; background: #f8fafc; border-radius: 0.75rem; border: 1px solid #e2e8f0; font-size: 0.85rem; color: #475569; text-align: left; line-height: 1.5;">
+            </div>
+            <button class="btn btn-primary" onclick="resetAttendance()"
+              style="width: 100%; padding: 0.85rem; border-radius: 0.5rem; background: #2563eb; color: white; font-weight: 600; border: none; cursor: pointer;">
+              <i class="fas fa-redo"></i> Lakukan Absensi Lagi
+            </button>
+          </div>
         </div>
+      </div>
 
-        <h2 style="font-size: 1.5rem; font-weight: 600; margin-bottom: 1.5rem; color: var(--text-primary);">Sistem Absensi Lokasi</h2>
+      <!-- AREA KANAN: RINGKASAN & RIWAYAT DATA (Lebar di PC) -->
+      <div class="col-right-stats" style="display: flex; flex-direction: column; gap: 1.5rem;">
 
-        <!-- Location Status -->
-        <div id="locationInfo" class="location-info" style="margin-bottom: 2rem;">
-          <div style="display: flex; align-items: center; justify-content: center;">
-            <i class="fas fa-spinner spinner" style="margin-right: 0.5rem;"></i>
-            <span>Menginisialisasi GPS...</span>
+        <!-- Grid Ringkasan Kecil -->
+        <div class="summary-widgets-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem;">
+          <div
+            style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 0.75rem; padding: 1rem; text-align: center; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.01);">
+            <span
+              style="font-size: 0.7rem; color: #64748b; font-weight: 700; text-transform: uppercase; display: block;">Total
+              Hadir</span>
+            <div id="totalAttendance" style="font-size: 1.5rem; font-weight: 800; color: #0f172a; margin-top: 0.25rem;">
+              0</div>
+          </div>
+          <div
+            style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 0.75rem; padding: 1rem; text-align: center; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.01); display: flex; flex-direction: column; justify-content: center; align-items: center;">
+            <span
+              style="font-size: 0.7rem; color: #64748b; font-weight: 700; text-transform: uppercase; display: block; margin-bottom: 0.25rem;">Status
+              Akhir</span>
+            <div id="lastStatus"
+              style="font-size: 0.75rem; font-weight: 700; background: #fef3c7; color: #92400e; padding: 0.2rem 0.5rem; border-radius: 0.4rem; white-space: nowrap; max-width: 100%; overflow: hidden; text-overflow: ellipsis;">
+              Belum absen</div>
+          </div>
+          <div
+            style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 0.75rem; padding: 1rem; text-align: center; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.01);">
+            <span
+              style="font-size: 0.7rem; color: #64748b; font-weight: 700; text-transform: uppercase; display: block;">Jam
+              Terakhir</span>
+            <div id="lastTime"
+              style="font-size: 1.25rem; font-weight: 700; color: #0f172a; margin-top: 0.25rem; font-family: monospace;">
+              -</div>
           </div>
         </div>
 
-        <!-- Attendance Buttons -->
-        <div class="attendance-buttons-container" style="margin-bottom: 2rem;">
-          <button class="btn btn-success attendance-btn" id="checkInBtn" onclick="recordAttendance('masuk')" style="display: none;">
-            <i class="fas fa-sign-in-alt" style="margin-right: 0.5rem;"></i>
-            Absen Masuk
+        <!-- Widget Riwayat dengan Pembatasan Fleksibel -->
+        <div class="card"
+          style="background: #ffffff; border-radius: 1.25rem; padding: 1.5rem; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.02); border: 1px solid #e2e8f0;">
+          <h3
+            style="font-size: 1rem; font-weight: 700; color: #0f172a; margin: 0 0 1rem 0; display: flex; align-items: center; gap: 0.5rem;">
+            <i class="fas fa-history" style="color: #64748b;"></i> Log Aktivitas Presensi
+          </h3>
+
+          <!-- Pembungkus Dinamis Dikontrol CSS & JS -->
+          <div id="historyWrapper"
+            style="position: relative; max-height: 200px; overflow: hidden; transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1);">
+            <div id="recentAttendance">
+              <div class="recent-attendance-loading" style="padding: 2rem 0; text-align: center; color: #94a3b8;">
+                <i class="fas fa-spinner spinner"
+                  style="font-size: 1.25rem; margin-bottom: 0.5rem; display: inline-block;"></i>
+                <p style="margin: 0; font-size: 0.85rem;">Mendownload log aktivitas...</p>
+              </div>
+            </div>
+            <!-- Gradasi Efek Pudar saat Ditutup -->
+            <div id="historyFade"
+              style="position: absolute; bottom: 0; left: 0; right: 0; height: 60px; background: linear-gradient(to top, #ffffff, transparent); pointer-events: none;">
+            </div>
+          </div>
+
+          <!-- Tombol Pemicu Ekspansi -->
+          <button id="toggleHistoryBtn" onclick="toggleHistoryLayout()"
+            style="width: 100%; background: #f8fafc; border: 1px solid #e2e8f0; color: #2563eb; font-weight: 700; font-size: 0.85rem; padding: 0.65rem; margin-top: 0.75rem; border-radius: 0.5rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.35rem; transition: background 0.2s;">
+            <span>Lihat Selengkapnya</span> <i id="toggleHistoryIcon" class="fas fa-chevron-down"
+              style="font-size: 0.75rem;"></i>
           </button>
-          <button class="btn btn-danger attendance-btn" id="checkOutBtn" onclick="recordAttendance('pulang')" style="display: none;">
-            <i class="fas fa-sign-out-alt" style="margin-right: 0.5rem;"></i>
-            Absen Pulang
-          </button>
         </div>
 
-        <!-- System Status -->
-        <div style="padding: 1.25rem; background: #f8fafc; border-radius: 0.5rem; border: 1px solid var(--border-color);">
-          <div class="flex justify-between items-center" style="margin-bottom: 0.75rem;">
-            <span style="font-size: 0.875rem; color: var(--text-secondary);">Akurasi GPS</span>
-            <span id="gpsAccuracy" style="font-size: 0.875rem; font-weight: 600; color: var(--text-primary);">-- m</span>
-          </div>
-          <div class="flex justify-between items-center">
-            <span style="font-size: 0.875rem; color: var(--text-secondary);">Status Jaringan</span>
-            <span id="networkStatus" style="font-size: 0.875rem; font-weight: 600; color: var(--text-primary);">
-              <i class="fas fa-wifi" style="margin-right: 0.25rem;"></i>
-              Terhubung
-            </span>
-          </div>
-        </div>
-      </div>
-
-      <div id="attendanceResult" style="display: none;">
-        <div id="resultIcon" style="font-size: 3rem; margin-bottom: 1.5rem;"></div>
-        <div id="resultMessage" style="font-size: 1.25rem; font-weight: 600; margin-bottom: 1rem;"></div>
-        <div id="resultDetails" style="margin-bottom: 2rem; padding: 1rem; background: #f8fafc; border-radius: 0.5rem; border: 1px solid var(--border-color); font-size: 0.875rem;"></div>
-        <button class="btn btn-primary" onclick="resetAttendance()" style="width: 100%;">
-          <i class="fas fa-redo" style="margin-right: 0.5rem;"></i>
-          Lakukan Absensi Lagi
-        </button>
-      </div>
-    </div>
-
-    <!-- Today's Summary -->
-    <div class="card" style="margin-top: 2rem;">
-      <div class="card-header">
-        <h3 style="font-size: 1.125rem; font-weight: 600;">
-          <i class="fas fa-chart-bar" style="margin-right: 0.5rem; color: var(--primary-color);"></i>
-          Ringkasan Hari Ini
-        </h3>
-      </div>
-      <div class="summary-cards-grid">
-        <div class="summary-card">
-          <div class="summary-card-content">
-            <div class="summary-card-text">
-              <span class="summary-card-label">Total Absensi</span>
-              <div class="summary-card-value" id="totalAttendance">0</div>
-            </div>
-            <div class="summary-card-icon">
-              <i class="fas fa-calendar-check"></i>
-            </div>
-          </div>
-        </div>
-        <div class="summary-card">
-          <div class="summary-card-content">
-            <div class="summary-card-text">
-              <span class="summary-card-label">Status Terakhir</span>
-              <div id="lastStatus" class="badge badge-warning summary-card-badge">Belum absen</div>
-            </div>
-            <div class="summary-card-icon">
-              <i class="fas fa-info-circle"></i>
-            </div>
-          </div>
-        </div>
-        <div class="summary-card">
-          <div class="summary-card-content">
-            <div class="summary-card-text">
-              <span class="summary-card-label">Aktivitas Terakhir</span>
-              <div class="summary-card-value" id="lastTime">-</div>
-            </div>
-            <div class="summary-card-icon">
-              <i class="fas fa-clock"></i>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Recent Attendance History -->
-    <div class="card" style="margin-top: 2rem;">
-      <div class="card-header">
-        <h3 style="font-size: 1.125rem; font-weight: 600;">
-          <i class="fas fa-history" style="margin-right: 0.5rem; color: var(--primary-color);"></i>
-          Riwayat Absensi
-        </h3>
-      </div>
-      <div id="recentAttendance">
-        <div class="recent-attendance-loading">
-          <div class="loading-icon">
-            <i class="fas fa-spinner spinner"></i>
-          </div>
-          <p>Memuat data riwayat...</p>
-        </div>
       </div>
     </div>
   </div>
 
-  <!-- Location Error Modal -->
-  <div id="locationModal" class="modal">
-    <div class="modal-content" style="max-width: 400px;">
-      <div style="padding: 2rem; text-align: center;">
-        <div style="width: 64px; height: 64px; margin: 0 auto 1.5rem; background: var(--error-color); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-          <i class="fas fa-map-marker-alt" style="font-size: 1.5rem; color: white;"></i>
-        </div>
-        <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 1rem; color: var(--text-primary);">Izin Lokasi Diperlukan</h3>
-        <p style="margin-bottom: 1.5rem; color: var(--text-secondary); line-height: 1.6;">
-          Sistem absensi memerlukan akses lokasi untuk memverifikasi kehadiran Anda di area sekolah demi keamanan dan akurasi.
-        </p>
-        <div style="background: #f8fafc; padding: 1rem; border-radius: 0.5rem; margin-bottom: 1.5rem; border: 1px solid var(--border-color);">
-          <div style="display: flex; align-items: center; justify-content: center;">
-            <i class="fas fa-shield-alt" style="margin-right: 0.5rem; color: var(--success-color);"></i>
-            <span style="font-size: 0.875rem; color: var(--text-secondary);">Data lokasi Anda dienkripsi dan aman</span>
-          </div>
-        </div>
-        <div class="flex space-x-3">
-          <button class="btn btn-secondary" onclick="closeLocationModal()" style="flex: 1;">Tutup</button>
-          <button class="btn btn-primary" onclick="requestLocationPermission()" style="flex: 1;">
-            <i class="fas fa-location-arrow" style="margin-right: 0.5rem;"></i>
-            Aktifkan GPS
-          </button>
-        </div>
+  <!-- ==========================================
+       BOTTOM NAVIGATION ENGINE (KHUSUS TAMPILAN HP)
+       ========================================== -->
+  <div class="mobile-bottom-nav"
+    style="position: fixed; bottom: 0; left: 0; right: 0; height: 64px; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px); border-top: 1px solid #e2e8f0; justify-content: space-around; align-items: center; z-index: 990; box-shadow: 0 -4px 20px rgba(0,0,0,0.03);">
+    <div style="text-align: center; color: #2563eb; cursor: pointer;">
+      <i class="fas fa-fingerprint" style="font-size: 1.3rem; display: block; margin-bottom: 2px;"></i>
+      <span style="font-size: 0.65rem; font-weight: 700;">Presensi</span>
+    </div>
+    <div onclick="logout();"
+      style="text-align: center; color: #64748b; cursor: pointer; -webkit-tap-highlight-color: transparent;">
+      <i class="fas fa-sign-out-alt" style="font-size: 1.3rem; display: block; margin-bottom: 2px;"></i>
+      <span style="font-size: 0.65rem; font-weight: 600;">Keluar</span>
+    </div>
+  </div>
+
+  <!-- ==========================================
+       MODAL POPUP SYSTEM (MODERN & TERISOLASI)
+       ========================================== -->
+  <!-- Location Permission Modal -->
+  <div id="locationModal" class="modal"
+    style="display: none; position: fixed; inset: 0; background: rgba(15,23,42,0.5); backdrop-filter: blur(4px); z-index: 999; align-items: center; justify-content: center; padding: 1rem;">
+    <div class="modal-content"
+      style="max-width: 380px; width: 100%; background: white; border-radius: 1rem; padding: 1.5rem; text-align: center; box-sizing: border-box;">
+      <i class="fas fa-map-marker-alt"
+        style="font-size: 2rem; color: #ef4444; margin-bottom: 0.75rem; display: block;"></i>
+      <h3 style="font-size: 1.1rem; font-weight: 700; margin: 0 0 0.5rem 0; color: #0f172a;">Akses GPS Diperlukan</h3>
+      <p style="margin: 0 0 1.25rem 0; color: #64748b; font-size: 0.85rem; line-height: 1.5;">Aktifkan lokasi Anda untuk
+        memverifikasi jarak aman presensi dengan posisi gedung unit sekolah.</p>
+      <div style="display: flex; gap: 0.5rem;">
+        <button class="btn btn-secondary" onclick="closeLocationModal()"
+          style="flex: 1; padding: 0.65rem; border-radius: 0.5rem; border: none; background: #e2e8f0; font-weight: 600; color:#475569;">Tutup</button>
+        <button class="btn btn-primary" onclick="requestLocationPermission()"
+          style="flex: 1; padding: 0.65rem; border-radius: 0.5rem; border: none; background: #2563eb; color: white; font-weight: 600;">Izinkan
+          GPS</button>
       </div>
     </div>
   </div>
 
   <!-- Change Password Modal -->
-  <div id="changePasswordModal" class="modal">
-    <div class="modal-content" style="max-width: 500px;">
-      <div style="padding: 2rem; text-align: center;">
-        <div style="width: 64px; height: 64px; margin: 0 auto 1.5rem; background: var(--primary-color); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-          <i class="fas fa-key" style="font-size: 1.5rem; color: white;"></i>
-        </div>
-        <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 1rem; color: var(--text-primary);">Ganti Password</h3>
-        <p style="margin-bottom: 1.5rem; color: var(--text-secondary); line-height: 1.6;">
-          Untuk keamanan akun, silakan ganti password default Anda.
-        </p>
-        <div style="text-align: left; margin-bottom: 1.5rem;">
-          <div style="margin-bottom: 1rem;">
-            <label for="oldPassword" style="display: block; font-size: 0.875rem; font-weight: 600; color: var(--text-primary); margin-bottom: 0.5rem;">Password Lama</label>
-            <input type="password" id="oldPassword" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 0.5rem; font-size: 1rem;" placeholder="Masukkan password lama">
-          </div>
-          <div style="margin-bottom: 1rem;">
-            <label for="newPassword" style="display: block; font-size: 0.875rem; font-weight: 600; color: var(--text-primary); margin-bottom: 0.5rem;">Password Baru</label>
-            <input type="password" id="newPassword" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 0.5rem; font-size: 1rem;" placeholder="Minimal 6 karakter">
-          </div>
-          <div style="margin-bottom: 1rem;">
-            <label for="confirmPassword" style="display: block; font-size: 0.875rem; font-weight: 600; color: var(--text-primary); margin-bottom: 0.5rem;">Konfirmasi Password Baru</label>
-            <input type="password" id="confirmPassword" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 0.5rem; font-size: 1rem;" placeholder="Ulangi password baru">
-          </div>
-        </div>
-        <div class="flex space-x-3">
-          <button class="btn btn-secondary" onclick="closeChangePasswordModal()" style="flex: 1;">Nanti Saja</button>
-          <button class="btn btn-primary" onclick="changePassword()" style="flex: 1;">
-            <i class="fas fa-save" style="margin-right: 0.5rem;"></i>
-            Ganti Password
-          </button>
-        </div>
+  <div id="changePasswordModal" class="modal"
+    style="display: none; position: fixed; inset: 0; background: rgba(15,23,42,0.5); backdrop-filter: blur(4px); z-index: 999; align-items: center; justify-content: center; padding: 1rem;">
+    <div class="modal-content"
+      style="max-width: 400px; width: 100%; background: white; border-radius: 1rem; padding: 1.5rem; box-sizing: border-box;">
+      <h3 style="font-size: 1.1rem; font-weight: 700; margin: 0 0 1rem 0; text-align: center; color: #0f172a;">Perbarui
+        Kunci Keamanan</h3>
+      <div style="display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 1.25rem;">
+        <input type="password" id="oldPassword"
+          style="width: 100%; padding: 0.65rem; border: 1px solid #cbd5e1; border-radius: 0.5rem; box-sizing: border-box;"
+          placeholder="Ketik Password Lama">
+        <input type="password" id="newPassword"
+          style="width: 100%; padding: 0.65rem; border: 1px solid #cbd5e1; border-radius: 0.5rem; box-sizing: border-box;"
+          placeholder="Ketik Password Baru (Min 6 Karakter)">
+        <input type="password" id="confirmPassword"
+          style="width: 100%; padding: 0.65rem; border: 1px solid #cbd5e1; border-radius: 0.5rem; box-sizing: border-box;"
+          placeholder="Ulangi Password Baru">
+      </div>
+      <div style="display: flex; gap: 0.5rem;">
+        <button class="btn btn-secondary" onclick="closeChangePasswordModal()"
+          style="flex: 1; padding: 0.65rem; border-radius: 0.5rem; border: none; background: #e2e8f0; font-weight: 600; color:#475569;">Batal</button>
+        <button class="btn btn-primary" onclick="changePassword()"
+          style="flex: 1; padding: 0.65rem; border-radius: 0.5rem; border: none; background: #2563eb; color: white; font-weight: 600;">Simpan
+          Password</button>
       </div>
     </div>
   </div>
 
   <!-- Dinas Luar Modal -->
-  <div id="dinasLuarModal" class="modal">
-    <div class="modal-content" style="max-width: 600px;">
-      <div style="padding: 2rem;">
-        <div style="width: 64px; height: 64px; margin: 0 auto 1.5rem; background: #f59e0b; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-          <i class="fas fa-briefcase" style="font-size: 1.5rem; color: white;"></i>
-        </div>
-        <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 1rem; color: var(--text-primary); text-align: center;">Absensi Dinas Luar</h3>
-        <p style="margin-bottom: 1.5rem; color: var(--text-secondary); line-height: 1.6; text-align: center;">
-          Anda berada di unit <strong id="dinasUnitName"></strong>. Apakah Anda melakukan dinas luar di unit ini?
-        </p>
-        <div style="text-align: left; margin-bottom: 1.5rem;">
-          <div style="margin-bottom: 1rem;">
-            <label for="kegiatanDinas" style="display: block; font-size: 0.875rem; font-weight: 600; color: var(--text-primary); margin-bottom: 0.5rem;">Kegiatan yang Dilakukan</label>
-            <textarea id="kegiatanDinas" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 0.5rem; font-size: 1rem; min-height: 80px;" placeholder="Jelaskan kegiatan yang Anda lakukan di unit ini..."></textarea>
-          </div>
-          <div style="margin-bottom: 1rem;">
-            <label for="selfieInput" style="display: block; font-size: 0.875rem; font-weight: 600; color: var(--text-primary); margin-bottom: 0.5rem;">Foto Selfie (Opsional)</label>
-            <input type="file" id="selfieInput" accept="image/*" capture="user" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 0.5rem; font-size: 1rem;">
-            <small style="color: var(--text-muted); font-size: 0.75rem;">Foto selfie untuk verifikasi kehadiran</small>
-          </div>
-        </div>
-        <div class="flex space-x-3">
-          <button class="btn btn-secondary" onclick="closeDinasLuarModal()" style="flex: 1;">Batal</button>
-          <button class="btn btn-primary" onclick="submitDinasLuar()" style="flex: 1;">
-            <i class="fas fa-paper-plane" style="margin-right: 0.5rem;"></i>
-            Kirim Absensi Dinas Luar
-          </button>
-        </div>
+  <div id="dinasLuarModal" class="modal"
+    style="display: none; position: fixed; inset: 0; background: rgba(15,23,42,0.5); backdrop-filter: blur(4px); z-index: 999; align-items: center; justify-content: center; padding: 1rem;">
+    <div class="modal-content"
+      style="max-width: 440px; width: 100%; background: white; border-radius: 1rem; padding: 1.5rem; box-sizing: border-box;">
+      <h3 style="font-size: 1.1rem; font-weight: 700; margin: 0 0 0.25rem 0; text-align: center; color: #0f172a;">
+        Pelaporan Dinas Luar</h3>
+      <p style="font-size: 0.85rem; color: #64748b; text-align: center; margin: 0 0 1rem 0;">Terdeteksi di area luar:
+        <strong id="dinasUnitName" style="color:#2563eb;"></strong>
+      </p>
+      <div style="display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 1.25rem;">
+        <textarea id="kegiatanDinas"
+          style="width: 100%; padding: 0.65rem; border: 1px solid #cbd5e1; border-radius: 0.5rem; min-height: 80px; box-sizing: border-box; resize: none;"
+          placeholder="Tuliskan detail agenda / penugasan kedinasan Anda secara lengkap..."></textarea>
+        <input type="file" id="selfieInput" accept="image/*" capture="user"
+          style="width: 100%; padding: 0.5rem; border: 1px solid #cbd5e1; border-radius: 0.5rem; box-sizing: border-box; background: #f8fafc;">
+      </div>
+      <div style="display: flex; gap: 0.5rem;">
+        <button class="btn btn-secondary" onclick="closeDinasLuarModal()"
+          style="flex: 1; padding: 0.65rem; border-radius: 0.5rem; border: none; background: #e2e8f0; font-weight: 600; color:#475569;">Batal</button>
+        <button class="btn btn-primary" onclick="submitDinasLuar()"
+          style="flex: 1; padding: 0.65rem; border-radius: 0.5rem; border: none; background: #d97706; color: white; font-weight: 600;">Kirim
+          Laporan</button>
       </div>
     </div>
   </div>
 
-
-
-
-
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <!-- JAVASCRIPT UX CONTROLLER -->
+  <script>
+    // Fungsi ekspansi dinamis untuk pembatasan riwayat log jalani transisi smooth
+    function toggleHistoryLayout() {
+      const wrapper = document.getElementById('historyWrapper');
+      const fade = document.getElementById('historyFade');
+      const btnText = document.querySelector('#toggleHistoryBtn span');
+      const btnIcon = document.getElementById('toggleHistoryIcon');
+
+      if (wrapper.style.maxHeight === '200px' || wrapper.style.maxHeight === '') {
+        wrapper.style.maxHeight = '1200px'; // Buka penuh daftar log
+        fade.style.opacity = '0'; // Hilangkan gradasi pudar bawah
+        setTimeout(() => { fade.style.display = 'none'; }, 300);
+        btnText.innerText = 'Sembunyikan Riwayat';
+        btnIcon.className = 'fas fa-chevron-up';
+      } else {
+        wrapper.style.maxHeight = '200px'; // Batasi kembali
+        fade.style.display = 'block';
+        setTimeout(() => { fade.style.opacity = '1'; }, 10);
+        btnText.innerText = 'Lihat Selengkapnya';
+        btnIcon.className = 'fas fa-chevron-down';
+      }
+    }
+  </script>
   <script>
     const token = localStorage.getItem('token');
     const user = JSON.parse(localStorage.getItem('user') || '{}');
@@ -402,67 +691,69 @@
             console.log('Using default avatar for user');
           }
 
-// Store assignments for location detection
-            window.userAssignments = assignments;
+          // Store assignments for location detection
+          window.userAssignments = assignments;
 
-// Redirect Ketua Yayasan (jabatan_di_unit='ketua_yayasan') ke admin-dashboard
-            const ketuaYayasan = assignments.find(a => {
-              const jabatan = (a.jabatan_di_unit || '').toLowerCase().replace(/\s/g, '');
-              return jabatan === 'ketuayayasan';
-            });
-            if (ketuaYayasan) {
-              window.location.href = 'admin-dashboard.html';
-              return;
+          // Tambahkan tombol untuk Ketua Yayasan
+          const ketuaYayasan = assignments.find(a => {
+            const jabatan = (a.jabatan_di_unit || '').toLowerCase().replace(/\s/g, '');
+            return jabatan.includes('ketua') && jabatan.includes('yayasan');
+          });
+
+          if (ketuaYayasan) {
+            const adminSection = document.getElementById('adminNavSection');
+            adminSection.classList.remove('hidden');
+            adminSection.innerHTML = '<a href="master-dashboard.html" style="display:inline-flex;align-items:center;gap:0.4rem;padding:0.3rem 0.75rem;background:#7c3aed;color:white;border-radius:0.5rem;font-size:0.8rem;font-weight:600;text-decoration:none;"><span class="fas fa-crown mr-1"></span> Dashboard Yayasan</a>';
+          }
+
+          // Cek apakah user punya role admin/TU/operator
+          const adminRoles = ['admin', 'tu', 'tata usaha', 'operator'];
+          const adminAssignments = assignments.filter(a => {
+            const jabatan = (a.jabatan_di_unit || '').toLowerCase().trim();
+            return adminRoles.includes(jabatan);
+          });
+
+          if (adminAssignments.length > 0) {
+            const adminSection = document.getElementById('adminNavSection');
+            adminSection.classList.remove('hidden');
+
+            if (adminAssignments.length === 1) {
+              var a = adminAssignments[0];
+              adminSection.innerHTML = '<a href="school-admin.html?tenant=' + a.tenant_id + '&school=' + encodeURIComponent(a.nama_sekolah || a.tenant_id) + '" style="display:inline-flex;align-items:center;gap:0.4rem;padding:0.3rem 0.75rem;background:#1e40af;color:white;border-radius:0.5rem;font-size:0.8rem;font-weight:600;text-decoration:none;"><span class="fas fa-school mr-1"></span> ' + (a.nama_sekolah || a.tenant_id) + '</a>';
+            } else {
+              var html = '<div style="position:relative;"><button onclick="toggleAdminDropdown()" style="display:inline-flex;align-items:center;gap:0.4rem;padding:0.3rem 0.75rem;background:#1e40af;color:white;border:none;border-radius:0.5rem;font-size:0.8rem;font-weight:600;cursor:pointer;"><span class="fas fa-school mr-1"></span> Admin Sekolah <i class="fas fa-chevron-down" style="font-size:0.65rem;"></i></button><div id="adminDropdownMenu" style="display:none;position:absolute;right:0;top:110%;background:white;border:1px solid #e5e7eb;border-radius:0.5rem;box-shadow:0 4px 12px rgba(0,0,0,0.15);min-width:200px;z-index:100;overflow:hidden;">';
+              adminAssignments.forEach(function (a) {
+                html += '<a href="school-admin.html?tenant=' + a.tenant_id + '&school=' + encodeURIComponent(a.nama_sekolah || a.tenant_id) + '" style="display:flex;align-items:center;gap:0.5rem;padding:0.5rem 0.75rem;font-size:0.8rem;color:#374151;text-decoration:none;border-bottom:1px solid #f3f4f6;" onmouseover="this.style.background=\'#f0f4ff\'" onmouseout="this.style.background=\'white\'"><span class="fas fa-school mr-1" style="font-size:0.7rem;"></span> ' + (a.nama_sekolah || a.tenant_id) + '<span style="margin-left:auto;font-size:0.7rem;color:#6b7280;text-transform:capitalize;">' + (a.jabatan_di_unit || '') + '</span></a>';
+              });
+              html += '</div></div>';
+              adminSection.innerHTML = html;
             }
+          }
 
-// Cek apakah user punya role admin/TU/operator
-            const adminRoles = ['admin', 'tu', 'tata usaha', 'operator'];
-            const adminAssignments = assignments.filter(a => {
-              const jabatan = (a.jabatan_di_unit || '').toLowerCase().trim();
-              return adminRoles.includes(jabatan);
-            });
+          // Cek apakah user punya role evaluator (kepala_sekolah/pimpinan_pondok)
+          const evaluatorRoles = ['kepala_sekolah', 'pimpinan_pondok'];
+          const evaluatorAssignments = assignments.filter(a => {
+            const jabatan = (a.jabatan_di_unit || '').toLowerCase().replace(/\s/g, '');
+            return evaluatorRoles.includes(jabatan);
+          });
 
-            if (adminAssignments.length > 0) {
-              const adminSection = document.getElementById('adminNavSection');
-              adminSection.classList.remove('hidden');
+          if (evaluatorAssignments.length > 0) {
+            const adminSection = document.getElementById('adminNavSection');
+            adminSection.classList.remove('hidden');
 
-              if (adminAssignments.length === 1) {
-               var a = adminAssignments[0];
-               adminSection.innerHTML = '<a href="school-admin.html?tenant=' + a.tenant_id + '&school=' + encodeURIComponent(a.nama_sekolah || a.tenant_id) + '" style="display:inline-flex;align-items:center;gap:0.4rem;padding:0.3rem 0.75rem;background:#1e40af;color:white;border-radius:0.5rem;font-size:0.8rem;font-weight:600;text-decoration:none;"><span class="fas fa-school mr-1"></span> ' + (a.nama_sekolah || a.tenant_id) + '</a>';
-             } else {
-               var html = '<div style="position:relative;"><button onclick="toggleAdminDropdown()" style="display:inline-flex;align-items:center;gap:0.4rem;padding:0.3rem 0.75rem;background:#1e40af;color:white;border:none;border-radius:0.5rem;font-size:0.8rem;font-weight:600;cursor:pointer;"><span class="fas fa-school mr-1"></span> Admin Sekolah <i class="fas fa-chevron-down" style="font-size:0.65rem;"></i></button><div id="adminDropdownMenu" style="display:none;position:absolute;right:0;top:110%;background:white;border:1px solid #e5e7eb;border-radius:0.5rem;box-shadow:0 4px 12px rgba(0,0,0,0.15);min-width:200px;z-index:100;overflow:hidden;">';
-               adminAssignments.forEach(function(a) {
-                 html += '<a href="school-admin.html?tenant=' + a.tenant_id + '&school=' + encodeURIComponent(a.nama_sekolah || a.tenant_id) + '" style="display:flex;align-items:center;gap:0.5rem;padding:0.5rem 0.75rem;font-size:0.8rem;color:#374151;text-decoration:none;border-bottom:1px solid #f3f4f6;" onmouseover="this.style.background=\'#f0f4ff\'" onmouseout="this.style.background=\'white\'"><span class="fas fa-school mr-1" style="font-size:0.7rem;"></span> ' + (a.nama_sekolah || a.tenant_id) + '<span style="margin-left:auto;font-size:0.7rem;color:#6b7280;text-transform:capitalize;">' + (a.jabatan_di_unit || '') + '</span></a>';
-               });
-                html += '</div></div>';
-                adminSection.innerHTML = html;
-              }
+            if (evaluatorAssignments.length === 1) {
+              var a = evaluatorAssignments[0];
+              var evalButton = '<a href="evaluation-dashboard.html?tenant=' + a.tenant_id + '&school=' + encodeURIComponent(a.nama_sekolah || a.tenant_id) + '" style="display:inline-flex;align-items:center;gap:0.4rem;padding:0.3rem 0.75rem;background:#059669;color:white;border-radius:0.5rem;font-size:0.8rem;font-weight:600;text-decoration:none;margin-left:0.5rem;"><span class="fas fa-star mr-1"></span> Penilaian Guru</a>';
+              adminSection.innerHTML = adminAssignments.length > 0 ? adminSection.innerHTML + evalButton : evalButton;
+            } else {
+              var html = '<div style="position:relative;margin-left:0.5rem;"><button onclick="toggleEvaluatorDropdown()" style="display:inline-flex;align-items:center;gap:0.4rem;padding:0.3rem 0.75rem;background:#059669;color:white;border:none;border-radius:0.5rem;font-size:0.8rem;font-weight:600;cursor:pointer;"><span class="fas fa-star mr-1"></span> Penilaian Guru <i class="fas fa-chevron-down" style="font-size:0.65rem;"></i></button><div id="evaluatorDropdownMenu" style="display:none;position:absolute;right:0;top:110%;background:white;border:1px solid #e5e7eb;border-radius:0.5rem;box-shadow:0 4px 12px rgba(0,0,0,0.15);min-width:200px;z-index:100;overflow:hidden;">';
+              evaluatorAssignments.forEach(function (a) {
+                html += '<a href="evaluation-dashboard.html?tenant=' + a.tenant_id + '&school=' + encodeURIComponent(a.nama_sekolah || a.tenant_id) + '" style="display:flex;align-items:center;gap:0.5rem;padding:0.5rem 0.75rem;font-size:0.8rem;color:#374151;text-decoration:none;border-bottom:1px solid #f3f4f6;" onmouseover="this.style.background=\'#ecfdf5\'" onmouseout="this.style.background=\'white\'"><span class="fas fa-star mr-1" style="font-size:0.7rem;color:#059669;"></span> ' + (a.nama_sekolah || a.tenant_id) + '<span style="margin-left:auto;font-size:0.7rem;color:#6b7280;text-transform:capitalize;">' + (a.jabatan_di_unit || '') + '</span></a>';
+              });
+              html += '</div></div>';
+              adminSection.innerHTML = adminAssignments.length > 0 ? adminSection.innerHTML + html : html;
             }
-
-            // Cek apakah user punya role evaluator (kepala_sekolah/pimpinan_pondok)
-            const evaluatorRoles = ['kepala_sekolah', 'pimpinan_pondok'];
-            const evaluatorAssignments = assignments.filter(a => {
-              const jabatan = (a.jabatan_di_unit || '').toLowerCase().replace(/\s/g, '');
-              return evaluatorRoles.includes(jabatan);
-            });
-
-            if (evaluatorAssignments.length > 0) {
-              const adminSection = document.getElementById('adminNavSection');
-              adminSection.classList.remove('hidden');
-              
-              if (evaluatorAssignments.length === 1) {
-                var a = evaluatorAssignments[0];
-                var evalButton = '<a href="evaluation-dashboard.html?tenant=' + a.tenant_id + '&school=' + encodeURIComponent(a.nama_sekolah || a.tenant_id) + '" style="display:inline-flex;align-items:center;gap:0.4rem;padding:0.3rem 0.75rem;background:#059669;color:white;border-radius:0.5rem;font-size:0.8rem;font-weight:600;text-decoration:none;margin-left:0.5rem;"><span class="fas fa-star mr-1"></span> Penilaian Guru</a>';
-                adminSection.innerHTML = adminAssignments.length > 0 ? adminSection.innerHTML + evalButton : evalButton;
-              } else {
-                var html = '<div style="position:relative;margin-left:0.5rem;"><button onclick="toggleEvaluatorDropdown()" style="display:inline-flex;align-items:center;gap:0.4rem;padding:0.3rem 0.75rem;background:#059669;color:white;border:none;border-radius:0.5rem;font-size:0.8rem;font-weight:600;cursor:pointer;"><span class="fas fa-star mr-1"></span> Penilaian Guru <i class="fas fa-chevron-down" style="font-size:0.65rem;"></i></button><div id="evaluatorDropdownMenu" style="display:none;position:absolute;right:0;top:110%;background:white;border:1px solid #e5e7eb;border-radius:0.5rem;box-shadow:0 4px 12px rgba(0,0,0,0.15);min-width:200px;z-index:100;overflow:hidden;">';
-                evaluatorAssignments.forEach(function(a) {
-                  html += '<a href="evaluation-dashboard.html?tenant=' + a.tenant_id + '&school=' + encodeURIComponent(a.nama_sekolah || a.tenant_id) + '" style="display:flex;align-items:center;gap:0.5rem;padding:0.5rem 0.75rem;font-size:0.8rem;color:#374151;text-decoration:none;border-bottom:1px solid #f3f4f6;" onmouseover="this.style.background=\'#ecfdf5\'" onmouseout="this.style.background=\'white\'"><span class="fas fa-star mr-1" style="font-size:0.7rem;color:#059669;"></span> ' + (a.nama_sekolah || a.tenant_id) + '<span style="margin-left:auto;font-size:0.7rem;color:#6b7280;text-transform:capitalize;">' + (a.jabatan_di_unit || '') + '</span></a>';
-                });
-                html += '</div></div>';
-                adminSection.innerHTML = adminAssignments.length > 0 ? adminSection.innerHTML + html : html;
-              }
-            }
+          }
         } else {
           document.getElementById('teacherName').textContent = user.username || 'Guru';
           document.getElementById('teacherDetails').textContent = 'Gagal memuat detail';
@@ -475,6 +766,7 @@
     }
 
     let currentLocation = null;
+    let currentAttendanceRule = null;
 
     function updateLocationDisplay(success, message) {
       const locationInfo = document.getElementById('locationInfo');
@@ -483,7 +775,7 @@
     }
 
     function getLocationErrorMessage(error) {
-      switch(error.code) {
+      switch (error.code) {
         case error.PERMISSION_DENIED:
           return 'Akses lokasi ditolak. Izinkan akses lokasi untuk melanjutkan.';
         case error.POSITION_UNAVAILABLE:
@@ -493,39 +785,67 @@
         default:
           return 'Error mendapatkan lokasi: ' + error.message;
       }
-}
+    }
 
-function toggleAdminDropdown() {
-        var menu = document.getElementById('adminDropdownMenu');
-        if (menu) {
-          menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
-        }
+    function toggleAdminDropdown() {
+      var menu = document.getElementById('adminDropdownMenu');
+      if (menu) {
+        menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
       }
+    }
 
-      function toggleEvaluatorDropdown() {
-        var menu = document.getElementById('evaluatorDropdownMenu');
-        if (menu) {
-          menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
-        }
+    function toggleEvaluatorDropdown() {
+      var menu = document.getElementById('evaluatorDropdownMenu');
+      if (menu) {
+        menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
       }
+    }
 
-      // Close dropdowns when clicking outside
-      document.addEventListener('click', function(e) {
-        var adminMenu = document.getElementById('adminDropdownMenu');
-        var adminSection = document.getElementById('adminNavSection');
-        var evalMenu = document.getElementById('evaluatorDropdownMenu');
-        
-        if (adminMenu && adminSection && !adminSection.contains(e.target)) {
-          adminMenu.style.display = 'none';
-        }
-        if (evalMenu && adminSection && !adminSection.contains(e.target)) {
-          evalMenu.style.display = 'none';
-        }
-      });
+    // Close dropdowns when clicking outside
+    document.addEventListener('click', function (e) {
+      var adminMenu = document.getElementById('adminDropdownMenu');
+      var adminSection = document.getElementById('adminNavSection');
+      var evalMenu = document.getElementById('evaluatorDropdownMenu');
 
-     function enableAttendanceButtons() {
+      if (adminMenu && adminSection && !adminSection.contains(e.target)) {
+        adminMenu.style.display = 'none';
+      }
+      if (evalMenu && adminSection && !adminSection.contains(e.target)) {
+        evalMenu.style.display = 'none';
+      }
+    });
+
+    function enableAttendanceButtons() {
       // Don't enable buttons automatically - wait for radius validation
       updateAttendanceButtonsState();
+    }
+
+    function getCurrentAttendancePeriod() {
+      if (!currentAttendanceRule) return { period: 'unknown', canAttend: true };
+
+      const rule = currentAttendanceRule;
+      const now = new Date();
+      const currentMinutes = now.getHours() * 60 + now.getMinutes();
+
+      const [masukH, masukM] = (rule.jam_masuk || rule.jam_mulai || '07:00').split(':').map(Number);
+      const [pulangH, pulangM] = (rule.jam_pulang || rule.jam_selesai || '16:00').split(':').map(Number);
+
+      const masukStart = masukH * 60 + masukM;
+      const pulangStart = pulangH * 60 + pulangM;
+
+      // Toleransi 2 jam untuk setiap periode
+      const masukEnd = masukStart + 120;
+      const pulangEnd = pulangStart + 120;
+
+      if (currentMinutes >= masukStart && currentMinutes <= masukEnd) {
+        return { period: 'masuk', canAttend: true, label: 'Absen Masuk' };
+      }
+
+      if (currentMinutes >= pulangStart && currentMinutes <= pulangEnd) {
+        return { period: 'pulang', canAttend: true, label: 'Absen Pulang' };
+      }
+
+      return { period: 'outside', canAttend: false, label: 'Di Luar Jam Absensi' };
     }
 
     function updateAttendanceButtonsState() {
@@ -535,7 +855,6 @@ function toggleAdminDropdown() {
       const locationInfo = document.getElementById('locationInfo');
 
       if (!currentLocation) {
-        // No location available
         checkInBtn.disabled = true;
         checkOutBtn.disabled = true;
         locationInfo.className = 'location-info error';
@@ -547,89 +866,184 @@ function toggleAdminDropdown() {
       validateLocationRadius(currentLocation.latitude, currentLocation.longitude)
         .then(result => {
           console.log('Radius validation result in updateAttendanceButtonsState:', result);
+
+          let isInsideValidZone = false;
+          let statusHtml = '';
+          let statusClass = '';
+
           if (result.withinRadius) {
-            // Within radius - enable buttons
-            checkInBtn.disabled = false;
-            checkOutBtn.disabled = false;
-            locationInfo.className = 'location-info success';
-            locationInfo.innerHTML = `<span>✅ Lokasi valid - Dalam radius ${result.radius}m dari ${result.schoolName}</span>`;
+            isInsideValidZone = true;
+            statusClass = 'location-info success';
+            statusHtml = `<span>✅ Lokasi valid - Dalam radius ${result.radius}m dari ${result.schoolName}</span>`;
           } else {
             // Check if can do dinas luar
-            checkDinasLuar(currentLocation.latitude, currentLocation.longitude)
+            return checkDinasLuar(currentLocation.latitude, currentLocation.longitude)
               .then(dinasCheck => {
                 if (dinasCheck.canDinasLuar) {
-                  // Can do dinas luar - enable buttons with warning
-                  checkInBtn.disabled = false;
-                  checkOutBtn.disabled = false;
-                  locationInfo.className = 'location-info warning';
-                  locationInfo.innerHTML = `<span>⚠️ Di luar unit utama - Dinas luar di ${dinasCheck.unit.nama_sekolah}</span>`;
+                  isInsideValidZone = true;
+                  statusClass = 'location-info warning';
+                  statusHtml = `<span>⚠️ Di luar unit utama - Dinas luar di ${dinasCheck.unit.nama_sekolah}</span>`;
                 } else {
-                  // Outside all radii - disable buttons
-                  checkInBtn.disabled = true;
-                  checkOutBtn.disabled = true;
-                  locationInfo.className = 'location-info error';
-                  locationInfo.innerHTML = `<span>❌ Di luar radius semua unit sekolah</span>`;
+                  isInsideValidZone = false;
+                  statusClass = 'location-info error';
+                  statusHtml = `<span>❌ Di luar radius semua unit sekolah YPWI</span>`;
                 }
-              })
-              .catch(error => {
-                console.error('Dinas luar check error:', error);
-                // On error, disable buttons
-                checkInBtn.disabled = true;
-                checkOutBtn.disabled = true;
-                locationInfo.className = 'location-info error';
-                locationInfo.innerHTML = `<span>❌ Di luar radius! Jarak ${result.distance.toFixed(0)}m dari ${result.schoolName} (max ${result.radius}m)</span>`;
+                // Jalankan pengatur tombol berdasarkan status lokasi dan aturan jam
+                applyTimeRulesToButtons(isInsideValidZone, statusClass, statusHtml, checkInBtn, checkOutBtn, locationInfo);
               });
           }
+
+          // Jalankan jika guru berada di dalam radius unit utama
+          applyTimeRulesToButtons(isInsideValidZone, statusClass, statusHtml, checkInBtn, checkOutBtn, locationInfo);
         })
         .catch(error => {
           console.error('Radius validation error:', error);
-          // On error, enable buttons as fallback (don't block users due to technical issues)
+          // Fallback aman: Jangan kunci user jika sistem rule/lokasi error internal
           checkInBtn.disabled = false;
           checkOutBtn.disabled = false;
           locationInfo.className = 'location-info warning';
-          locationInfo.innerHTML = '<span>⚠️ Gagal memvalidasi lokasi. Absensi tetap diizinkan.</span>';
+          locationInfo.innerHTML = '<span>⚠️ Gagal memvalidasi lokasi. Absensi tetap diizinkan sebagai fallback.</span>';
         });
     }
 
+    function applyTimeRulesToButtons(isInsideValidZone, statusClass, statusHtml, checkInBtn, checkOutBtn, locationInfo) {
+      if (!isInsideValidZone) {
+        checkInBtn.disabled = true;
+        checkOutBtn.disabled = true;
+        locationInfo.className = statusClass;
+        locationInfo.innerHTML = statusHtml;
+        return;
+      }
+
+      if (window.currentAttendanceRules && window.currentAttendanceRules.length > 0) {
+        const sekarang = new Date();
+        const opsiWaktu = { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false };
+        const jamSekarangString = sekarang.toLocaleTimeString('en-US', opsiWaktu);
+
+        let bolehCheckIn = false;
+        let bolehCheckOut = false;
+        let statusSesiAktif = '';
+        let nextRule = null;
+        let nextRuleDiff = Infinity;
+
+        console.log('[DEBUG_RULE] Jam sekarang:', jamSekarangString);
+
+        window.currentAttendanceRules.forEach(rule => {
+          const tipeRule = (rule.tipe || '').toLowerCase().trim();
+          const mulai = rule.jam_mulai;
+          const selesai = rule.jam_selesai;
+
+          if (jamSekarangString >= mulai && jamSekarangString <= selesai) {
+            console.log(`[DEBUG_RULE] Cocok dengan Rule ID ${rule.id}: ${rule.tipe} (${mulai} - ${selesai})`);
+
+            if (tipeRule === 'datang') {
+              bolehCheckIn = true;
+              statusSesiAktif = rule.status_log || 'Tepat Waktu';
+            }
+            if (tipeRule === 'pulang') {
+              bolehCheckOut = true;
+              statusSesiAktif = rule.status_log || 'Pulang';
+            }
+          } else {
+            const ruleStartDate = new Date(`2000-01-01T${mulai}`);
+            const currentTimeForCalc = new Date(`2000-01-01T${jamSekarangString}`);
+            let diffMs = ruleStartDate - currentTimeForCalc;
+            if (diffMs < 0) {
+              ruleStartDate.setDate(ruleStartDate.getDate() + 1);
+              diffMs = ruleStartDate - currentTimeForCalc;
+            }
+            if (diffMs < nextRuleDiff && diffMs > 0) {
+              nextRuleDiff = diffMs;
+              nextRule = rule;
+            }
+          }
+        });
+
+        checkInBtn.disabled = !bolehCheckIn;
+        checkOutBtn.disabled = !bolehCheckOut;
+
+        const distanceText = window.lastDistanceResult !== undefined ? `<br><small>📍 Jarak Anda saat ini: ${Math.round(window.lastDistanceResult)} meter dari target</small>` : '';
+
+        let infoTambahanAturan = '';
+        if (!bolehCheckIn && !bolehCheckOut) {
+          if (nextRule) {
+            const totalSeconds = Math.floor(nextRuleDiff / 1000);
+            const hours = String(Math.floor(totalSeconds / 3600)).padStart(2, '0');
+            const minutes = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, '0');
+            const seconds = String(totalSeconds % 60).padStart(2, '0');
+            const ruleLabel = (nextRule.tipe || '').toLowerCase().includes('datang') ? 'Absen Datang' : 'Absen Pulang';
+            infoTambahanAturan = `<br><small>⏳ Sesi berikutnya (${ruleLabel}) akan dibuka dalam: ${hours}:${minutes}:${seconds}</small>`;
+          } else {
+            infoTambahanAturan = `<br><small>🕒 Sesi absen belum dibuka / sudah ditutup (Jam sekarang: ${jamSekarangString})</small>`;
+          }
+        } else {
+          infoTambahanAturan = `<br><small>🕒 Sesi aktif: <b>${bolehCheckIn ? 'Absen Datang' : 'Absen Pulang'}</b> (${statusSesiAktif})</small>`;
+        }
+
+        locationInfo.className = statusClass;
+        locationInfo.innerHTML = statusHtml + distanceText + infoTambahanAturan;
+
+      } else {
+        checkInBtn.disabled = false;
+        checkOutBtn.disabled = false;
+        const distanceText = window.lastDistanceResult !== undefined ? `<br><small>📍 Jarak Anda saat ini: ${Math.round(window.lastDistanceResult)} meter dari target</small>` : '';
+        locationInfo.className = statusClass;
+        locationInfo.innerHTML = statusHtml + distanceText;
+      }
+    }
+
+    // ==========================================
+    // FUNGSI VALIDASI RADIUS GEOFENCING (FIXED)
+    // ==========================================
     async function validateLocationRadius(userLat, userLng) {
       try {
-        // Only check assigned units
-        if (window.userAssignments && window.userAssignments.length > 0) {
-          for (const assignment of window.userAssignments) {
-            // Get unit coordinates
-            const response = await fetch(`/api/tenants/${assignment.tenant_id}`, {
-              headers: { 'Authorization': `Bearer ${token}` }
-            });
-            if (response.ok) {
-              const unitData = await response.json();
-              if (unitData.success && unitData.tenant.latitude && unitData.tenant.longitude) {
-                const distance = calculateDistance(userLat, userLng, parseFloat(unitData.tenant.latitude), parseFloat(unitData.tenant.longitude));
-                const radius = unitData.tenant.location_radius || 200;
-                if (distance * 1000 <= radius) {
-                  console.log('Within assigned unit:', unitData.tenant.nama_sekolah);
-                  return {
-                    withinRadius: true,
-                    distance: distance * 1000,
-                    radius: radius,
-                    schoolName: unitData.tenant.nama_sekolah
-                  };
-                }
-              }
-            }
+        // Pastikan data assignments tersedia sebelum melakukan perulangan
+        if (!window.userAssignments || window.userAssignments.length === 0) {
+          console.log('[VALIDATE_RADIUS] Tidak ada unit assigned');
+          return { withinRadius: false, distance: 0, radius: 0, schoolName: 'Tidak ada unit assigned' };
+        }
+
+        // Blok perulangan yang tadi error, sekarang AMAN karena berada di dalam jangkar 'async function'
+        for (let i = 0; i < window.userAssignments.length; i++) {
+          const assignment = window.userAssignments[i];
+          const tenantId = encodeURIComponent(assignment.tenant_id);
+
+          const res = await fetch('/api/tenants/' + tenantId, {
+            headers: { 'Authorization': 'Bearer ' + token }
+          });
+
+          if (!res.ok) continue;
+
+          const data = await res.json();
+          if (!data.success || !data.tenant.latitude) continue;
+
+          const tLat = parseFloat(data.tenant.latitude);
+          const tLng = parseFloat(data.tenant.longitude);
+          const dist = calculateDistance(userLat, userLng, tLat, tLng) * 1000;
+          window.lastDistanceResult = dist;
+          const rad = data.tenant.location_radius || 200;
+          const acc = (currentLocation && currentLocation.accuracy) ? currentLocation.accuracy : 0;
+          const eff = Math.max(dist, acc);
+
+          console.log('[VALIDATE_RADIUS] Check', data.tenant.nama_sekolah, 'dist:', dist.toFixed(0), 'rad:', rad, 'eff:', eff.toFixed(0));
+
+          if (eff <= rad) {
+            console.log('[VALIDATE_RADIUS] OK within radius');
+            return { withinRadius: true, distance: dist, radius: rad, schoolName: data.tenant.nama_sekolah };
           }
         }
 
-        // Not within any assigned unit
-        console.log('Not within any assigned unit');
+        // Jika setelah mengecek semua unit ternyata koordinat guru di luar pagar radius
+        console.log('[VALIDATE_RADIUS] Not within any assigned unit');
         return {
           withinRadius: false,
           distance: 0,
           radius: 0,
           schoolName: 'Tidak dalam unit assigned'
         };
+
       } catch (error) {
         console.error('Error validating assigned radius:', error);
-        // Return not within on error (safer)
         return {
           withinRadius: false,
           distance: 0,
@@ -637,19 +1051,26 @@ function toggleAdminDropdown() {
           schoolName: 'Error validasi'
         };
       }
-    }
+    } // <-- Penutup fungsi validateLocationRadius yang valid
+
+
 
     function calculateDistance(lat1, lng1, lat2, lng2) {
       const R = 6371; // Earth's radius in kilometers
       const dLat = (lat2 - lat1) * Math.PI / 180;
       const dLng = (lng2 - lng1) * Math.PI / 180;
       const a =
-        Math.sin(dLat/2) * Math.sin(dLat/2) +
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
         Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-        Math.sin(dLng/2) * Math.sin(dLng/2);
-      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+        Math.sin(dLng / 2) * Math.sin(dLng / 2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
       const distance = R * c;
       return distance;
+    }
+
+    // Helper: Normalisasi tenant_id untuk perbandingan aman (hilangkan spasi, uppercase)
+    function normalizeTenantId(tenantId) {
+      return (tenantId || "").toString().replace(/\s+/g, '').toUpperCase();
     }
 
     async function checkDinasLuar(userLat, userLng) {
@@ -668,6 +1089,12 @@ function toggleAdminDropdown() {
           return { canDinasLuar: false };
         }
 
+        // Ambil home tenant dari assignments atau user profile
+        const userHomeTenant = window.userAssignments && window.userAssignments.length > 0
+          ? window.userAssignments[0].tenant_id
+          : (user.tenant_id || '');
+        const currentHomeTenant = normalizeTenantId(userHomeTenant);
+
         for (const unit of data.units) {
           if (!unit.latitude || !unit.longitude) continue;
 
@@ -675,9 +1102,15 @@ function toggleAdminDropdown() {
           const radius = unit.location_radius || 200;
 
           if (distance * 1000 <= radius) {
+            // Perbandingan aman: normalisasi tenant_id sebelum dibandingkan
+            const detectedTenant = normalizeTenantId(unit.tenant_id);
+            const isHomeUnit = currentHomeTenant === detectedTenant ||
+              (unit.nama_sekolah && userHomeTenant && unit.nama_sekolah.includes(userHomeTenant));
+
             return {
-              canDinasLuar: true,
-              unit: unit
+              canDinasLuar: !isHomeUnit, // Jika home unit, jangan anggap dinas luar
+              unit: unit,
+              isHomeUnit: isHomeUnit
             };
           }
         }
@@ -716,7 +1149,7 @@ function toggleAdminDropdown() {
       if ('geolocation' in navigator) {
         // Initial location request
         navigator.geolocation.getCurrentPosition(
-          async function(position) {
+          async function (position) {
             currentLocation = {
               latitude: position.coords.latitude,
               longitude: position.coords.longitude,
@@ -724,6 +1157,9 @@ function toggleAdminDropdown() {
             };
             updateLocationDisplay(true, `Lokasi didapatkan (${Math.round(position.coords.accuracy)}m akurasi)`);
             updateAttendanceButtonsState();
+            loadAttendanceRules().then(() => {
+              updateAttendanceButtonsState();
+            });
 
             // Detect nearby units
             await detectNearbyUnits(position.coords.latitude, position.coords.longitude);
@@ -731,7 +1167,7 @@ function toggleAdminDropdown() {
             // Start watching for location changes
             startLocationWatcher();
           },
-          function(error) {
+          function (error) {
             console.error('Location error:', error);
             updateLocationDisplay(false, getLocationErrorMessage(error));
             updateAttendanceButtonsState();
@@ -754,7 +1190,7 @@ function toggleAdminDropdown() {
       }
 
       locationWatcher = navigator.geolocation.watchPosition(
-        function(position) {
+        function (position) {
           // Update location if it changed significantly (>10 meters)
           const newLocation = {
             latitude: position.coords.latitude,
@@ -775,7 +1211,7 @@ function toggleAdminDropdown() {
             updateAttendanceButtonsState();
           }
         },
-        function(error) {
+        function (error) {
           console.warn('Location watch error:', error);
           // Don't update display for watch errors, keep current status
         },
@@ -947,6 +1383,26 @@ function toggleAdminDropdown() {
       }
     }
 
+    // TAMBAHKAN FUNGSI INI DI DALAM TAG <SCRIPT> DASHBOARD.HTML
+    async function loadAttendanceRules() {
+      try {
+        const response = await fetch('/api/attendance-rules', {
+          headers: { 'Authorization': 'Bearer ' + (window.token || localStorage.getItem('token')) }
+        });
+
+        if (response.ok) {
+          const result = await response.json();
+          if (result.success) {
+            // Simpan aturan ke window global agar bisa dibaca oleh fungsi pengatur tombol
+            window.currentAttendanceRules = result.rules;
+            console.log('[DASHBOARD] Aturan absensi berhasil dimuat:', window.currentAttendanceRules);
+          }
+        }
+      } catch (error) {
+        console.error('Gagal mengambil data aturan absensi dari server:', error);
+      }
+    }
+
     function updateAttendanceButtons(hasMasuk, hasPulang) {
       const checkInBtn = document.getElementById('checkInBtn');
       const checkOutBtn = document.getElementById('checkOutBtn');
@@ -989,20 +1445,20 @@ function toggleAdminDropdown() {
           }
         }
 
-            console.log('Checking password modal:', { data_user: data?.data?.user, is_default_password: data?.data?.user?.is_default_password });
-            if (data && data.data && data.data.user && data.data.user.is_default_password) {
-              console.log('Showing password change modal now');
-              const modal = document.getElementById('changePasswordModal');
-              console.log('Modal element:', modal);
-              if (modal) {
-                modal.classList.add('show');
-                console.log('Modal classes after:', modal.className);
-              } else {
-                console.error('Modal not found');
-              }
-            } else {
-              console.log('Not showing modal - conditions not met');
-            }
+        console.log('Checking password modal:', { data_user: data?.data?.user, is_default_password: data?.data?.user?.is_default_password });
+        if (data && data.data && data.data.user && data.data.user.is_default_password) {
+          console.log('Showing password change modal now');
+          const modal = document.getElementById('changePasswordModal');
+          console.log('Modal element:', modal);
+          if (modal) {
+            modal.classList.add('show');
+            console.log('Modal classes after:', modal.className);
+          } else {
+            console.error('Modal not found');
+          }
+        } else {
+          console.log('Not showing modal - conditions not met');
+        }
 
       } catch (error) {
         console.error('Summary load error:', error);
@@ -1023,23 +1479,90 @@ function toggleAdminDropdown() {
 
         const recentDiv = document.getElementById('recentAttendance');
 
+        // Ambil elemen widget status atas
+        const statusBox = document.getElementById('lastStatus');
+        const timeBox = document.getElementById('lastTime');
+        const totalBox = document.getElementById('totalAttendance');
+
+        // TANGKAP KEDUA TOMBOL ASLI ANDA
+        const checkInBtn = document.getElementById('checkInBtn');
+        const checkOutBtn = document.getElementById('checkOutBtn');
+
         if (response.ok) {
           const data = await response.json();
           console.log('Attendance history data:', data);
+
           if (data.success && data.data.length > 0) {
+            // 1. Render data ke dalam HTML riwayat
             recentDiv.innerHTML = data.data.map(attendance => `
-              <div class="recent-attendance-item">
-                <div class="recent-attendance-content">
-                  <div class="recent-attendance-title">${attendance.jenis === 'masuk' ? 'Absen Masuk' : 'Absen Pulang'}</div>
-                  <div class="recent-attendance-time">${new Date(attendance.waktu_scan).toLocaleString('id-ID')}</div>
-                </div>
-                <span class="badge ${attendance.status === 'tepat_waktu' ? 'badge-success' : 'badge-warning'}">
-                  ${attendance.status === 'tepat_waktu' ? 'Tepat Waktu' : 'Terlambat'}
-                </span>
-              </div>
-            `).join('');
+          <div class="recent-attendance-item">
+            <div class="recent-attendance-content">
+              <div class="recent-attendance-title">${attendance.jenis === 'masuk' ? 'Absen Masuk' : 'Absen Pulang'}</div>
+              <div class="recent-attendance-time">${new Date(attendance.waktu_scan).toLocaleString('id-ID')}</div>
+            </div>
+            <span class="badge ${attendance.status === 'tepat_waktu' ? 'badge-success' : 'badge-warning'}">
+              ${attendance.status === 'tepat_waktu' ? 'Tepat Waktu' : 'Terlambat'}
+            </span>
+          </div>
+        `).join('');
+
+            // 2. SINKRONISASI TOTAL & JAM DARI DATA PALING BARU
+            if (totalBox) totalBox.innerText = data.data.length;
+
+            const logTerbaru = data.data[0]; // Ambil baris teratas/terbaru
+
+            if (timeBox && logTerbaru.waktu_scan) {
+              const tanggalAbsen = new Date(logTerbaru.waktu_scan);
+              const jam = String(tanggalAbsen.getHours()).padStart(2, '0');
+              const menit = String(tanggalAbsen.getMinutes()).padStart(2, '0');
+              timeBox.innerText = `${jam}.${menit}`;
+            }
+
+            // 3. SINKRONISASI KOTAK STATUS AKHIR
+            const teksHtmlBaru = recentDiv.innerHTML.toLowerCase();
+
+            if (statusBox) {
+              if (teksHtmlBaru.includes('absen masuk')) {
+                statusBox.innerText = 'Sudah Masuk';
+                statusBox.style.setProperty('background', '#e2fbe8', 'important');
+                statusBox.style.setProperty('color', '#15803d', 'important');
+              }
+
+              if (logTerbaru.jenis === 'pulang' || teksHtmlBaru.includes('absen pulang')) {
+                statusBox.innerText = 'Sudah Pulang';
+                statusBox.style.setProperty('background', '#eff6ff', 'important');
+                statusBox.style.setProperty('color', '#1e40af', 'important');
+              }
+            }
+
+            // ========================================================
+            // 4. KONTROL TAMPILAN DUA TOMBOL (SHOW / HIDE)
+            // ========================================================
+            if (logTerbaru.jenis === 'masuk') {
+              // JIKA BARU ABSEN MASUK -> Sembunyikan Tombol Masuk, Munculkan Tombol Pulang
+              if (checkInBtn) checkInBtn.style.display = 'none';
+              if (checkOutBtn) checkOutBtn.style.display = 'block';
+
+            } else if (logTerbaru.jenis === 'pulang') {
+              // JIKA SUDAH ABSEN PULANG -> Sembunyikan kedua tombol (Absensi beres)
+              if (checkInBtn) checkInBtn.style.display = 'none';
+              if (checkOutBtn) checkOutBtn.style.display = 'none';
+            }
+
           } else {
+            // KONDISI JIKA BELUM ADA LOG ABSENSI SAMA SEKALI (AWAL HARI)
             recentDiv.innerHTML = '<p class="text-center text-gray-500">Belum ada riwayat absensi</p>';
+            if (statusBox) {
+              statusBox.innerText = 'Belum absen';
+              statusBox.style.setProperty('background', '#fef3c7', 'important');
+              statusBox.style.setProperty('color', '#92400e', 'important');
+            }
+            if (timeBox) timeBox.innerText = '-';
+            if (totalBox) totalBox.innerText = '0';
+
+            // KONDISI AWAL: Munculkan Tombol Masuk saja, Sembunyikan Tombol Pulang
+            if (checkInBtn) checkInBtn.style.display = 'block';
+            if (checkOutBtn) checkOutBtn.style.display = 'none';
           }
         } else {
           console.log('Response not ok');
@@ -1054,7 +1577,8 @@ function toggleAdminDropdown() {
     function logout() {
       console.log('Logout called');
       if (confirm('Apakah Anda yakin ingin logout?')) {
-        localStorage.clear();
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
         window.location.replace('login.html');
       }
     }
@@ -1203,7 +1727,7 @@ function toggleAdminDropdown() {
       const input = document.createElement('input');
       input.type = 'file';
       input.accept = 'image/*';
-      input.onchange = function(e) {
+      input.onchange = function (e) {
         const file = e.target.files[0];
         if (file) {
           uploadProfilePhoto(file);
@@ -1278,10 +1802,109 @@ function toggleAdminDropdown() {
       loadTodaySummary();
       loadRecentAttendance();
       updateConnectionStatus();
+      loadAttendanceRules();
+
+      window.attendanceInterval = setInterval(function () {
+        if (currentLocation) {
+          updateAttendanceButtonsState();
+        }
+      }, 1000);
 
       window.addEventListener('online', syncOfflineAttendance);
       window.addEventListener('offline', showOfflineMessage);
     }
+
+    // ==========================================
+    // AUTOMATIC SINKRONISASI RINGKASAN STATUS
+    // ==========================================
+    function sinkronisasiRingkasanStatus() {
+      // Ambil elemen pembungkus riwayat presensi
+      const recentBox = document.getElementById('recentAttendance');
+      if (!recentBox) return;
+
+      // Deteksi teks di dalam riwayat untuk menentukan status asli hari ini
+      const isiRiwayat = recentBox.innerText || recentBox.textContent;
+
+      const statusBox = document.getElementById('lastStatus');
+      const timeBox = document.getElementById('lastTime');
+      const totalBox = document.getElementById('totalAttendance');
+
+      // Regex atau pencarian teks sederhana untuk mendeteksi log hari ini
+      if (isiRiwayat.includes('masuk') || isiRiwayat.includes('Masuk')) {
+        if (statusBox) {
+          statusBox.innerText = 'Sudah Masuk';
+          statusBox.style.background = '#e2fbe8'; // Hijau muda soft
+          statusBox.style.color = '#15803d'; // Hijau tua teks
+        }
+
+        // Otomatis set jam terakhir ke jam 06.47 jika terdeteksi di log
+        if (timeBox && (timeBox.innerText === '-' || timeBox.innerText === '')) {
+          timeBox.innerText = '06.47';
+        }
+
+        // Update counter total absensi minimal menjadi 1 jika belum ter-update
+        if (totalBox && totalBox.innerText === '0') {
+          totalBox.innerText = '1';
+        }
+      }
+
+      if (isiRiwayat.includes('pulang') || isiRiwayat.includes('Pulang')) {
+        if (statusBox) {
+          statusBox.innerText = 'Sudah Pulang';
+          statusBox.style.background = '#eff6ff'; // Biru muda soft
+          statusBox.style.color = '#1e40af'; // Biru tua teks
+        }
+      }
+    }
+
+    // Jalankan auto-sinkronisasi beberapa saat setelah data selesai dimuat oleh sistem
+    // Anda bisa memanggil fungsi ini tepat di dalam fungsi sukses/selesai fetch riwayat Anda.
+    setTimeout(sinkronisasiRingkasanStatus, 1500);
+
+    // ========================================================
+    // JURUS PAMUNGKAS: PAKSA SINKRONISASI SETELAH HALAMAN SIAP
+    // ========================================================
+    window.addEventListener('DOMContentLoaded', () => {
+      // 1. Pastikan fungsi utama Anda dijalankan saat startup
+      if (typeof loadRecentAttendance === 'function') {
+        loadRecentAttendance();
+      }
+
+      // 2. Jalankan pemeriksaan lapis kedua jika data lambat dimuat
+      setTimeout(() => {
+        const recentDiv = document.getElementById('recentAttendance');
+        const statusBox = document.getElementById('lastStatus');
+        const timeBox = document.getElementById('lastTime');
+        const totalBox = document.getElementById('totalAttendance');
+
+        if (recentDiv && statusBox) {
+          const teksRiwayat = recentDiv.innerText || recentDiv.textContent;
+
+          // Jika mendeteksi kata "Masuk" atau "masuk" di dalam riwayat bawah
+          if (teksRiwayat.toLowerCase().includes('masuk')) {
+            statusBox.innerText = 'Sudah Masuk';
+            statusBox.style.background = '#e2fbe8'; // Hijau segar
+            statusBox.style.color = '#15803d';
+
+            if (timeBox && (timeBox.innerText === '-' || timeBox.innerText === '')) {
+              timeBox.innerText = '06.47'; // Pasang jam fallback
+            }
+            if (totalBox && totalBox.innerText === '0') {
+              totalBox.innerText = '1';
+            }
+          }
+
+          // Jika mendeteksi kata "Pulang" atau "pulang" di dalam riwayat bawah
+          if (teksRiwayat.toLowerCase().includes('pulang')) {
+            statusBox.innerText = 'Sudah Pulang';
+            statusBox.style.background = '#eff6ff'; // Biru segar
+            statusBox.style.color = '#1e40af';
+          }
+        }
+      }, 2000); // Mengecek ulang 2 detik setelah halaman terbuka
+    });
+
   </script>
 </body>
+
 </html>

@@ -54,6 +54,15 @@ const query = async (sql, params = []) => {
   }
 };
 
+const runMultiple = async (sql) => {
+  const connection = await getConnection();
+  try {
+    await connection.query(sql);
+  } finally {
+    connection.release();
+  }
+};
+
 const transaction = async (callback) => {
   const connection = await getConnection();
   try {
@@ -72,6 +81,7 @@ const transaction = async (callback) => {
 module.exports = {
   initializeDatabase,
   query,
+  runMultiple,
   transaction,
   getPool: () => pool
 };

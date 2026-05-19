@@ -1,0 +1,1199 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard Guru - YPWI Lutim</title>
+
+  <!-- Open Graph Meta Tags -->
+  <meta property="og:title" content="Dashboard Guru - Sistem Absensi YPWI Lutim">
+  <meta property="og:description" content="Dashboard Sistem Absensi Guru YPWI Lutim - Lakukan absensi lokasi dengan GPS dan pantau riwayat kehadiran Anda">
+  <meta property="og:image" content="/assets/images/thumbnail/login.svg">
+  <meta property="og:url" content="">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="YPWI Lutim Absensi">
+
+  <!-- Twitter Card Meta Tags -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Dashboard Guru - Sistem Absensi YPWI Lutim">
+  <meta name="twitter:description" content="Dashboard Sistem Absensi Guru YPWI Lutim - Lakukan absensi lokasi dengan GPS dan pantau riwayat kehadiran Anda">
+  <meta name="twitter:image" content="/assets/images/thumbnail/login.svg">
+
+  <!-- General Meta Tags -->
+  <meta name="description" content="Dashboard Sistem Absensi Guru YPWI Lutim - Lakukan absensi lokasi dengan GPS dan pantau riwayat kehadiran">
+  <meta name="keywords" content="dashboard absensi, guru, YPWI Lutim, GPS absensi, riwayat kehadiran">
+  <meta name="author" content="YPWI Lutim">
+
+  <script>
+    // Set dynamic og:url based on current location
+    document.querySelector('meta[property="og:url"]').setAttribute('content', window.location.href);
+  </script>
+
+  <link rel="stylesheet" href="styles.css">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <link rel="icon" href="assets/images/YPWI LOGO HITAM.png" type="image/png">
+  <style>
+    /* Styling untuk tombol disabled */
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      background-color: #9ca3af !important;
+      border-color: #9ca3af !important;
+      color: #6b7280 !important;
+    }
+
+    button:disabled:hover {
+      background-color: #9ca3af !important;
+      transform: none !important;
+    }
+
+    /* Styling untuk location info */
+    .location-info {
+      padding: 1rem;
+      border-radius: 0.5rem;
+      margin-bottom: 1.5rem;
+      font-weight: 500;
+    }
+
+    .location-info.success {
+      background-color: #d1fae5;
+      color: #065f46;
+      border: 1px solid #a7f3d0;
+    }
+
+    .location-info.error {
+      background-color: #fee2e2;
+      color: #991b1b;
+      border: 1px solid #fca5a5;
+    }
+
+    .location-info.warning {
+      background-color: #fef3c7;
+      color: #92400e;
+      border: 1px solid #fcd34d;
+    }
+
+    /* Animation untuk status changes */
+    .location-info {
+      transition: all 0.3s ease;
+    }
+
+    /* Enhanced button styling */
+    .btn {
+      transition: all 0.2s ease;
+      border: none;
+      border-radius: 0.5rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .btn-success {
+      background-color: #10b981;
+      color: white;
+    }
+
+    .btn-success:hover:not(:disabled) {
+      background-color: #059669;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+    }
+
+    .btn-danger {
+      background-color: #ef4444;
+      color: white;
+    }
+
+    .btn-danger:hover:not(:disabled) {
+      background-color: #dc2626;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <div class="card">
+      <div class="flex justify-between items-center">
+        <div class="flex items-center space-x-4">
+          <div class="user-avatar avatar-md" title="Foto Profil" onclick="changeProfilePhoto()">
+            <img id="userPhoto" src="" alt="Foto Profil" style="display: none;" onerror="showFallbackAvatar(this)" onload="showUserPhoto()">
+            <div class="avatar-fallback show" id="avatarFallback">
+              <i class="fas fa-user"></i>
+            </div>
+          </div>
+          <div>
+            <h1 class="mobile-header-title">
+              Dashboard Guru
+            </h1>
+           <p id="teacherName">Memuat data...</p>
+           <p id="teacherDetails" class="mobile-teacher-details">Memuat detail...</p>
+           <div class="mobile-connection-status">
+             <span class="badge badge-success" id="connectionStatus">
+               <i class="fas fa-circle" style="margin-right: 0.5rem; font-size: 0.5rem;"></i>
+                 Sistem Online
+             </span>
+           </div>
+          </div>
+        </div>
+        <div class="flex space-x-2">
+          <a href="#" onclick="logout(); return false;" class="btn btn-secondary mobile-logout-btn">
+            <i class="fas fa-sign-out-alt" style="margin-right: 0.5rem;"></i>
+            Keluar
+          </a>
+        </div>
+      </div>
+    </div>
+    <div class="card attendance-card">
+      <div id="attendanceSection">
+        <div style="margin-bottom: 2rem;">
+          <i class="fas fa-map-marker-alt" style="font-size: 3rem; color: var(--primary-color); margin-bottom: 1rem;"></i>
+        </div>
+
+        <h2 style="font-size: 1.5rem; font-weight: 600; margin-bottom: 1.5rem; color: var(--text-primary);">Sistem Absensi Lokasi</h2>
+
+        <!-- Location Status -->
+        <div id="locationInfo" class="location-info" style="margin-bottom: 2rem;">
+          <div style="display: flex; align-items: center; justify-content: center;">
+            <i class="fas fa-spinner spinner" style="margin-right: 0.5rem;"></i>
+            <span>Menginisialisasi GPS...</span>
+          </div>
+        </div>
+
+        <!-- Attendance Buttons -->
+        <div class="attendance-buttons-container" style="margin-bottom: 2rem;">
+          <button class="btn btn-success attendance-btn" id="checkInBtn" onclick="recordAttendance('masuk')" style="display: none;">
+            <i class="fas fa-sign-in-alt" style="margin-right: 0.5rem;"></i>
+            Absen Masuk
+          </button>
+          <button class="btn btn-danger attendance-btn" id="checkOutBtn" onclick="recordAttendance('pulang')" style="display: none;">
+            <i class="fas fa-sign-out-alt" style="margin-right: 0.5rem;"></i>
+            Absen Pulang
+          </button>
+        </div>
+
+        <!-- System Status -->
+        <div style="padding: 1.25rem; background: #f8fafc; border-radius: 0.5rem; border: 1px solid var(--border-color);">
+          <div class="flex justify-between items-center" style="margin-bottom: 0.75rem;">
+            <span style="font-size: 0.875rem; color: var(--text-secondary);">Akurasi GPS</span>
+            <span id="gpsAccuracy" style="font-size: 0.875rem; font-weight: 600; color: var(--text-primary);">-- m</span>
+          </div>
+          <div class="flex justify-between items-center">
+            <span style="font-size: 0.875rem; color: var(--text-secondary);">Status Jaringan</span>
+            <span id="networkStatus" style="font-size: 0.875rem; font-weight: 600; color: var(--text-primary);">
+              <i class="fas fa-wifi" style="margin-right: 0.25rem;"></i>
+              Terhubung
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div id="attendanceResult" style="display: none;">
+        <div id="resultIcon" style="font-size: 3rem; margin-bottom: 1.5rem;"></div>
+        <div id="resultMessage" style="font-size: 1.25rem; font-weight: 600; margin-bottom: 1rem;"></div>
+        <div id="resultDetails" style="margin-bottom: 2rem; padding: 1rem; background: #f8fafc; border-radius: 0.5rem; border: 1px solid var(--border-color); font-size: 0.875rem;"></div>
+        <button class="btn btn-primary" onclick="resetAttendance()" style="width: 100%;">
+          <i class="fas fa-redo" style="margin-right: 0.5rem;"></i>
+          Lakukan Absensi Lagi
+        </button>
+      </div>
+    </div>
+
+    <!-- Today's Summary -->
+    <div class="card" style="margin-top: 2rem;">
+      <div class="card-header">
+        <h3 style="font-size: 1.125rem; font-weight: 600;">
+          <i class="fas fa-chart-bar" style="margin-right: 0.5rem; color: var(--primary-color);"></i>
+          Ringkasan Hari Ini
+        </h3>
+      </div>
+      <div class="summary-cards-grid">
+        <div class="summary-card">
+          <div class="summary-card-content">
+            <div class="summary-card-text">
+              <span class="summary-card-label">Total Absensi</span>
+              <div class="summary-card-value" id="totalAttendance">0</div>
+            </div>
+            <div class="summary-card-icon">
+              <i class="fas fa-calendar-check"></i>
+            </div>
+          </div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-card-content">
+            <div class="summary-card-text">
+              <span class="summary-card-label">Status Terakhir</span>
+              <div id="lastStatus" class="badge badge-warning summary-card-badge">Belum absen</div>
+            </div>
+            <div class="summary-card-icon">
+              <i class="fas fa-info-circle"></i>
+            </div>
+          </div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-card-content">
+            <div class="summary-card-text">
+              <span class="summary-card-label">Aktivitas Terakhir</span>
+              <div class="summary-card-value" id="lastTime">-</div>
+            </div>
+            <div class="summary-card-icon">
+              <i class="fas fa-clock"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Attendance History -->
+    <div class="card" style="margin-top: 2rem;">
+      <div class="card-header">
+        <h3 style="font-size: 1.125rem; font-weight: 600;">
+          <i class="fas fa-history" style="margin-right: 0.5rem; color: var(--primary-color);"></i>
+          Riwayat Absensi
+        </h3>
+      </div>
+      <div id="recentAttendance">
+        <div class="recent-attendance-loading">
+          <div class="loading-icon">
+            <i class="fas fa-spinner spinner"></i>
+          </div>
+          <p>Memuat data riwayat...</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Location Error Modal -->
+  <div id="locationModal" class="modal">
+    <div class="modal-content" style="max-width: 400px;">
+      <div style="padding: 2rem; text-align: center;">
+        <div style="width: 64px; height: 64px; margin: 0 auto 1.5rem; background: var(--error-color); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+          <i class="fas fa-map-marker-alt" style="font-size: 1.5rem; color: white;"></i>
+        </div>
+        <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 1rem; color: var(--text-primary);">Izin Lokasi Diperlukan</h3>
+        <p style="margin-bottom: 1.5rem; color: var(--text-secondary); line-height: 1.6;">
+          Sistem absensi memerlukan akses lokasi untuk memverifikasi kehadiran Anda di area sekolah demi keamanan dan akurasi.
+        </p>
+        <div style="background: #f8fafc; padding: 1rem; border-radius: 0.5rem; margin-bottom: 1.5rem; border: 1px solid var(--border-color);">
+          <div style="display: flex; align-items: center; justify-content: center;">
+            <i class="fas fa-shield-alt" style="margin-right: 0.5rem; color: var(--success-color);"></i>
+            <span style="font-size: 0.875rem; color: var(--text-secondary);">Data lokasi Anda dienkripsi dan aman</span>
+          </div>
+        </div>
+        <div class="flex space-x-3">
+          <button class="btn btn-secondary" onclick="closeLocationModal()" style="flex: 1;">Tutup</button>
+          <button class="btn btn-primary" onclick="requestLocationPermission()" style="flex: 1;">
+            <i class="fas fa-location-arrow" style="margin-right: 0.5rem;"></i>
+            Aktifkan GPS
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Change Password Modal -->
+  <div id="changePasswordModal" class="modal">
+    <div class="modal-content" style="max-width: 500px;">
+      <div style="padding: 2rem; text-align: center;">
+        <div style="width: 64px; height: 64px; margin: 0 auto 1.5rem; background: var(--primary-color); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+          <i class="fas fa-key" style="font-size: 1.5rem; color: white;"></i>
+        </div>
+        <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 1rem; color: var(--text-primary);">Ganti Password</h3>
+        <p style="margin-bottom: 1.5rem; color: var(--text-secondary); line-height: 1.6;">
+          Untuk keamanan akun, silakan ganti password default Anda.
+        </p>
+        <div style="text-align: left; margin-bottom: 1.5rem;">
+          <div style="margin-bottom: 1rem;">
+            <label for="oldPassword" style="display: block; font-size: 0.875rem; font-weight: 600; color: var(--text-primary); margin-bottom: 0.5rem;">Password Lama</label>
+            <input type="password" id="oldPassword" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 0.5rem; font-size: 1rem;" placeholder="Masukkan password lama">
+          </div>
+          <div style="margin-bottom: 1rem;">
+            <label for="newPassword" style="display: block; font-size: 0.875rem; font-weight: 600; color: var(--text-primary); margin-bottom: 0.5rem;">Password Baru</label>
+            <input type="password" id="newPassword" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 0.5rem; font-size: 1rem;" placeholder="Minimal 6 karakter">
+          </div>
+          <div style="margin-bottom: 1rem;">
+            <label for="confirmPassword" style="display: block; font-size: 0.875rem; font-weight: 600; color: var(--text-primary); margin-bottom: 0.5rem;">Konfirmasi Password Baru</label>
+            <input type="password" id="confirmPassword" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 0.5rem; font-size: 1rem;" placeholder="Ulangi password baru">
+          </div>
+        </div>
+        <div class="flex space-x-3">
+          <button class="btn btn-secondary" onclick="closeChangePasswordModal()" style="flex: 1;">Nanti Saja</button>
+          <button class="btn btn-primary" onclick="changePassword()" style="flex: 1;">
+            <i class="fas fa-save" style="margin-right: 0.5rem;"></i>
+            Ganti Password
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dinas Luar Modal -->
+  <div id="dinasLuarModal" class="modal">
+    <div class="modal-content" style="max-width: 600px;">
+      <div style="padding: 2rem;">
+        <div style="width: 64px; height: 64px; margin: 0 auto 1.5rem; background: #f59e0b; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+          <i class="fas fa-briefcase" style="font-size: 1.5rem; color: white;"></i>
+        </div>
+        <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 1rem; color: var(--text-primary); text-align: center;">Absensi Dinas Luar</h3>
+        <p style="margin-bottom: 1.5rem; color: var(--text-secondary); line-height: 1.6; text-align: center;">
+          Anda berada di unit <strong id="dinasUnitName"></strong>. Apakah Anda melakukan dinas luar di unit ini?
+        </p>
+        <div style="text-align: left; margin-bottom: 1.5rem;">
+          <div style="margin-bottom: 1rem;">
+            <label for="kegiatanDinas" style="display: block; font-size: 0.875rem; font-weight: 600; color: var(--text-primary); margin-bottom: 0.5rem;">Kegiatan yang Dilakukan</label>
+            <textarea id="kegiatanDinas" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 0.5rem; font-size: 1rem; min-height: 80px;" placeholder="Jelaskan kegiatan yang Anda lakukan di unit ini..."></textarea>
+          </div>
+          <div style="margin-bottom: 1rem;">
+            <label for="selfieInput" style="display: block; font-size: 0.875rem; font-weight: 600; color: var(--text-primary); margin-bottom: 0.5rem;">Foto Selfie (Opsional)</label>
+            <input type="file" id="selfieInput" accept="image/*" capture="user" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 0.5rem; font-size: 1rem;">
+            <small style="color: var(--text-muted); font-size: 0.75rem;">Foto selfie untuk verifikasi kehadiran</small>
+          </div>
+        </div>
+        <div class="flex space-x-3">
+          <button class="btn btn-secondary" onclick="closeDinasLuarModal()" style="flex: 1;">Batal</button>
+          <button class="btn btn-primary" onclick="submitDinasLuar()" style="flex: 1;">
+            <i class="fas fa-paper-plane" style="margin-right: 0.5rem;"></i>
+            Kirim Absensi Dinas Luar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
+
+
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script>
+    const token = localStorage.getItem('token');
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+
+    if (!token) {
+      window.location.href = 'login.html';
+    }
+
+    async function setTeacherInfo() {
+      try {
+        const response = await fetch('/api/teacher/info', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await response.json();
+        if (data.success) {
+          const teacher = data.teacher;
+          const assignments = data.assignments;
+          document.getElementById('teacherName').textContent = teacher.nama || user.username || 'Guru';
+          const schoolNames = assignments.map(a => a.nama_sekolah || a.tenant_id).join(', ');
+          document.getElementById('teacherDetails').textContent = `Unit Sekolah: ${schoolNames || 'Tidak ada'}`;
+
+          // Set user photo if available
+          const userPhotoElement = document.getElementById('userPhoto');
+          if (teacher.link_foto && teacher.link_foto.trim() !== '' && teacher.link_foto !== 'null' && teacher.link_foto !== null) {
+            userPhotoElement.src = teacher.link_foto;
+            userPhotoElement.onload = showUserPhoto;
+            userPhotoElement.onerror = showFallbackAvatar;
+            console.log('Setting user photo:', teacher.link_foto);
+            // Don't call showAvatarFallback here - let onload/onerror handle it
+          } else {
+            userPhotoElement.src = '';
+            showAvatarFallback(true);
+            console.log('Using default avatar for user');
+          }
+
+          // Store assignments for location detection
+          window.userAssignments = assignments;
+        } else {
+          document.getElementById('teacherName').textContent = user.username || 'Guru';
+          document.getElementById('teacherDetails').textContent = 'Gagal memuat detail';
+        }
+      } catch (error) {
+        console.error('Error loading teacher info:', error);
+        document.getElementById('teacherName').textContent = user.username || 'Guru';
+        document.getElementById('teacherDetails').textContent = 'Gagal memuat detail';
+      }
+    }
+
+    let currentLocation = null;
+
+    function updateLocationDisplay(success, message) {
+      const locationInfo = document.getElementById('locationInfo');
+      locationInfo.className = success ? 'location-info success' : 'location-info error';
+      locationInfo.innerHTML = `<span>${message}</span>`;
+    }
+
+    function getLocationErrorMessage(error) {
+      switch(error.code) {
+        case error.PERMISSION_DENIED:
+          return 'Akses lokasi ditolak. Izinkan akses lokasi untuk melanjutkan.';
+        case error.POSITION_UNAVAILABLE:
+          return 'Lokasi tidak tersedia. Pastikan GPS aktif.';
+        case error.TIMEOUT:
+          return 'Timeout mendapatkan lokasi. Coba lagi.';
+        default:
+          return 'Error mendapatkan lokasi: ' + error.message;
+      }
+    }
+
+    function enableAttendanceButtons() {
+      // Don't enable buttons automatically - wait for radius validation
+      updateAttendanceButtonsState();
+    }
+
+    function updateAttendanceButtonsState() {
+      console.log('updateAttendanceButtonsState called, currentLocation:', currentLocation);
+      const checkInBtn = document.getElementById('checkInBtn');
+      const checkOutBtn = document.getElementById('checkOutBtn');
+      const locationInfo = document.getElementById('locationInfo');
+
+      if (!currentLocation) {
+        // No location available
+        checkInBtn.disabled = true;
+        checkOutBtn.disabled = true;
+        locationInfo.className = 'location-info error';
+        locationInfo.innerHTML = '<span>❌ Lokasi tidak tersedia. Aktifkan GPS untuk absensi.</span>';
+        return;
+      }
+
+      // Validate radius with nearest school
+      validateLocationRadius(currentLocation.latitude, currentLocation.longitude)
+        .then(result => {
+          console.log('Radius validation result in updateAttendanceButtonsState:', result);
+          if (result.withinRadius) {
+            // Within radius - enable buttons
+            checkInBtn.disabled = false;
+            checkOutBtn.disabled = false;
+            locationInfo.className = 'location-info success';
+            locationInfo.innerHTML = `<span>✅ Lokasi valid - Dalam radius ${result.radius}m dari ${result.schoolName}</span>`;
+          } else {
+            // Check if can do dinas luar
+            checkDinasLuar(currentLocation.latitude, currentLocation.longitude)
+              .then(dinasCheck => {
+                if (dinasCheck.canDinasLuar) {
+                  // Can do dinas luar - enable buttons with warning
+                  checkInBtn.disabled = false;
+                  checkOutBtn.disabled = false;
+                  locationInfo.className = 'location-info warning';
+                  locationInfo.innerHTML = `<span>⚠️ Di luar unit utama - Dinas luar di ${dinasCheck.unit.nama_sekolah}</span>`;
+                } else {
+                  // Outside all radii - disable buttons
+                  checkInBtn.disabled = true;
+                  checkOutBtn.disabled = true;
+                  locationInfo.className = 'location-info error';
+                  locationInfo.innerHTML = `<span>❌ Di luar radius semua unit sekolah</span>`;
+                }
+              })
+              .catch(error => {
+                console.error('Dinas luar check error:', error);
+                // On error, disable buttons
+                checkInBtn.disabled = true;
+                checkOutBtn.disabled = true;
+                locationInfo.className = 'location-info error';
+                locationInfo.innerHTML = `<span>❌ Di luar radius! Jarak ${result.distance.toFixed(0)}m dari ${result.schoolName} (max ${result.radius}m)</span>`;
+              });
+          }
+        })
+        .catch(error => {
+          console.error('Radius validation error:', error);
+          // On error, enable buttons as fallback (don't block users due to technical issues)
+          checkInBtn.disabled = false;
+          checkOutBtn.disabled = false;
+          locationInfo.className = 'location-info warning';
+          locationInfo.innerHTML = '<span>⚠️ Gagal memvalidasi lokasi. Absensi tetap diizinkan.</span>';
+        });
+    }
+
+    async function validateLocationRadius(userLat, userLng) {
+      try {
+        // Only check assigned units
+        if (window.userAssignments && window.userAssignments.length > 0) {
+          for (const assignment of window.userAssignments) {
+            // Get unit coordinates
+            const response = await fetch(`/api/tenants/${assignment.tenant_id}`, {
+              headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (response.ok) {
+              const unitData = await response.json();
+              if (unitData.success && unitData.tenant.latitude && unitData.tenant.longitude) {
+                const distance = calculateDistance(userLat, userLng, parseFloat(unitData.tenant.latitude), parseFloat(unitData.tenant.longitude));
+                const radius = unitData.tenant.location_radius || 200;
+                if (distance * 1000 <= radius) {
+                  console.log('Within assigned unit:', unitData.tenant.nama_sekolah);
+                  return {
+                    withinRadius: true,
+                    distance: distance * 1000,
+                    radius: radius,
+                    schoolName: unitData.tenant.nama_sekolah
+                  };
+                }
+              }
+            }
+          }
+        }
+
+        // Not within any assigned unit
+        console.log('Not within any assigned unit');
+        return {
+          withinRadius: false,
+          distance: 0,
+          radius: 0,
+          schoolName: 'Tidak dalam unit assigned'
+        };
+      } catch (error) {
+        console.error('Error validating assigned radius:', error);
+        // Return not within on error (safer)
+        return {
+          withinRadius: false,
+          distance: 0,
+          radius: 0,
+          schoolName: 'Error validasi'
+        };
+      }
+    }
+
+    function calculateDistance(lat1, lng1, lat2, lng2) {
+      const R = 6371; // Earth's radius in kilometers
+      const dLat = (lat2 - lat1) * Math.PI / 180;
+      const dLng = (lng2 - lng1) * Math.PI / 180;
+      const a =
+        Math.sin(dLat/2) * Math.sin(dLat/2) +
+        Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+        Math.sin(dLng/2) * Math.sin(dLng/2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+      const distance = R * c;
+      return distance;
+    }
+
+    async function checkDinasLuar(userLat, userLng) {
+      try {
+        const response = await fetch('/api/units/all', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch all units');
+        }
+
+        const data = await response.json();
+
+        if (!data.success || !data.units) {
+          return { canDinasLuar: false };
+        }
+
+        for (const unit of data.units) {
+          if (!unit.latitude || !unit.longitude) continue;
+
+          const distance = calculateDistance(userLat, userLng, parseFloat(unit.latitude), parseFloat(unit.longitude));
+          const radius = unit.location_radius || 200;
+
+          if (distance * 1000 <= radius) {
+            return {
+              canDinasLuar: true,
+              unit: unit
+            };
+          }
+        }
+
+        return { canDinasLuar: false };
+      } catch (error) {
+        console.error('Error checking dinas luar:', error);
+        return { canDinasLuar: false };
+      }
+    }
+
+    async function detectNearbyUnits(lat, lng) {
+      try {
+        const response = await fetch(`/api/units/nearby?lat=${lat}&lng=${lng}`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await response.json();
+        if (data.success) {
+          const nearestUnit = data.nearestUnit;
+          if (nearestUnit) {
+            console.log('Nearest unit detected:', nearestUnit);
+            // Update UI to show nearest unit
+            const locationInfo = document.getElementById('locationInfo');
+            const existingText = locationInfo.querySelector('span').textContent;
+            locationInfo.innerHTML = `<span>${existingText}<br><small>🏫 Unit Terdekat: ${nearestUnit.nama_sekolah} (${nearestUnit.distance.toFixed(1)}km)</small></span>`;
+          }
+        }
+      } catch (error) {
+        console.error('Error detecting nearby units:', error);
+      }
+    }
+
+    let locationWatcher = null;
+
+    function requestLocationPermission() {
+      if ('geolocation' in navigator) {
+        // Initial location request
+        navigator.geolocation.getCurrentPosition(
+          async function(position) {
+            currentLocation = {
+              latitude: position.coords.latitude,
+              longitude: position.coords.longitude,
+              accuracy: position.coords.accuracy
+            };
+            updateLocationDisplay(true, `Lokasi didapatkan (${Math.round(position.coords.accuracy)}m akurasi)`);
+            updateAttendanceButtonsState();
+
+            // Detect nearby units
+            await detectNearbyUnits(position.coords.latitude, position.coords.longitude);
+
+            // Start watching for location changes
+            startLocationWatcher();
+          },
+          function(error) {
+            console.error('Location error:', error);
+            updateLocationDisplay(false, getLocationErrorMessage(error));
+            updateAttendanceButtonsState();
+          },
+          {
+            enableHighAccuracy: true,
+            timeout: 20000,
+            maximumAge: 300000
+          }
+        );
+      } else {
+        updateLocationDisplay(false, 'Geolokasi tidak didukung oleh browser ini.');
+        updateAttendanceButtonsState();
+      }
+    }
+
+    function startLocationWatcher() {
+      if (locationWatcher) {
+        navigator.geolocation.clearWatch(locationWatcher);
+      }
+
+      locationWatcher = navigator.geolocation.watchPosition(
+        function(position) {
+          // Update location if it changed significantly (>10 meters)
+          const newLocation = {
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude,
+            accuracy: position.coords.accuracy
+          };
+
+          const distanceChanged = currentLocation ?
+            calculateDistance(
+              currentLocation.latitude, currentLocation.longitude,
+              newLocation.latitude, newLocation.longitude
+            ) * 1000 > 10 : true; // Always update if no previous location
+
+          if (distanceChanged) {
+            console.log('Location changed, updating status...');
+            currentLocation = newLocation;
+            updateLocationDisplay(true, `Lokasi diperbarui (${Math.round(position.coords.accuracy)}m akurasi)`);
+            updateAttendanceButtonsState();
+          }
+        },
+        function(error) {
+          console.warn('Location watch error:', error);
+          // Don't update display for watch errors, keep current status
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 15000,
+          maximumAge: 60000
+        }
+      );
+    }
+
+    async function recordAttendance(jenis) {
+      if (!currentLocation) {
+        alert('Lokasi belum didapatkan. Silakan coba lagi.');
+        return;
+      }
+
+      // Validate radius before allowing attendance
+      try {
+        const radiusCheck = await validateLocationRadius(currentLocation.latitude, currentLocation.longitude);
+        if (!radiusCheck.withinRadius) {
+          // Check if can do dinas luar
+          const dinasCheck = await checkDinasLuar(currentLocation.latitude, currentLocation.longitude);
+          if (dinasCheck.canDinasLuar) {
+            showDinasLuarModal(jenis, dinasCheck);
+            return;
+          } else {
+            alert(`❌ Tidak dapat absen!\n\nAnda berada di luar radius lokasi semua sekolah.`);
+            return;
+          }
+        }
+      } catch (error) {
+        console.error('Radius validation error:', error);
+        // Allow attendance if validation fails (fallback)
+      }
+
+      const metode = 'dashboard';
+      const checkInBtn = document.getElementById('checkInBtn');
+      const checkOutBtn = document.getElementById('checkOutBtn');
+
+      checkInBtn.disabled = true;
+      checkOutBtn.disabled = true;
+
+      const originalText = jenis === 'masuk' ? checkInBtn.innerHTML : checkOutBtn.innerHTML;
+      const processingBtn = jenis === 'masuk' ? checkInBtn : checkOutBtn;
+      processingBtn.innerHTML = '<i class="fas fa-spinner spinner" style="margin-right: 0.5rem;"></i>Menyimpan...';
+
+      try {
+        if (!navigator.onLine) {
+          const offlineData = JSON.parse(localStorage.getItem('offlineAttendance') || '[]');
+          const attendanceRecord = {
+            id: Date.now(),
+            jenis: jenis,
+            metode: metode,
+            latitude: currentLocation.latitude,
+            longitude: currentLocation.longitude,
+            token: token,
+            timestamp: new Date().toISOString()
+          };
+          offlineData.push(attendanceRecord);
+          localStorage.setItem('offlineAttendance', JSON.stringify(offlineData));
+          showAttendanceResult(true, 'Absensi disimpan offline. Akan dikirim saat online.', { offline: true });
+          loadTodaySummary();
+          return;
+        }
+
+        const response = await fetch('/api/attendance', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            jenis: jenis,
+            metode: metode,
+            latitude: currentLocation.latitude,
+            longitude: currentLocation.longitude
+          })
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          showAttendanceResult(true, result.message, result.data);
+          loadTodaySummary();
+        } else {
+          showAttendanceResult(false, result.message);
+        }
+      } catch (error) {
+        console.error('Attendance error:', error);
+        showAttendanceResult(false, 'Terjadi kesalahan saat mengirim absensi');
+      } finally {
+        checkInBtn.disabled = false;
+        checkOutBtn.disabled = false;
+        processingBtn.innerHTML = originalText;
+      }
+    }
+
+    function showAttendanceResult(success, message, data = null) {
+      const icon = success ? 'check-circle' : 'exclamation-triangle';
+      const color = success ? 'green' : 'red';
+      const title = success ? 'Berhasil' : 'Gagal';
+
+      Swal.fire({
+        title: title,
+        text: message,
+        icon: success ? 'success' : 'error',
+        confirmButtonColor: '#066e3a'
+      });
+    }
+
+    function updateConnectionStatus() {
+      const statusEl = document.getElementById('connectionStatus');
+      if (navigator.onLine) {
+        statusEl.innerHTML = '<i class="fas fa-circle text-green-500 mr-1"></i>Sistem Online';
+        statusEl.className = 'badge badge-success';
+      } else {
+        statusEl.innerHTML = '<i class="fas fa-wifi-slash text-red-500 mr-1"></i>Koneksi Offline';
+        statusEl.className = 'badge badge-error';
+      }
+    }
+
+    function showOfflineMessage() {
+      updateConnectionStatus();
+    }
+
+    async function syncOfflineAttendance() {
+      updateConnectionStatus();
+
+      try {
+        const offlineData = JSON.parse(localStorage.getItem('offlineAttendance') || '[]');
+        if (offlineData.length === 0) return;
+
+        let syncedCount = 0;
+        for (const data of offlineData) {
+          try {
+            const response = await fetch('/api/attendance', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${data.token}`
+              },
+              body: JSON.stringify({
+                jenis: data.jenis,
+                metode: data.metode,
+                latitude: data.latitude,
+                longitude: data.longitude
+              })
+            });
+
+            if (response.ok) {
+              syncedCount++;
+              const index = offlineData.indexOf(data);
+              offlineData.splice(index, 1);
+            }
+          } catch (error) {
+            console.error('Failed to sync:', data.id, error);
+          }
+        }
+
+        localStorage.setItem('offlineAttendance', JSON.stringify(offlineData));
+
+        if (syncedCount > 0) {
+          showAttendanceResult(true, `${syncedCount} absensi offline berhasil dikirim`);
+          loadTodaySummary();
+        }
+      } catch (error) {
+        console.error('Sync error:', error);
+      }
+    }
+
+    function updateAttendanceButtons(hasMasuk, hasPulang) {
+      const checkInBtn = document.getElementById('checkInBtn');
+      const checkOutBtn = document.getElementById('checkOutBtn');
+
+      if (!hasMasuk) {
+        checkInBtn.style.display = 'inline-block';
+        checkOutBtn.style.display = 'none';
+        checkInBtn.disabled = true; // Start disabled, updateAttendanceButtonsState will enable if valid
+        checkInBtn.innerHTML = '<i class="fas fa-sign-in-alt" style="margin-right: 0.5rem;"></i>Absen Masuk';
+      } else if (!hasPulang) {
+        checkInBtn.style.display = 'none';
+        checkOutBtn.style.display = 'inline-block';
+        checkOutBtn.disabled = true; // Start disabled, updateAttendanceButtonsState will enable if valid
+        checkOutBtn.innerHTML = '<i class="fas fa-sign-out-alt" style="margin-right: 0.5rem;"></i>Absen Pulang';
+      } else {
+        checkInBtn.style.display = 'none';
+        checkOutBtn.style.display = 'none';
+        updateLocationDisplay(true, 'Absensi hari ini telah lengkap ✅');
+      }
+    }
+
+    async function loadTodaySummary() {
+      console.log('loadTodaySummary called');
+      try {
+        const response = await fetch('/api/dashboard', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        console.log('response status:', response.status);
+
+        let data = null;
+        if (response.ok) {
+          data = await response.json();
+          if (data.success) {
+            document.getElementById('totalAttendance').textContent = data.data.totalAbsensi;
+            document.getElementById('lastStatus').textContent = data.data.absensiToday;
+            document.getElementById('lastStatus').className = data.data.absensiToday === 'Belum absen' ? 'badge badge-warning' : 'badge badge-success';
+
+            // Update attendance buttons based on today's status
+            updateAttendanceButtons(data.data.hasMasuk, data.data.hasPulang);
+          }
+        }
+
+            console.log('Checking password modal:', { data_user: data?.data?.user, is_default_password: data?.data?.user?.is_default_password });
+            if (data && data.data && data.data.user && data.data.user.is_default_password) {
+              console.log('Showing password change modal now');
+              const modal = document.getElementById('changePasswordModal');
+              console.log('Modal element:', modal);
+              if (modal) {
+                modal.classList.add('show');
+                console.log('Modal classes after:', modal.className);
+              } else {
+                console.error('Modal not found');
+              }
+            } else {
+              console.log('Not showing modal - conditions not met');
+            }
+
+      } catch (error) {
+        console.error('Summary load error:', error);
+      }
+    }
+
+
+
+
+
+    async function loadRecentAttendance() {
+      console.log('Loading recent attendance');
+      try {
+        const response = await fetch('/api/attendance-history', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        console.log('Attendance history response status:', response.status);
+
+        const recentDiv = document.getElementById('recentAttendance');
+
+        if (response.ok) {
+          const data = await response.json();
+          console.log('Attendance history data:', data);
+          if (data.success && data.data.length > 0) {
+            recentDiv.innerHTML = data.data.map(attendance => `
+              <div class="recent-attendance-item">
+                <div class="recent-attendance-content">
+                  <div class="recent-attendance-title">${attendance.jenis === 'masuk' ? 'Absen Masuk' : 'Absen Pulang'}</div>
+                  <div class="recent-attendance-time">${new Date(attendance.waktu_scan).toLocaleString('id-ID')}</div>
+                </div>
+                <span class="badge ${attendance.status === 'tepat_waktu' ? 'badge-success' : 'badge-warning'}">
+                  ${attendance.status === 'tepat_waktu' ? 'Tepat Waktu' : 'Terlambat'}
+                </span>
+              </div>
+            `).join('');
+          } else {
+            recentDiv.innerHTML = '<p class="text-center text-gray-500">Belum ada riwayat absensi</p>';
+          }
+        } else {
+          console.log('Response not ok');
+          recentDiv.innerHTML = '<p class="text-center text-red-500">Gagal memuat riwayat</p>';
+        }
+      } catch (error) {
+        console.error('Recent attendance load error:', error);
+        document.getElementById('recentAttendance').innerHTML = '<p class="text-center text-red-500">Error loading data</p>';
+      }
+    }
+
+    function logout() {
+      console.log('Logout called');
+      if (confirm('Apakah Anda yakin ingin logout?')) {
+        localStorage.clear();
+        window.location.replace('login.html');
+      }
+    }
+
+    function closeChangePasswordModal() {
+      document.getElementById('changePasswordModal').classList.remove('show');
+      // Clear fields
+      document.getElementById('oldPassword').value = '';
+      document.getElementById('newPassword').value = '';
+      document.getElementById('confirmPassword').value = '';
+    }
+
+    let currentDinasJenis = null;
+    let currentDinasUnit = null;
+
+    function showDinasLuarModal(jenis, dinasCheck) {
+      currentDinasJenis = jenis;
+      currentDinasUnit = dinasCheck.unit;
+      document.getElementById('dinasUnitName').textContent = dinasCheck.unit.nama_sekolah;
+      document.getElementById('dinasLuarModal').classList.add('show');
+    }
+
+    function closeDinasLuarModal() {
+      document.getElementById('dinasLuarModal').classList.remove('show');
+      document.getElementById('kegiatanDinas').value = '';
+      document.getElementById('selfieInput').value = '';
+      currentDinasJenis = null;
+      currentDinasUnit = null;
+    }
+
+    async function submitDinasLuar() {
+      const kegiatan = document.getElementById('kegiatanDinas').value.trim();
+      if (!kegiatan) {
+        Swal.fire('Error', 'Harap isi kegiatan yang dilakukan', 'error');
+        return;
+      }
+
+      const metode = 'dashboard';
+      const checkInBtn = document.getElementById('checkInBtn');
+      const checkOutBtn = document.getElementById('checkOutBtn');
+
+      checkInBtn.disabled = true;
+      checkOutBtn.disabled = true;
+
+      const originalText = currentDinasJenis === 'masuk' ? checkInBtn.innerHTML : checkOutBtn.innerHTML;
+      const processingBtn = currentDinasJenis === 'masuk' ? checkInBtn : checkOutBtn;
+      processingBtn.innerHTML = '<i class="fas fa-spinner spinner" style="margin-right: 0.5rem;"></i>Menyimpan...';
+
+      try {
+        const formData = new FormData();
+        formData.append('jenis', currentDinasJenis);
+        formData.append('metode', metode);
+        formData.append('latitude', currentLocation.latitude);
+        formData.append('longitude', currentLocation.longitude);
+        formData.append('dinas_luar', 'true');
+        formData.append('kegiatan_dinas', kegiatan);
+
+        const selfieInput = document.getElementById('selfieInput');
+        if (selfieInput.files[0]) {
+          formData.append('selfie', selfieInput.files[0]);
+        }
+
+        const response = await fetch('/api/attendance', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          },
+          body: formData
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          showAttendanceResult(true, result.message + ' (Dinas Luar)', result.data);
+          loadTodaySummary();
+          closeDinasLuarModal();
+        } else {
+          showAttendanceResult(false, result.message);
+        }
+      } catch (error) {
+        console.error('Dinas luar error:', error);
+        showAttendanceResult(false, 'Terjadi kesalahan saat mengirim absensi dinas luar');
+      } finally {
+        checkInBtn.disabled = false;
+        checkOutBtn.disabled = false;
+        processingBtn.innerHTML = originalText;
+      }
+    }
+
+    async function changePassword() {
+      const oldPassword = document.getElementById('oldPassword').value;
+      const newPassword = document.getElementById('newPassword').value;
+      const confirmPassword = document.getElementById('confirmPassword').value;
+
+      if (!oldPassword || !newPassword || !confirmPassword) {
+        Swal.fire('Error', 'Semua field harus diisi', 'error');
+        return;
+      }
+
+      if (newPassword !== confirmPassword) {
+        Swal.fire('Error', 'Password baru dan konfirmasi tidak cocok', 'error');
+        return;
+      }
+
+      if (newPassword.length < 8) {
+        Swal.fire('Error', 'Password baru minimal 8 karakter', 'error');
+        return;
+      }
+
+      // Check password strength
+      if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(newPassword)) {
+        Swal.fire('Error', 'Password harus mengandung huruf besar, huruf kecil, dan angka', 'error');
+        return;
+      }
+
+      try {
+        const response = await fetch('/api/change-password', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            oldPassword: oldPassword,
+            newPassword: newPassword,
+            confirmPassword: confirmPassword
+          })
+        });
+
+        const result = await response.json();
+        if (result.success) {
+          Swal.fire('Berhasil', 'Password berhasil diubah', 'success');
+          closeChangePasswordModal();
+        } else {
+          Swal.fire('Error', result.message, 'error');
+        }
+      } catch (error) {
+        console.error('Change password error:', error);
+        Swal.fire('Error', 'Terjadi kesalahan', 'error');
+      }
+    }
+
+    // Profile photo functions
+    function changeProfilePhoto() {
+      // Create file input dynamically
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = 'image/*';
+      input.onchange = function(e) {
+        const file = e.target.files[0];
+        if (file) {
+          uploadProfilePhoto(file);
+        }
+      };
+      input.click();
+    }
+
+    async function uploadProfilePhoto(file) {
+      const formData = new FormData();
+      formData.append('photo', file);
+
+      try {
+        const response = await fetch('/api/upload-profile-photo', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          },
+          body: formData
+        });
+
+        const result = await response.json();
+        if (result.success) {
+          // Update photo immediately
+          document.getElementById('userPhoto').src = result.photoUrl;
+          showAvatarFallback(false);
+          Swal.fire('Berhasil', 'Foto profil berhasil diperbarui', 'success');
+        } else {
+          Swal.fire('Error', result.message, 'error');
+        }
+      } catch (error) {
+        console.error('Upload error:', error);
+        Swal.fire('Error', 'Gagal mengupload foto', 'error');
+      }
+    }
+
+    function showAvatarFallback(show) {
+      const fallback = document.getElementById('avatarFallback');
+      const img = document.getElementById('userPhoto');
+
+      if (show) {
+        fallback.classList.add('show');
+        img.style.display = 'none';
+      } else {
+        fallback.classList.remove('show');
+        img.style.display = 'block';
+      }
+    }
+
+    function showFallbackAvatar(img) {
+      // Called when image fails to load
+      console.log('Image failed to load, showing fallback');
+      showAvatarFallback(true);
+    }
+
+    function showUserPhoto() {
+      // Called when image loads successfully
+      console.log('Image loaded successfully, hiding fallback');
+      const fallback = document.getElementById('avatarFallback');
+      const img = document.getElementById('userPhoto');
+      fallback.classList.remove('show');
+      img.style.display = 'block';
+    }
+
+    // Initialize on load
+    initializeDashboard();
+
+    function initializeDashboard() {
+      console.log('Initializing dashboard');
+      setTeacherInfo();
+      requestLocationPermission();
+      loadTodaySummary();
+      loadRecentAttendance();
+      updateConnectionStatus();
+
+      window.addEventListener('online', syncOfflineAttendance);
+      window.addEventListener('offline', showOfflineMessage);
+    }
+  </script>
+</body>
+</html>

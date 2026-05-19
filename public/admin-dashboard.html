@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -14,27 +15,66 @@
   <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
-    body { font-family: 'Inter', sans-serif; }
-    .nav-active { background-color: #3b82f6; color: white; }
-    .modal { display: none; }
-    .modal.show { display: flex; }
-    .chart-placeholder { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-size: 24px; font-weight: bold; }
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+
+    .nav-active {
+      background-color: #3b82f6;
+      color: white;
+    }
+
+    .modal {
+      display: none;
+    }
+
+    .modal.show {
+      display: flex;
+    }
+
+    .chart-placeholder {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 24px;
+      font-weight: bold;
+    }
+
     .skeleton-loader {
       background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
       background-size: 200% 100%;
       animation: loading 1.5s infinite;
     }
+
     @keyframes loading {
-      0% { background-position: 200% 0; }
-      100% { background-position: -200% 0; }
+      0% {
+        background-position: 200% 0;
+      }
+
+      100% {
+        background-position: -200% 0;
+      }
     }
+
     .skeleton-text {
       height: 1.25rem;
       border-radius: 4px;
       margin-bottom: 0.5rem;
     }
-    .skeleton-text-lg { height: 2rem; width: 60%; }
-    .skeleton-text-md { height: 1.5rem; width: 40%; }
+
+    .skeleton-text-lg {
+      height: 2rem;
+      width: 60%;
+    }
+
+    .skeleton-text-md {
+      height: 1.5rem;
+      width: 40%;
+    }
+
     .skeleton-avatar {
       width: 2.5rem;
       height: 2.5rem;
@@ -43,6 +83,7 @@
     }
   </style>
 </head>
+
 <body class="bg-gray-50 min-h-screen">
   <div class="flex min-h-screen">
     <!-- Sidebar -->
@@ -59,48 +100,67 @@
         </div>
       </div>
 
-<nav class="p-4 space-y-2">
-         <button class="nav-item nav-active w-full text-left flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-100" data-tab="dashboard">
-           <i class="fas fa-chart-line"></i>
-           <span>Dashboard</span>
-         </button>
-         <button class="nav-item w-full text-left flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-100" data-tab="teachers">
-           <i class="fas fa-users"></i>
-           <span>Manajemen Guru</span>
-         </button>
-         <button class="nav-item w-full text-left flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-100" data-tab="evaluations">
-           <i class="fas fa-star"></i>
-           <span>Penilaian Guru Otomatis</span>
-         </button>
-         <button class="nav-item w-full text-left flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-100" data-tab="attendance">
-           <i class="fas fa-clipboard-list"></i>
-           <span>Log Kehadiran</span>
-         </button>
-         <button class="nav-item w-full text-left flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-100" data-tab="whatsapp">
-           <i class="fab fa-whatsapp"></i>
-           <span>Pesan WhatsApp</span>
-         </button>
-         <button class="nav-item w-full text-left flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-100" data-tab="payroll">
-           <i class="fas fa-wallet"></i>
-           <span>Penggajian</span>
-         </button>
-         <button class="nav-item w-full text-left flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-100" data-tab="documents">
-           <i class="fas fa-file-alt"></i>
-           <span>Dokumen HR</span>
-         </button>
-         <button class="nav-item w-full text-left flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-100" data-tab="qr-generator">
-           <i class="fas fa-qrcode"></i>
-           <span>QR Scanner & Generator</span>
-         </button>
-         <button class="nav-item w-full text-left flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-100" data-tab="settings">
-           <i class="fas fa-cog"></i>
-           <span>Pengaturan</span>
-         </button>
-         <a href="/template-editor.html" target="_blank" class="w-full text-left flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-100">
-           <i class="fas fa-file-edit"></i>
-           <span>Editor Template PDF</span>
-         </a>
-       </nav>
+      <nav class="p-4 space-y-2">
+        <button
+          class="nav-item nav-active w-full text-left flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-100"
+          data-tab="dashboard">
+          <i class="fas fa-chart-line"></i>
+          <span>Dashboard</span>
+        </button>
+        <button
+          class="nav-item w-full text-left flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-100"
+          data-tab="teachers">
+          <i class="fas fa-users"></i>
+          <span>Manajemen Guru</span>
+        </button>
+        <button
+          class="nav-item w-full text-left flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-100"
+          data-tab="evaluations">
+          <i class="fas fa-star"></i>
+          <span>Penilaian Guru Otomatis</span>
+        </button>
+        <button
+          class="nav-item w-full text-left flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-100"
+          data-tab="attendance">
+          <i class="fas fa-clipboard-list"></i>
+          <span>Log Kehadiran</span>
+        </button>
+        <button
+          class="nav-item w-full text-left flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-100"
+          data-tab="whatsapp">
+          <i class="fab fa-whatsapp"></i>
+          <span>Pesan WhatsApp</span>
+        </button>
+        <button
+          class="nav-item w-full text-left flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-100"
+          data-tab="payroll">
+          <i class="fas fa-wallet"></i>
+          <span>Penggajian</span>
+        </button>
+        <button
+          class="nav-item w-full text-left flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-100"
+          data-tab="documents">
+          <i class="fas fa-file-alt"></i>
+          <span>Dokumen HR</span>
+        </button>
+        <button
+          class="nav-item w-full text-left flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-100"
+          data-tab="qr-generator">
+          <i class="fas fa-qrcode"></i>
+          <span>QR Scanner & Generator</span>
+        </button>
+        <button
+          class="nav-item w-full text-left flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-100"
+          data-tab="settings">
+          <i class="fas fa-cog"></i>
+          <span>Pengaturan</span>
+        </button>
+        <a href="/template-editor.html" target="_blank"
+          class="w-full text-left flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-100">
+          <i class="fas fa-file-edit"></i>
+          <span>Editor Template PDF</span>
+        </a>
+      </nav>
     </aside>
 
     <!-- Main Content -->
@@ -129,25 +189,27 @@
             <div class="flex items-center justify-between">
               <div>
                 <p class="text-sm font-medium text-gray-500 uppercase tracking-wide">Total Guru</p>
-                <p class="text-3xl font-bold text-gray-900 mt-2 skeleton-loader skeleton-text-lg" id="totalTeachers">0</p>
+                <p class="text-3xl font-bold text-gray-900 mt-2 skeleton-loader skeleton-text-lg" id="totalTeachers">0
+                </p>
               </div>
               <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
                 <i class="fas fa-users text-blue-600"></i>
               </div>
             </div>
           </div>
-           <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+          <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
             <div class="flex items-center justify-between">
               <div>
                 <p class="text-sm font-medium text-gray-500 uppercase tracking-wide">Hadir Hari Ini</p>
-                <p class="text-3xl font-bold text-gray-900 mt-2 skeleton-loader skeleton-text-lg" id="todayAttendance">0</p>
+                <p class="text-3xl font-bold text-gray-900 mt-2 skeleton-loader skeleton-text-lg" id="todayAttendance">0
+                </p>
               </div>
               <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
                 <i class="fas fa-check-circle text-green-600"></i>
               </div>
             </div>
           </div>
-           <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+          <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
             <div class="flex items-center justify-between">
               <div>
                 <p class="text-sm font-medium text-gray-500 uppercase tracking-wide">Terlambat</p>
@@ -171,10 +233,10 @@
           </div>
         </div>
 
-          <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-            <h3 class="text-lg font-semibold text-gray-900 mb-4">Statistik Kehadiran Minggu Ini</h3>
-            <canvas id="attendanceChart" class="h-64"></canvas>
-          </div>
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+          <h3 class="text-lg font-semibold text-gray-900 mb-4">Statistik Kehadiran Minggu Ini</h3>
+          <canvas id="attendanceChart" class="h-64"></canvas>
+        </div>
       </div>
 
       <!-- Teachers Tab -->
@@ -183,13 +245,16 @@
           <div class="flex justify-between items-center mb-6">
             <h3 class="text-lg font-semibold text-gray-900">Manajemen Data Guru</h3>
             <div class="flex space-x-2">
-              <button onclick="createUsersForSelected()" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700">
+              <button onclick="createUsersForSelected()"
+                class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700">
                 <i class="fas fa-user-plus mr-2"></i>Buat User
               </button>
-              <button onclick="deleteSelectedTeachers()" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700">
+              <button onclick="deleteSelectedTeachers()"
+                class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700">
                 <i class="fas fa-trash mr-2"></i>Hapus Terpilih
               </button>
-              <button onclick="showAddTeacherModal()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+              <button onclick="showAddTeacherModal()"
+                class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
                 <i class="fas fa-plus mr-2"></i>Tambah Guru
               </button>
             </div>
@@ -205,9 +270,12 @@
                   <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Nama</th>
                   <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">NIK</th>
                   <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">NIP</th>
-                  <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Status Kepegawaian</th>
-                  <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Sekolah</th>
-                  <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Status</th>
+                  <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Status
+                    Kepegawaian</th>
+                  <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Sekolah
+                  </th>
+                  <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Status
+                  </th>
                   <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Aksi</th>
                 </tr>
               </thead>
@@ -228,7 +296,9 @@
               <span id="paginationInfo">Menampilkan 0 dari 0 data</span>
             </div>
             <div class="flex items-center space-x-2">
-              <button id="prevPageBtn" class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+              <button id="prevPageBtn"
+                class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled>
                 <i class="fas fa-chevron-left mr-1"></i>
                 Sebelumnya
               </button>
@@ -237,7 +307,9 @@
                 <span id="pageNumbers" class="flex items-center space-x-1"></span>
               </div>
 
-              <button id="nextPageBtn" class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+              <button id="nextPageBtn"
+                class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled>
                 Selanjutnya
                 <i class="fas fa-chevron-right ml-1"></i>
               </button>
@@ -246,93 +318,119 @@
         </div>
       </div>
 
-<!-- Attendance Tab -->
-       <div id="attendanceTab" class="tab-content hidden">
-         <!-- View Toggle -->
-         <div class="flex items-center justify-between mb-4">
-           <div class="flex space-x-2">
-             <button id="logViewBtn" class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium">Log Harian</button>
-             <button id="monthlyViewBtn" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-300">Rekap Bulanan</button>
-           </div>
-           
-         </div>
+      <!-- Attendance Tab -->
+      <div id="attendanceTab" class="tab-content hidden">
+        <!-- View Toggle -->
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex space-x-2">
+            <button id="logViewBtn" class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium">Log
+              Harian</button>
+            <button id="monthlyViewBtn"
+              class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-300">Rekap
+              Bulanan</button>
+          </div>
 
-         <!-- Log Harian View -->
-         <div id="logViewSection">
-           <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-             <div class="flex justify-between items-center mb-6">
-               <h3 class="text-lg font-semibold text-gray-900">Log Kehadiran</h3>
-               <div class="flex space-x-2">
-                 <input type="date" id="attendanceDateFilter" class="px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                 <select id="attendanceStatusFilter" class="px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                   <option value="">Semua Status</option>
-                   <option value="tepat_waktu">Tepat Waktu</option>
-                   <option value="terlambat">Terlambat</option>
-                 </select>
-                 <button onclick="loadAttendanceLogs()" class="px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"><i class="fas fa-sync-alt mr-1"></i>Refresh</button>
-               </div>
-             </div>
+        </div>
 
-             <div class="overflow-x-auto">
-               <table class="w-full">
-                 <thead class="bg-gray-50 border-b border-gray-100">
-                   <tr>
-                     <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Nama Guru</th>
-                     <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">NIP</th>
-                     <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Jenis</th>
-                     <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Waktu</th>
-                     <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Status</th>
-                     <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Metode</th>
-                   </tr> 
-                 </thead>
-                 <tbody id="attendanceTable" class="divide-y divide-gray-100">
-                   <tr>
-                     <td colspan="6" class="px-6 py-12 text-center text-gray-500">
-                       <i class="fas fa-spinner fa-spin text-xl mb-2"></i>
-                       <p>Memuat data...</p>
-                     </td>
-                   </tr>
-                 </tbody>
-               </table>
-             </div>
-           </div>
-         </div>
+        <!-- Log Harian View -->
+        <div id="logViewSection">
+          <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+            <div class="flex justify-between items-center mb-6">
+              <h3 class="text-lg font-semibold text-gray-900">Log Kehadiran</h3>
+              <div class="flex space-x-2">
+                <input type="date" id="attendanceDateFilter"
+                  class="px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                <select id="attendanceStatusFilter"
+                  class="px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                  <option value="">Semua Status</option>
+                  <option value="tepat_waktu">Tepat Waktu</option>
+                  <option value="terlambat">Terlambat</option>
+                </select>
+                <button onclick="loadAttendanceLogs()"
+                  class="px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"><i
+                    class="fas fa-sync-alt mr-1"></i>Refresh</button>
+              </div>
+            </div>
 
-<!-- Monthly Recap View -->
-            <div id="monthlyRecapSection" class="hidden">
-              <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-               <div class="flex items-center space-x-2 mb-4">
-              <select id="recapTenantSelect" class="px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500">
+            <div class="overflow-x-auto">
+              <table class="w-full">
+                <thead class="bg-gray-50 border-b border-gray-100">
+                  <tr>
+                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Nama
+                      Guru</th>
+                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">NIP
+                    </th>
+                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Jenis
+                    </th>
+                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Waktu
+                    </th>
+                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Status
+                    </th>
+                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Metode
+                    </th>
+                  </tr>
+                </thead>
+                <tbody id="attendanceTable" class="divide-y divide-gray-100">
+                  <tr>
+                    <td colspan="6" class="px-6 py-12 text-center text-gray-500">
+                      <i class="fas fa-spinner fa-spin text-xl mb-2"></i>
+                      <p>Memuat data...</p>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Monthly Recap View -->
+        <div id="monthlyRecapSection" class="hidden">
+          <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+            <div class="flex items-center space-x-2 mb-4">
+              <select id="recapTenantSelect"
+                class="px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500">
                 <option value="">Pilih Sekolah...</option>
               </select>
-              <select id="recapMonthSelect" class="px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500">
-                <option value="1">Januari</option><option value="2">Februari</option><option value="3">Maret</option>
-                <option value="4">April</option><option value="5">Mei</option><option value="6">Juni</option>
-                <option value="7">Juli</option><option value="8">Agustus</option><option value="9">September</option>
-                <option value="10">Oktober</option><option value="11">November</option><option value="12">Desember</option>
+              <select id="recapMonthSelect"
+                class="px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500">
+                <option value="1">Januari</option>
+                <option value="2">Februari</option>
+                <option value="3">Maret</option>
+                <option value="4">April</option>
+                <option value="5">Mei</option>
+                <option value="6">Juni</option>
+                <option value="7">Juli</option>
+                <option value="8">Agustus</option>
+                <option value="9">September</option>
+                <option value="10">Oktober</option>
+                <option value="11">November</option>
+                <option value="12">Desember</option>
               </select>
-              <select id="recapYearSelect" class="px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500"></select>
-              <button id="searchRecapBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm flex items-center">
+              <select id="recapYearSelect"
+                class="px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500"></select>
+              <button id="searchRecapBtn"
+                class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm flex items-center">
                 <i class="fas fa-search mr-2"></i>Cari
               </button>
             </div>
-<div class="flex justify-between items-center mb-4">
-                          <div class="flex items-center space-x-2">
-                            <h3 class="text-lg font-semibold text-gray-900">Rekap Absensi Bulanan</h3>
-                            <select id="pdfTemplateSelect" class="px-2 py-1 border border-gray-300 rounded text-sm">
-                              <option value="">Template Default</option>
-                            </select>
-                          </div>
-                          <button onclick="exportMonthlyPdfFromRecap()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm flex items-center">
-                            <i class="fas fa-file-pdf mr-2"></i>Export PDF
-                          </button>
-                        </div>
-                <div id="monthlyRecapContent" class="overflow-x-auto max-h-[600px]">
-                  <p class="text-center text-gray-500 py-8">Pilih bulan, tahun, dan sekolah untuk menampilkan rekap</p>
-                </div>
+            <div class="flex justify-between items-center mb-4">
+              <div class="flex items-center space-x-2">
+                <h3 class="text-lg font-semibold text-gray-900">Rekap Absensi Bulanan</h3>
+                <select id="pdfTemplateSelect" class="px-2 py-1 border border-gray-300 rounded text-sm">
+                  <option value="">Template Default</option>
+                </select>
               </div>
+              <button onclick="exportMonthlyPdfFromRecap()"
+                class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm flex items-center">
+                <i class="fas fa-file-pdf mr-2"></i>Export PDF
+              </button>
             </div>
+            <div id="monthlyRecapContent" class="overflow-x-auto max-h-[600px]">
+              <p class="text-center text-gray-500 py-8">Pilih bulan, tahun, dan sekolah untuk menampilkan rekap</p>
+            </div>
+          </div>
         </div>
+      </div>
 
       <!-- WhatsApp Tab -->
       <div id="whatsappTab" class="tab-content hidden">
@@ -343,7 +441,8 @@
               Pengiriman Pesan WhatsApp
             </h3>
             <div class="flex space-x-2">
-              <button id="refreshWhatsApp" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+              <button id="refreshWhatsApp"
+                class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
                 <i class="fas fa-sync-alt mr-2"></i>
                 Refresh
               </button>
@@ -361,14 +460,17 @@
               <form id="bulkWhatsAppForm" class="space-y-4">
                 <div>
                   <label class="block text-sm font-medium text-gray-700 mb-2">Pilih Unit Sekolah</label>
-                  <select id="bulkTenantSelect" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-transparent" required>
+                  <select id="bulkTenantSelect"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    required>
                     <option value="">Pilih Unit...</option>
                   </select>
                 </div>
 
                 <div>
                   <label class="block text-sm font-medium text-gray-700 mb-2">Pesan WhatsApp</label>
-                  <select id="bulkMessageTemplate" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-transparent mb-2">
+                  <select id="bulkMessageTemplate"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-transparent mb-2">
                     <option value="">Pilih template pesan...</option>
                     <option value="reminder_absen">🔔 Pengingat Absensi</option>
                     <option value="libur">🏖️ Pengumuman Libur</option>
@@ -376,11 +478,15 @@
                     <option value="selamat_pagi">🌅 Salam Pagi</option>
                     <option value="motivasi">💪 Motivasi Islami</option>
                   </select>
-                  <textarea id="bulkMessage" rows="6" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="Ketik pesan yang akan dikirim..." required></textarea>
-                  <p class="text-xs text-gray-500 mt-1">Pesan akan dikirim ke semua guru aktif yang memiliki nomor WhatsApp di unit terpilih dengan salam islami.</p>
+                  <textarea id="bulkMessage" rows="6"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    placeholder="Ketik pesan yang akan dikirim..." required></textarea>
+                  <p class="text-xs text-gray-500 mt-1">Pesan akan dikirim ke semua guru aktif yang memiliki nomor
+                    WhatsApp di unit terpilih dengan salam islami.</p>
                 </div>
 
-                <button type="submit" class="w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 transition flex items-center justify-center">
+                <button type="submit"
+                  class="w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 transition flex items-center justify-center">
                   <i class="fab fa-whatsapp mr-2"></i>
                   Kirim Pesan Massal
                 </button>
@@ -394,30 +500,38 @@
                 Kirim Pesan Individual
               </h4>
 
-<form id="singleWhatsAppForm" class="space-y-4">
-                 <div class="relative">
-                   <label class="block text-sm font-medium text-gray-700 mb-2">Pilih Guru</label>
-                   <div class="relative">
-                     <input type="text" id="singleTeacherInput" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Ketik nama guru untuk mencari..." required autocomplete="off">
-                     <input type="hidden" id="singleTeacherSelect" name="teacherId">
-                     <div id="teacherSearchResults" class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto hidden"></div>
-                   </div>
-                   <div id="teacherSelectedInfo" class="mt-1 text-xs text-gray-500"></div>
-                 </div>
+              <form id="singleWhatsAppForm" class="space-y-4">
+                <div class="relative">
+                  <label class="block text-sm font-medium text-gray-700 mb-2">Pilih Guru</label>
+                  <div class="relative">
+                    <input type="text" id="singleTeacherInput"
+                      class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="Ketik nama guru untuk mencari..." required autocomplete="off">
+                    <input type="hidden" id="singleTeacherSelect" name="teacherId">
+                    <div id="teacherSearchResults"
+                      class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto hidden">
+                    </div>
+                  </div>
+                  <div id="teacherSelectedInfo" class="mt-1 text-xs text-gray-500"></div>
+                </div>
 
                 <div>
                   <label class="block text-sm font-medium text-gray-700 mb-2">Pesan WhatsApp</label>
-                  <select id="singleMessageTemplate" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent mb-2">
+                  <select id="singleMessageTemplate"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent mb-2">
                     <option value="">Pilih template pesan...</option>
                     <option value="pribadi">💬 Pesan Pribadi</option>
                     <option value="peringatan">⚠️ Peringatan</option>
                     <option value="pujian">🌟 Pujian</option>
                     <option value="permintaan">📝 Permintaan</option>
                   </select>
-                  <textarea id="singleMessage" rows="6" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Ketik pesan yang akan dikirim..." required></textarea>
+                  <textarea id="singleMessage" rows="6"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="Ketik pesan yang akan dikirim..." required></textarea>
                 </div>
 
-                <button type="submit" class="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition flex items-center justify-center">
+                <button type="submit"
+                  class="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition flex items-center justify-center">
                   <i class="fab fa-whatsapp mr-2"></i>
                   Kirim Pesan
                 </button>
@@ -458,7 +572,7 @@
               <i class="fas fa-sync-alt mr-2"></i>Jalankan Auto-Evaluation
             </button>
           </div>
-          
+
           <div class="mb-6">
             <h4 class="font-medium text-gray-900 mb-3">Kriteria Penilaian Otomatis</h4>
             <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
@@ -472,7 +586,7 @@
               <div class="bg-red-50 p-3 rounded">&lt;65%: <strong>1.0</strong></div>
             </div>
           </div>
-          
+
           <div>
             <h4 class="font-medium text-gray-900 mb-3">Hasil Penilaian Terbaru</h4>
             <div id="evaluationsResults" class="max-h-96 overflow-y-auto">
@@ -504,7 +618,8 @@
                 <p class="text-gray-600 mt-1">Buat QR code untuk absensi offline dan pantau status scanner device</p>
               </div>
               <div class="flex items-center space-x-2">
-                <a href="/scanner.html" target="_blank" class="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition">
+                <a href="/scanner.html" target="_blank"
+                  class="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition">
                   <i class="fas fa-external-link-alt mr-2"></i>
                   Buka Scanner App
                 </a>
@@ -524,36 +639,46 @@
               <form id="qr-generate-form" class="space-y-4">
                 <div>
                   <label class="block text-sm font-medium text-gray-700 mb-2">Cari Guru</label>
-                  <input type="text" id="qr-teacher-search" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Ketik nama atau NIK guru..." autocomplete="off">
+                  <input type="text" id="qr-teacher-search"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="Ketik nama atau NIK guru..." autocomplete="off">
                   <input type="hidden" id="qr-teacher-id">
-                  <div id="qr-teacher-suggestions" class="absolute z-10 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto hidden mt-1"></div>
+                  <div id="qr-teacher-suggestions"
+                    class="absolute z-10 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto hidden mt-1">
+                  </div>
                 </div>
 
                 <div class="grid grid-cols-2 gap-4">
                   <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Scan ID</label>
-                    <input type="text" id="qr-scan-id" class="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50" readonly>
+                    <input type="text" id="qr-scan-id"
+                      class="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50" readonly>
                   </div>
                   <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Nama Guru</label>
-                    <input type="text" id="qr-teacher-name" class="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50" readonly>
+                    <input type="text" id="qr-teacher-name"
+                      class="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50" readonly>
                   </div>
                 </div>
 
                 <div class="grid grid-cols-2 gap-4">
                   <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Sekolah</label>
-                    <select id="qr-tenant-select" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    <select id="qr-tenant-select"
+                      class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                       <option value="">Pilih Sekolah</option>
                     </select>
                   </div>
                   <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Expiry (jam)</label>
-                    <input type="number" id="qr-expiry-hours" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent" value="24" min="1" max="168">
+                    <input type="number" id="qr-expiry-hours"
+                      class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      value="24" min="1" max="168">
                   </div>
                 </div>
 
-                <button type="submit" id="generate-qr-btn" class="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed">
+                <button type="submit" id="generate-qr-btn"
+                  class="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed">
                   <i class="fas fa-qrcode mr-2"></i>Generate QR Code
                 </button>
               </form>
@@ -565,10 +690,12 @@
                   QR code berlaku sampai: <span id="qr-expiry-time" class="font-semibold"></span>
                 </p>
                 <div class="flex space-x-2">
-                  <button id="download-qr" class="flex-1 bg-green-600 text-white py-2 px-3 rounded text-sm hover:bg-green-700">
+                  <button id="download-qr"
+                    class="flex-1 bg-green-600 text-white py-2 px-3 rounded text-sm hover:bg-green-700">
                     <i class="fas fa-download mr-1"></i> Download
                   </button>
-                  <button id="print-qr" class="flex-1 bg-gray-600 text-white py-2 px-3 rounded text-sm hover:bg-gray-700">
+                  <button id="print-qr"
+                    class="flex-1 bg-gray-600 text-white py-2 px-3 rounded text-sm hover:bg-gray-700">
                     <i class="fas fa-print mr-1"></i> Print
                   </button>
                 </div>
@@ -601,7 +728,8 @@
 
               <!-- Add Device Button -->
               <div class="mt-6 pt-4 border-t border-gray-200">
-                <button id="add-device-modal-btn" class="w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 transition flex items-center justify-center">
+                <button id="add-device-modal-btn"
+                  class="w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 transition flex items-center justify-center">
                   <i class="fas fa-plus mr-2"></i>
                   Tambah Scanner Device Baru
                 </button>
@@ -616,7 +744,8 @@
                 <i class="fas fa-history text-purple-600 mr-2"></i>
                 Log Scan QR Terbaru
               </h4>
-              <a href="#" onclick="switchTab('attendance'); return false;" class="text-sm text-blue-600 hover:text-blue-800">
+              <a href="#" onclick="switchTab('attendance'); return false;"
+                class="text-sm text-blue-600 hover:text-blue-800">
                 Lihat Semua
               </a>
             </div>
@@ -666,23 +795,33 @@
           <div class="bg-white rounded-xl shadow-sm border border-gray-100">
             <div class="border-b border-gray-200">
               <nav class="flex space-x-8 px-6" id="settingsNav">
-                <button class="settings-nav-item active py-4 px-1 border-b-2 border-blue-500 font-medium text-sm text-blue-600" data-setting="locations">
+                <button
+                  class="settings-nav-item active py-4 px-1 border-b-2 border-blue-500 font-medium text-sm text-blue-600"
+                  data-setting="locations">
                   <i class="fas fa-map-marker-alt mr-2"></i>
                   Lokasi Sekolah
                 </button>
-                <button class="settings-nav-item py-4 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700" data-setting="locations-multi">
+                <button
+                  class="settings-nav-item py-4 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700"
+                  data-setting="locations-multi">
                   <i class="fas fa-map-marked-alt mr-2"></i>
                   Lokasi Multiple
                 </button>
-                <button class="settings-nav-item py-4 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700" data-setting="attendance">
+                <button
+                  class="settings-nav-item py-4 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700"
+                  data-setting="attendance">
                   <i class="fas fa-clock mr-2"></i>
                   Aturan Absensi
                 </button>
-                <button class="settings-nav-item py-4 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700" data-setting="system">
+                <button
+                  class="settings-nav-item py-4 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700"
+                  data-setting="system">
                   <i class="fas fa-cog mr-2"></i>
                   Sistem
                 </button>
-                <button class="settings-nav-item py-4 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700" data-setting="security">
+                <button
+                  class="settings-nav-item py-4 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700"
+                  data-setting="security">
                   <i class="fas fa-shield-alt mr-2"></i>
                   Keamanan
                 </button>
@@ -691,75 +830,79 @@
 
             <!-- Locations Settings -->
             <div id="locationsSetting" class="setting-content p-6">
-<div class="flex items-center justify-between mb-6">
-                 <div>
-                   <h4 class="text-lg font-semibold text-gray-900">Pengaturan Lokasi Sekolah</h4>
-                   <p class="text-gray-600 text-sm">Konfigurasi koordinat GPS untuk validasi absensi</p>
-                 </div>
-                 <div class="flex items-center space-x-2">
-                   <button onclick="showAddTenantModal()" class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-lg text-sm font-medium text-white hover:bg-blue-700 focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                     <i class="fas fa-plus mr-2"></i>
-                     Tambah Tenant
-                   </button>
-                   <button onclick="refreshTenantLocations()" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                     <i class="fas fa-sync-alt mr-2"></i>
-                     Refresh
-                   </button>
-                 </div>
-               </div>
+              <div class="flex items-center justify-between mb-6">
+                <div>
+                  <h4 class="text-lg font-semibold text-gray-900">Pengaturan Lokasi Sekolah</h4>
+                  <p class="text-gray-600 text-sm">Konfigurasi koordinat GPS untuk validasi absensi</p>
+                </div>
+                <div class="flex items-center space-x-2">
+                  <button onclick="showAddTenantModal()"
+                    class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-lg text-sm font-medium text-white hover:bg-blue-700 focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    <i class="fas fa-plus mr-2"></i>
+                    Tambah Tenant
+                  </button>
+                  <button onclick="refreshTenantLocations()"
+                    class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    <i class="fas fa-sync-alt mr-2"></i>
+                    Refresh
+                  </button>
+                </div>
+              </div>
 
-               <!-- Quick Stats -->
-               <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-                 <div class="bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg p-4 text-white">
-                   <div class="flex items-center">
-                     <div class="p-2 bg-white bg-opacity-20 rounded-lg">
-                       <i class="fas fa-school text-xl"></i>
-                     </div>
-                     <div class="ml-3">
-                       <p class="text-blue-100 text-sm">Total Sekolah</p>
-                       <p class="text-2xl font-bold" id="totalSchools">0</p>
-                     </div>
-                   </div>
-                 </div>
-                 <div class="bg-gradient-to-r from-green-500 to-green-600 rounded-lg p-4 text-white">
-                   <div class="flex items-center">
-                     <div class="p-2 bg-white bg-opacity-20 rounded-lg">
-                       <i class="fas fa-map-marked-alt text-xl"></i>
-                     </div>
-                     <div class="ml-3">
-                       <p class="text-green-100 text-sm">Lokasi Dikonfigurasi</p>
-                       <p class="text-2xl font-bold" id="configuredLocations">0</p>
-                     </div>
-                   </div>
-                 </div>
-                 <div class="bg-gradient-to-r from-purple-500 to-purple-600 rounded-lg p-4 text-white">
-                   <div class="flex items-center">
-                     <div class="p-2 bg-white bg-opacity-20 rounded-lg">
-                       <i class="fas fa-crosshairs text-xl"></i>
-                     </div>
-                     <div class="ml-3">
-                       <p class="text-purple-100 text-sm">Radius Default</p>
-                       <p class="text-2xl font-bold">100m</p>
-                     </div>
-                   </div>
-                 </div>
-                 <div class="bg-gradient-to-r from-indigo-500 to-indigo-600 rounded-lg p-4 text-white">
-                   <div class="flex items-center">
-                     <div class="p-2 bg-white bg-opacity-20 rounded-lg">
-                       <i class="fas fa-balance-scale text-xl"></i>
-                     </div>
-                     <div class="ml-3">
-                       <p class="text-indigo-100 text-sm">Menggunakan Aturan Pusat</p>
-                       <p class="text-2xl font-bold" id="usingCentralRules">0</p>
-                     </div>
-                   </div>
-                 </div>
-               </div>
+              <!-- Quick Stats -->
+              <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                <div class="bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg p-4 text-white">
+                  <div class="flex items-center">
+                    <div class="p-2 bg-white bg-opacity-20 rounded-lg">
+                      <i class="fas fa-school text-xl"></i>
+                    </div>
+                    <div class="ml-3">
+                      <p class="text-blue-100 text-sm">Total Sekolah</p>
+                      <p class="text-2xl font-bold" id="totalSchools">0</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="bg-gradient-to-r from-green-500 to-green-600 rounded-lg p-4 text-white">
+                  <div class="flex items-center">
+                    <div class="p-2 bg-white bg-opacity-20 rounded-lg">
+                      <i class="fas fa-map-marked-alt text-xl"></i>
+                    </div>
+                    <div class="ml-3">
+                      <p class="text-green-100 text-sm">Lokasi Dikonfigurasi</p>
+                      <p class="text-2xl font-bold" id="configuredLocations">0</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="bg-gradient-to-r from-purple-500 to-purple-600 rounded-lg p-4 text-white">
+                  <div class="flex items-center">
+                    <div class="p-2 bg-white bg-opacity-20 rounded-lg">
+                      <i class="fas fa-crosshairs text-xl"></i>
+                    </div>
+                    <div class="ml-3">
+                      <p class="text-purple-100 text-sm">Radius Default</p>
+                      <p class="text-2xl font-bold">100m</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="bg-gradient-to-r from-indigo-500 to-indigo-600 rounded-lg p-4 text-white">
+                  <div class="flex items-center">
+                    <div class="p-2 bg-white bg-opacity-20 rounded-lg">
+                      <i class="fas fa-balance-scale text-xl"></i>
+                    </div>
+                    <div class="ml-3">
+                      <p class="text-indigo-100 text-sm">Menggunakan Aturan Pusat</p>
+                      <p class="text-2xl font-bold" id="usingCentralRules">0</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
 
               <!-- Location Cards -->
               <div id="tenantLocations" class="space-y-4">
                 <div class="text-center py-12">
-                  <div class="animate-spin rounded-full h-12 w-12 border-4 border-blue-500 border-t-transparent mx-auto mb-4"></div>
+                  <div
+                    class="animate-spin rounded-full h-12 w-12 border-4 border-blue-500 border-t-transparent mx-auto mb-4">
+                  </div>
                   <p class="text-gray-600">Memuat data lokasi sekolah...</p>
                 </div>
               </div>
@@ -770,9 +913,11 @@
               <div class="flex items-center justify-between mb-6">
                 <div>
                   <h4 class="text-lg font-semibold text-gray-900">Pengaturan Lokasi Multiple</h4>
-                  <p class="text-gray-600 text-sm">Kelola multiple lokasi untuk sekolah yang memiliki beberapa kampus</p>
+                  <p class="text-gray-600 text-sm">Kelola multiple lokasi untuk sekolah yang memiliki beberapa kampus
+                  </p>
                 </div>
-                <button onclick="loadTenantLocations()" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                <button onclick="loadTenantLocations()"
+                  class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
                   <i class="fas fa-sync-alt mr-2"></i>
                   Refresh
                 </button>
@@ -788,7 +933,8 @@
 
               <!-- Add Location Button -->
               <div class="flex justify-center">
-                <button onclick="showAddLocationModal()" class="inline-flex items-center px-6 py-3 bg-blue-600 border border-transparent rounded-lg text-sm font-medium text-white hover:bg-blue-700 focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                <button onclick="showAddLocationModal()"
+                  class="inline-flex items-center px-6 py-3 bg-blue-600 border border-transparent rounded-lg text-sm font-medium text-white hover:bg-blue-700 focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
                   <i class="fas fa-plus mr-2"></i>
                   Tambah Lokasi Baru
                 </button>
@@ -802,7 +948,8 @@
                   <h4 class="text-lg font-semibold text-gray-900">Aturan Absensi</h4>
                   <p class="text-gray-600 text-sm">Kelola jadwal masuk dan pulang</p>
                 </div>
-                <button onclick="showAddRuleModal()" class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-lg text-sm font-medium text-white hover:bg-blue-700 focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                <button onclick="showAddRuleModal()"
+                  class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-lg text-sm font-medium text-white hover:bg-blue-700 focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
                   <i class="fas fa-plus mr-2"></i>
                   Tambah Aturan
                 </button>
@@ -814,7 +961,8 @@
                   <div>
                     <h5 class="font-medium text-gray-900">Informasi Aturan</h5>
                     <p class="text-sm text-gray-600 mt-1">
-                      Ketika <strong>"Gunakan Aturan Pusat"</strong> aktif pada sebuah sekolah, maka <strong>aturan pusat (sistem)</strong> dan <strong>aturan sekolah</strong> keduanya berlaku.
+                      Ketika <strong>"Gunakan Aturan Pusat"</strong> aktif pada sebuah sekolah, maka <strong>aturan
+                        pusat (sistem)</strong> dan <strong>aturan sekolah</strong> keduanya berlaku.
                       Aturan sekolah tetap dapat menimpa aturan pusat jika terjadi konflik pada jadwal yang sama.
                       Pastikan tidak ada konflik jadwal antar aturan.
                     </p>
@@ -931,82 +1079,101 @@
         <form id="teacherForm">
           <div class="mb-4">
             <label class="block text-sm font-medium text-gray-700 mb-1">Nama</label>
-            <input type="text" name="nama" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent" required>
+            <input type="text" name="nama"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              required>
           </div>
           <div class="mb-4">
             <label class="block text-sm font-medium text-gray-700 mb-1">NIK</label>
-            <input type="text" name="nik" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent" required>
+            <input type="text" name="nik"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              required>
           </div>
           <div class="mb-4">
             <label class="block text-sm font-medium text-gray-700 mb-1">NIP</label>
-            <input type="text" name="nip" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            <input type="text" name="nip"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent">
           </div>
           <div class="mb-4">
             <label class="block text-sm font-medium text-gray-700 mb-1">Status Kepegawaian</label>
-            <input type="text" name="status_kepegawaian" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Contoh: Guru Tetap, Guru Honorer">
+            <input type="text" name="status_kepegawaian"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              placeholder="Contoh: Guru Tetap, Guru Honorer">
           </div>
           <div class="mb-4">
             <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
-            <input type="email" name="email" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            <input type="email" name="email"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent">
           </div>
           <div class="flex justify-end space-x-3">
-            <button type="button" onclick="hideTeacherModal()" class="px-4 py-2 text-gray-600 hover:text-gray-800">Batal</button>
+            <button type="button" onclick="hideTeacherModal()"
+              class="px-4 py-2 text-gray-600 hover:text-gray-800">Batal</button>
             <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">Simpan</button>
           </div>
-</form>
-       </div>
-     </div>
-   </div>
+        </form>
+      </div>
+    </div>
+  </div>
 
-   <!-- Add Tenant Modal -->
-   <div id="addTenantModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center hidden">
-     <div class="bg-white rounded-lg max-w-lg w-full mx-4 max-h-[90vh] overflow-y-auto">
-       <div class="p-6">
-         <div class="flex items-center justify-between mb-6">
-           <div class="flex items-center">
-             <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
-               <i class="fas fa-school text-blue-600"></i>
-             </div>
-             <h3 id="addTenantModalTitle" class="text-lg font-semibold text-gray-900">Tambah Tenant Baru</h3>
-           </div>
-           <button type="button" onclick="hideAddTenantModal()" class="text-gray-400 hover:text-gray-600 transition-colors">
-             <i class="fas fa-times text-xl"></i>
-           </button>
-         </div>
+  <!-- Add Tenant Modal -->
+  <div id="addTenantModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center hidden">
+    <div class="bg-white rounded-lg max-w-lg w-full mx-4 max-h-[90vh] overflow-y-auto">
+      <div class="p-6">
+        <div class="flex items-center justify-between mb-6">
+          <div class="flex items-center">
+            <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
+              <i class="fas fa-school text-blue-600"></i>
+            </div>
+            <h3 id="addTenantModalTitle" class="text-lg font-semibold text-gray-900">Tambah Tenant Baru</h3>
+          </div>
+          <button type="button" onclick="hideAddTenantModal()"
+            class="text-gray-400 hover:text-gray-600 transition-colors">
+            <i class="fas fa-times text-xl"></i>
+          </button>
+        </div>
 
-         <form id="addTenantForm">
-           <div class="mb-4">
-             <label class="block text-sm font-medium text-gray-700 mb-1">Tenant ID <span class="text-red-500">*</span></label>
-             <input type="text" name="tenant_id" id="addTenantId" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Contoh: SDIT123" required>
-             <p class="text-xs text-gray-500 mt-1">Gunakan huruf, angka, atau underscore. Maksimal 20 karakter.</p>
-           </div>
+        <form id="addTenantForm">
+          <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-700 mb-1">Tenant ID <span
+                class="text-red-500">*</span></label>
+            <input type="text" name="tenant_id" id="addTenantId"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              placeholder="Contoh: SDIT123" required>
+            <p class="text-xs text-gray-500 mt-1">Gunakan huruf, angka, atau underscore. Maksimal 20 karakter.</p>
+          </div>
 
-           <div class="mb-4">
-             <label class="block text-sm font-medium text-gray-700 mb-1">Nama Sekolah <span class="text-red-500">*</span></label>
-             <input type="text" name="nama_sekolah" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Contoh: SDIT Wahdah Islamiyah" required>
-           </div>
+          <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-700 mb-1">Nama Sekolah <span
+                class="text-red-500">*</span></label>
+            <input type="text" name="nama_sekolah"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              placeholder="Contoh: SDIT Wahdah Islamiyah" required>
+          </div>
 
-           <div class="mb-4">
-             <label class="block text-sm font-medium text-gray-700 mb-1">Metode Absensi</label>
-             <select name="absensi_method" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-               <option value="personal">Personal (NISN)</option>
-               <option value="gateway">Gateway (Device)</option>
-               <option value="hp">HP (WhatsApp)</option>
-             </select>
-           </div>
+          <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-700 mb-1">Metode Absensi</label>
+            <select name="absensi_method"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+              <option value="personal">Personal (NISN)</option>
+              <option value="gateway">Gateway (Device)</option>
+              <option value="hp">HP (WhatsApp)</option>
+            </select>
+          </div>
 
-           <div class="flex justify-end space-x-3 pt-4 border-t border-gray-200">
-             <button type="button" onclick="hideAddTenantModal()" class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors">Batal</button>
-             <button type="submit" id="addTenantSubmitBtn" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">
-               <i class="fas fa-save mr-2"></i>Simpan
-             </button>
-           </div>
-         </form>
-       </div>
-     </div>
-   </div>
+          <div class="flex justify-end space-x-3 pt-4 border-t border-gray-200">
+            <button type="button" onclick="hideAddTenantModal()"
+              class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors">Batal</button>
+            <button type="submit" id="addTenantSubmitBtn"
+              class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">
+              <i class="fas fa-save mr-2"></i>Simpan
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
 
-   <!-- Rule Modal -->
+  <!-- Rule Modal -->
   <div id="ruleModal" class="modal fixed inset-0 bg-black bg-opacity-50 z-50 justify-center items-center">
     <div class="bg-white rounded-lg max-w-md w-full mx-4">
       <div class="p-6">
@@ -1014,38 +1181,50 @@
         <form id="ruleForm">
           <div class="mb-4">
             <label class="block text-sm font-medium text-gray-700 mb-1">SEKOLAH</label>
-            <select name="tenant_id" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent" required>
+            <select name="tenant_id"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              required>
               <option value="">Pilih Sekolah</option>
             </select>
           </div>
           <div class="mb-4">
             <label class="block text-sm font-medium text-gray-700 mb-1">Tipe</label>
-            <select name="tipe" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent" required>
+            <select name="tipe"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              required>
               <option value="Datang">Datang</option>
               <option value="Pulang">Pulang</option>
             </select>
           </div>
           <div class="mb-4">
             <label class="block text-sm font-medium text-gray-700 mb-1">Jam Mulai</label>
-            <input type="time" name="jam_mulai" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent" required>
+            <input type="time" name="jam_mulai"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              required>
           </div>
           <div class="mb-4">
             <label class="block text-sm font-medium text-gray-700 mb-1">Jam Selesai</label>
-            <input type="time" name="jam_selesai" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent" required>
+            <input type="time" name="jam_selesai"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              required>
           </div>
           <div class="mb-4">
             <label class="block text-sm font-medium text-gray-700 mb-1">Keterangan</label>
-            <input type="text" name="keterangan" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            <input type="text" name="keterangan"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent">
           </div>
           <div class="mb-4">
             <label class="block text-sm font-medium text-gray-700 mb-1">Status Log</label>
-            <select name="status_log" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent" required>
+            <select name="status_log"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              required>
               <option value="tepat_waktu">Tepat Waktu</option>
               <option value="terlambat">Terlambat</option>
             </select>
           </div>
           <div class="flex justify-end space-x-3">
-            <button type="button" onclick="hideRuleModal()" class="px-4 py-2 text-gray-600 hover:text-gray-800">Batal</button>
+            <button type="button" onclick="hideRuleModal()"
+              class="px-4 py-2 text-gray-600 hover:text-gray-800">Batal</button>
             <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">Simpan</button>
           </div>
         </form>
@@ -1077,7 +1256,9 @@
 
           <div class="mb-4">
             <label class="block text-sm font-medium text-gray-700 mb-2">Nama Sekolah</label>
-            <input type="text" name="nama_sekolah" id="locationNamaSekolah" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50" readonly>
+            <input type="text" name="nama_sekolah" id="locationNamaSekolah"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50"
+              readonly>
           </div>
 
           <!-- Location Input Methods -->
@@ -1086,7 +1267,8 @@
             <div class="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200">
               <div class="flex items-center justify-between mb-3">
                 <h4 class="font-medium text-blue-900">Auto Detect Lokasi</h4>
-                <button type="button" id="autoDetectModalBtn" class="inline-flex items-center px-3 py-2 bg-blue-600 border border-transparent rounded-md text-sm font-medium text-white hover:bg-blue-700 focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200">
+                <button type="button" id="autoDetectModalBtn"
+                  class="inline-flex items-center px-3 py-2 bg-blue-600 border border-transparent rounded-md text-sm font-medium text-white hover:bg-blue-700 focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200">
                   <i class="fas fa-crosshairs mr-2"></i>
                   Detect Location
                 </button>
@@ -1101,7 +1283,8 @@
             <div class="p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg border border-green-200">
               <div class="flex items-center justify-between mb-3">
                 <h4 class="font-medium text-green-900">Pilih dari Peta</h4>
-                <button type="button" onclick="toggleMap()" class="inline-flex items-center px-3 py-2 bg-green-600 border border-transparent rounded-md text-sm font-medium text-white hover:bg-green-700 focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200">
+                <button type="button" onclick="toggleMap()"
+                  class="inline-flex items-center px-3 py-2 bg-green-600 border border-transparent rounded-md text-sm font-medium text-white hover:bg-green-700 focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200">
                   <i class="fas fa-map-marked-alt mr-2"></i>
                   <span id="mapToggleText">Buka Peta</span>
                 </button>
@@ -1119,7 +1302,9 @@
                 <i class="fas fa-globe-asia mr-1"></i>
                 Latitude
               </label>
-              <input type="number" step="0.000001" name="latitude" id="latitudeInput" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent" required>
+              <input type="number" step="0.000001" name="latitude" id="latitudeInput"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                required>
               <p class="text-xs text-gray-500 mt-1">Contoh: -6.208763</p>
             </div>
             <div>
@@ -1127,7 +1312,9 @@
                 <i class="fas fa-globe-asia mr-1"></i>
                 Longitude
               </label>
-              <input type="number" step="0.000001" name="longitude" id="longitudeInput" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent" required>
+              <input type="number" step="0.000001" name="longitude" id="longitudeInput"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                required>
               <p class="text-xs text-gray-500 mt-1">Contoh: 106.845599</p>
             </div>
           </div>
@@ -1140,19 +1327,23 @@
             </h6>
             <div class="space-y-2 text-sm text-blue-800">
               <div class="flex items-start">
-                <span class="inline-block w-6 h-6 bg-blue-200 text-blue-900 rounded-full text-xs font-bold flex items-center justify-center mr-3 mt-0.5">1</span>
+                <span
+                  class="inline-block w-6 h-6 bg-blue-200 text-blue-900 rounded-full text-xs font-bold flex items-center justify-center mr-3 mt-0.5">1</span>
                 <div>
-                  <strong>Google Maps:</strong> Klik kanan lokasi sekolah → pilih "What's here?" → salin koordinat yang muncul
+                  <strong>Google Maps:</strong> Klik kanan lokasi sekolah → pilih "What's here?" → salin koordinat yang
+                  muncul
                 </div>
               </div>
               <div class="flex items-start">
-                <span class="inline-block w-6 h-6 bg-blue-200 text-blue-900 rounded-full text-xs font-bold flex items-center justify-center mr-3 mt-0.5">2</span>
+                <span
+                  class="inline-block w-6 h-6 bg-blue-200 text-blue-900 rounded-full text-xs font-bold flex items-center justify-center mr-3 mt-0.5">2</span>
                 <div>
                   <strong>Peta Interaktif:</strong> Klik pada peta di atas untuk memilih lokasi langsung
                 </div>
               </div>
               <div class="flex items-start">
-                <span class="inline-block w-6 h-6 bg-blue-200 text-blue-900 rounded-full text-xs font-bold flex items-center justify-center mr-3 mt-0.5">3</span>
+                <span
+                  class="inline-block w-6 h-6 bg-blue-200 text-blue-900 rounded-full text-xs font-bold flex items-center justify-center mr-3 mt-0.5">3</span>
                 <div>
                   <strong>GPS Device:</strong> Gunakan aplikasi GPS atau kompas untuk mendapatkan koordinat akurat
                 </div>
@@ -1165,7 +1356,9 @@
               <i class="fas fa-ruler-combined mr-1"></i>
               Radius Lokasi (meter)
             </label>
-            <input type="number" name="location_radius" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent" min="10" max="1000" value="100" required>
+            <input type="number" name="location_radius"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              min="10" max="1000" value="100" required>
             <p class="text-xs text-gray-500 mt-1">Jarak maksimal dari lokasi sekolah untuk absensi valid</p>
           </div>
 
@@ -1174,7 +1367,9 @@
               <i class="fas fa-tag mr-1"></i>
               Nama Lokasi
             </label>
-            <input type="text" name="location_name" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Contoh: Sekolah Dasar XYZ, Jakarta">
+            <input type="text" name="location_name"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              placeholder="Contoh: Sekolah Dasar XYZ, Jakarta">
             <p class="text-xs text-gray-500 mt-1">Opsional: Berikan nama deskriptif untuk lokasi</p>
           </div>
 
@@ -1189,22 +1384,27 @@
                 <p class="text-sm text-gray-600 mt-1">Klik pada peta untuk memilih koordinat</p>
               </div>
               <div class="flex space-x-2">
-                <button type="button" onclick="centerMapOnCurrent()" class="inline-flex items-center px-3 py-2 text-sm bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors">
+                <button type="button" onclick="centerMapOnCurrent()"
+                  class="inline-flex items-center px-3 py-2 text-sm bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors">
                   <i class="fas fa-crosshairs mr-1"></i>
                   Center
                 </button>
-                <button type="button" onclick="clearMapMarker()" class="inline-flex items-center px-3 py-2 text-sm bg-red-100 text-red-700 rounded-md hover:bg-red-200 transition-colors">
+                <button type="button" onclick="clearMapMarker()"
+                  class="inline-flex items-center px-3 py-2 text-sm bg-red-100 text-red-700 rounded-md hover:bg-red-200 transition-colors">
                   <i class="fas fa-trash mr-1"></i>
                   Clear
                 </button>
               </div>
             </div>
-            <div id="locationMap" style="height: 320px; border-radius: 0.75rem; border: 2px solid #e5e7eb; box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);"></div>
+            <div id="locationMap"
+              style="height: 320px; border-radius: 0.75rem; border: 2px solid #e5e7eb; box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);">
+            </div>
             <div class="mt-3 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
               <div class="flex items-start">
                 <i class="fas fa-info-circle text-yellow-600 mt-0.5 mr-2"></i>
                 <div class="text-sm text-yellow-800">
-                  <strong>Tips:</strong> Klik di mana saja pada peta untuk menempatkan marker. Marker merah dapat digeser untuk penyesuaian presisi.
+                  <strong>Tips:</strong> Klik di mana saja pada peta untuk menempatkan marker. Marker merah dapat
+                  digeser untuk penyesuaian presisi.
                 </div>
               </div>
             </div>
@@ -1217,12 +1417,15 @@
                 <i class="fas fa-map-pin mr-2 text-blue-600"></i>
                 Koordinat Lokasi
               </h5>
-              <button type="button" onclick="copyCoordinates()" class="inline-flex items-center px-3 py-1.5 text-sm bg-blue-100 text-blue-700 rounded-md hover:bg-blue-200 transition-colors" title="Salin koordinat">
+              <button type="button" onclick="copyCoordinates()"
+                class="inline-flex items-center px-3 py-1.5 text-sm bg-blue-100 text-blue-700 rounded-md hover:bg-blue-200 transition-colors"
+                title="Salin koordinat">
                 <i class="fas fa-copy mr-1"></i>
                 Copy
               </button>
             </div>
-            <div id="coordinatePreview" class="text-sm font-mono bg-white px-4 py-3 rounded-md border border-gray-300 cursor-pointer hover:border-blue-400 transition-colors">
+            <div id="coordinatePreview"
+              class="text-sm font-mono bg-white px-4 py-3 rounded-md border border-gray-300 cursor-pointer hover:border-blue-400 transition-colors">
               <span class="text-gray-500">Belum ada koordinat dipilih</span>
             </div>
             <div class="mt-2 flex items-center justify-between text-xs text-gray-600">
@@ -1241,23 +1444,31 @@
                 <label class="flex items-center cursor-pointer">
                   <span class="text-sm font-medium text-gray-700">Gunakan Aturan Pusat</span>
                   <div class="relative ml-3">
-<input type="checkbox" name="use_central_rules" id="useCentralRulesInput" class="sr-only toggle-checkbox" onchange="updateToggleVisual(this)">
-                      <div class="w-11 h-6 bg-gray-200 rounded-full toggle-track transition-colors duration-200 pointer-events-none"></div>
-                      <div class="absolute left-0.5 top-0.5 w-5 h-5 bg-white border border-gray-300 rounded-full toggle-thumb transition-transform duration-200 pointer-events-none"></div>
+                    <input type="checkbox" name="use_central_rules" id="useCentralRulesInput"
+                      class="sr-only toggle-checkbox" onchange="updateToggleVisual(this)">
+                    <div
+                      class="w-11 h-6 bg-gray-200 rounded-full toggle-track transition-colors duration-200 pointer-events-none">
+                    </div>
+                    <div
+                      class="absolute left-0.5 top-0.5 w-5 h-5 bg-white border border-gray-300 rounded-full toggle-thumb transition-transform duration-200 pointer-events-none">
+                    </div>
                   </div>
                 </label>
-                <p class="text-xs text-blue-600 mt-1">Aktifkan agar aturan pusat juga berlaku untuk sekolah ini. Aturan sekolah tetap berlaku dan dapat menimpa aturan pusat jika terjadi konflik.</p>
+                <p class="text-xs text-blue-600 mt-1">Aktifkan agar aturan pusat juga berlaku untuk sekolah ini. Aturan
+                  sekolah tetap berlaku dan dapat menimpa aturan pusat jika terjadi konflik.</p>
               </div>
             </div>
           </div>
 
           <!-- Action Buttons -->
           <div class="flex space-x-3 pt-4 border-t border-gray-200">
-            <button type="button" onclick="hideLocationModal()" class="flex-1 inline-flex items-center justify-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-all duration-200">
+            <button type="button" onclick="hideLocationModal()"
+              class="flex-1 inline-flex items-center justify-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-all duration-200">
               <i class="fas fa-times mr-2"></i>
               Batal
             </button>
-            <button type="submit" class="flex-1 inline-flex items-center justify-center px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 border border-transparent rounded-lg text-sm font-medium text-white hover:from-blue-700 hover:to-blue-800 focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200 transform hover:scale-105">
+            <button type="submit"
+              class="flex-1 inline-flex items-center justify-center px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 border border-transparent rounded-lg text-sm font-medium text-white hover:from-blue-700 hover:to-blue-800 focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200 transform hover:scale-105">
               <i class="fas fa-save mr-2"></i>
               Simpan Lokasi
             </button>
@@ -1267,16 +1478,17 @@
     </div>
   </div>
 
-<!-- Tenant Location Modal -->
-   <div id="tenantLocationModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center hidden">
-     <div class="bg-white rounded-lg max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
-       <div class="p-6">
-         <div class="flex items-center justify-between mb-4">
-           <div class="flex items-center">
-             <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
-               <i class="fas fa-map-marker-alt text-blue-600"></i>
-             </div>
-             <h3 id="tenantLocationModalTitle" class="text-lg font-semibold text-gray-900">Tambah Lokasi Tenant</h3>
+  <!-- Tenant Location Modal -->
+  <div id="tenantLocationModal"
+    class="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center hidden">
+    <div class="bg-white rounded-lg max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+      <div class="p-6">
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center">
+            <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
+              <i class="fas fa-map-marker-alt text-blue-600"></i>
+            </div>
+            <h3 id="tenantLocationModalTitle" class="text-lg font-semibold text-gray-900">Tambah Lokasi Tenant</h3>
           </div>
           <button onclick="hideTenantLocationModal()" class="text-gray-400 hover:text-gray-600">
             <i class="fas fa-times text-xl"></i>
@@ -1288,67 +1500,80 @@
 
           <div class="mb-4">
             <label class="block text-sm font-medium text-gray-700 mb-2">Tenant ID</label>
-            <select id="locationTenantId" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent" required>
+            <select id="locationTenantId"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              required>
               <option value="">Pilih Sekolah</option>
             </select>
           </div>
 
           <div class="mb-4">
             <label class="block text-sm font-medium text-gray-700 mb-2">Nama Lokasi</label>
-            <input type="text" id="locationName" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Contoh: Kampus Pusat" required>
+            <input type="text" id="locationName"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              placeholder="Contoh: Kampus Pusat" required>
           </div>
 
           <!-- Location Detection Section -->
           <div class="mb-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200">
             <div class="flex items-center justify-between mb-3">
               <h4 class="font-medium text-blue-900">Deteksi Lokasi Otomatis</h4>
-              <button type="button" id="detectLocationBtn" class="inline-flex items-center px-3 py-2 bg-blue-600 border border-transparent rounded-md text-sm font-medium text-white hover:bg-blue-700 focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200">
+              <button type="button" id="detectLocationBtn"
+                class="inline-flex items-center px-3 py-2 bg-blue-600 border border-transparent rounded-md text-sm font-medium text-white hover:bg-blue-700 focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200">
                 <i class="fas fa-crosshairs mr-2"></i>
                 Detect Location
               </button>
             </div>
-<div id="tenantLocationStatus" class="text-sm text-blue-700 mb-3">
-               <i class="fas fa-info-circle mr-1"></i>
-               Klik tombol di atas untuk mendapatkan koordinat GPS saat ini
-             </div>
+            <div id="tenantLocationStatus" class="text-sm text-blue-700 mb-3">
+              <i class="fas fa-info-circle mr-1"></i>
+              Klik tombol di atas untuk mendapatkan koordinat GPS saat ini
+            </div>
             <div id="detectedAddress" class="text-sm bg-blue-100 p-2 rounded border-l-4 border-blue-400 hidden">
               <strong>Alamat Terdeteksi:</strong><br>
               <span id="addressText"></span>
             </div>
           </div>
 
-<div class="grid grid-cols-2 gap-4 mb-4">
-             <div>
-               <label class="block text-sm font-medium text-gray-700 mb-2">Latitude</label>
-               <input type="number" step="0.000001" id="locationLat" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="-6.2088">
-             </div>
-             <div>
-               <label class="block text-sm font-medium text-gray-700 mb-2">Longitude</label>
-               <input type="number" step="0.000001" id="locationLng" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="106.8456">
-             </div>
-           </div>
+          <div class="grid grid-cols-2 gap-4 mb-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Latitude</label>
+              <input type="number" step="0.000001" id="locationLat"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="-6.2088">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Longitude</label>
+              <input type="number" step="0.000001" id="locationLng"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="106.8456">
+            </div>
+          </div>
 
-           <!-- Coordinate Display (Modal Tambah) -->
-           <div class="mb-4 p-3 bg-gradient-to-r from-slate-50 to-gray-50 rounded-lg border border-gray-200">
-             <div class="flex items-center justify-between mb-2">
-               <h5 class="font-semibold text-gray-900 flex items-center">
-                 <i class="fas fa-map-pin mr-2 text-blue-600"></i>
-                 Koordinat Lokasi
-               </h5>
-               <button type="button" onclick="copyCoordinatesModal()" class="inline-flex items-center px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded-md hover:bg-blue-200 transition-colors" title="Salin koordinat">
-                 <i class="fas fa-copy mr-1"></i>
-                 Copy
-               </button>
-             </div>
-             <div id="coordinatePreviewModal" class="text-sm font-mono bg-white px-3 py-2 rounded-md border border-gray-300 cursor-pointer hover:border-blue-400 transition-colors">
-               <span class="text-gray-500">Belum ada koordinat dipilih</span>
-             </div>
-           </div>
+          <!-- Coordinate Display (Modal Tambah) -->
+          <div class="mb-4 p-3 bg-gradient-to-r from-slate-50 to-gray-50 rounded-lg border border-gray-200">
+            <div class="flex items-center justify-between mb-2">
+              <h5 class="font-semibold text-gray-900 flex items-center">
+                <i class="fas fa-map-pin mr-2 text-blue-600"></i>
+                Koordinat Lokasi
+              </h5>
+              <button type="button" onclick="copyCoordinatesModal()"
+                class="inline-flex items-center px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded-md hover:bg-blue-200 transition-colors"
+                title="Salin koordinat">
+                <i class="fas fa-copy mr-1"></i>
+                Copy
+              </button>
+            </div>
+            <div id="coordinatePreviewModal"
+              class="text-sm font-mono bg-white px-3 py-2 rounded-md border border-gray-300 cursor-pointer hover:border-blue-400 transition-colors">
+              <span class="text-gray-500">Belum ada koordinat dipilih</span>
+            </div>
+          </div>
 
-           <!-- Mini Map -->
+          <!-- Mini Map -->
           <div class="mb-6">
             <label class="block text-sm font-medium text-gray-700 mb-2">Peta Lokasi</label>
-            <div id="locationMiniMap" class="w-full h-48 bg-gray-200 rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center">
+            <div id="locationMiniMap"
+              class="w-full h-48 bg-gray-200 rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center">
               <div class="text-center text-gray-500">
                 <i class="fas fa-map-marked-alt text-3xl mb-2"></i>
                 <p>Peta akan muncul setelah koordinat dimasukkan</p>
@@ -1358,7 +1583,9 @@
 
           <div class="mb-6">
             <label class="block text-sm font-medium text-gray-700 mb-2">Radius (meter)</label>
-            <input type="number" id="locationRadius" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="100" value="100">
+            <input type="number" id="locationRadius"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              placeholder="100" value="100">
           </div>
 
           <!-- Toggle Aturan Pusat -->
@@ -1368,22 +1595,30 @@
                 <label class="flex items-center cursor-pointer">
                   <span class="text-sm font-medium text-gray-700">Gunakan Aturan Pusat</span>
                   <div class="relative ml-3">
-<input type="checkbox" name="use_central_rules" id="tenantLocationUseCentralRules" class="sr-only toggle-checkbox" onchange="updateToggleVisual(this)">
-                      <div class="w-11 h-6 bg-gray-200 rounded-full toggle-track transition-colors duration-200 pointer-events-none"></div>
-                      <div class="absolute left-0.5 top-0.5 w-5 h-5 bg-white border border-gray-300 rounded-full toggle-thumb transition-transform duration-200 pointer-events-none"></div>
+                    <input type="checkbox" name="use_central_rules" id="tenantLocationUseCentralRules"
+                      class="sr-only toggle-checkbox" onchange="updateToggleVisual(this)">
+                    <div
+                      class="w-11 h-6 bg-gray-200 rounded-full toggle-track transition-colors duration-200 pointer-events-none">
+                    </div>
+                    <div
+                      class="absolute left-0.5 top-0.5 w-5 h-5 bg-white border border-gray-300 rounded-full toggle-thumb transition-transform duration-200 pointer-events-none">
+                    </div>
                   </div>
                 </label>
-                <p class="text-xs text-blue-600 mt-1">Aktifkan agar aturan pusat juga berlaku untuk sekolah ini. Aturan sekolah tetap berlaku dan dapat menimpa aturan pusat jika terjadi konflik.</p>
+                <p class="text-xs text-blue-600 mt-1">Aktifkan agar aturan pusat juga berlaku untuk sekolah ini. Aturan
+                  sekolah tetap berlaku dan dapat menimpa aturan pusat jika terjadi konflik.</p>
               </div>
             </div>
           </div>
 
           <div class="flex space-x-3">
-            <button type="button" onclick="hideTenantLocationModal()" class="flex-1 inline-flex items-center justify-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+            <button type="button" onclick="hideTenantLocationModal()"
+              class="flex-1 inline-flex items-center justify-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
               <i class="fas fa-times mr-2"></i>
               Batal
             </button>
-            <button type="submit" class="flex-1 inline-flex items-center justify-center px-4 py-2 bg-blue-600 border border-transparent rounded-lg text-sm font-medium text-white hover:bg-blue-700">
+            <button type="submit"
+              class="flex-1 inline-flex items-center justify-center px-4 py-2 bg-blue-600 border border-transparent rounded-lg text-sm font-medium text-white hover:bg-blue-700">
               <i class="fas fa-save mr-2"></i>
               Simpan
             </button>
@@ -1412,33 +1647,43 @@
         <form id="addDeviceForm">
           <div class="mb-4">
             <label class="block text-sm font-medium text-gray-700 mb-2">Tenant ID</label>
-            <select id="deviceTenantId" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent" required>
+            <select id="deviceTenantId"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              required>
               <option value="">Pilih Sekolah</option>
             </select>
           </div>
 
           <div class="mb-4">
             <label class="block text-sm font-medium text-gray-700 mb-2">Device ID</label>
-            <input type="text" id="deviceId" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Contoh: SDIT-TABLET-01" required>
+            <input type="text" id="deviceId"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              placeholder="Contoh: SDIT-TABLET-01" required>
             <p class="text-xs text-gray-500 mt-1">ID unik untuk device ini</p>
           </div>
 
           <div class="mb-4">
             <label class="block text-sm font-medium text-gray-700 mb-2">Nama Device</label>
-            <input type="text" id="deviceName" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Contoh: Tablet Security SDIT">
+            <input type="text" id="deviceName"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              placeholder="Contoh: Tablet Security SDIT">
           </div>
 
           <div class="mb-6">
             <label class="block text-sm font-medium text-gray-700 mb-2">Nama Sekolah</label>
-            <input type="text" id="deviceSchoolName" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Contoh: SDIT Wahdah Islamiyah" required>
+            <input type="text" id="deviceSchoolName"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              placeholder="Contoh: SDIT Wahdah Islamiyah" required>
           </div>
 
           <div class="flex space-x-3">
-            <button type="button" onclick="hideAddDeviceModal()" class="flex-1 inline-flex items-center justify-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+            <button type="button" onclick="hideAddDeviceModal()"
+              class="flex-1 inline-flex items-center justify-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
               <i class="fas fa-times mr-2"></i>
               Batal
             </button>
-            <button type="submit" class="flex-1 inline-flex items-center justify-center px-4 py-2 bg-green-600 border border-transparent rounded-lg text-sm font-medium text-white hover:bg-green-700">
+            <button type="submit"
+              class="flex-1 inline-flex items-center justify-center px-4 py-2 bg-green-600 border border-transparent rounded-lg text-sm font-medium text-white hover:bg-green-700">
               <i class="fas fa-plus mr-2"></i>
               Tambah Device
             </button>
@@ -1454,16 +1699,19 @@
   </script>
 
   <script>
-let currentTeacherId = null;
-     let currentRuleId = null;
-     let currentPage = 1;
-     let totalPages = 1;
-     let pageLimit = 10;
-     let currentMapContext = 'edit'; // 'edit' atau 'add' — menentukan field mana yang diupdate oleh map/deteksi
+    let currentTeacherId = null;
+    let currentRuleId = null;
+    let currentPage = 1;
+    let totalPages = 1;
+    let pageLimit = 10;
+    let currentMapContext = 'edit'; // 'edit' atau 'add' — menentukan field mana yang diupdate oleh map/deteksi
 
     const setEl = (id, val) => {
       const el = document.getElementById(id);
-      if (el) el.textContent = val;
+      if (el) {
+        el.textContent = val;
+        el.classList.remove('skeleton-loader', 'skeleton-text-lg');
+      }
     };
 
     // Make functions globally available for onclick attributes
@@ -1489,9 +1737,9 @@ let currentTeacherId = null;
     window.toggleMap = toggleMap;
     window.centerMapOnCurrent = centerMapOnCurrent;
     window.clearMapMarker = clearMapMarker;
-window.copyCoordinates = copyCoordinates;
-     window.copyCoordinatesModal = copyCoordinatesModal;
-     window.updateCoordinatePreview = updateCoordinatePreview;
+    window.copyCoordinates = copyCoordinates;
+    window.copyCoordinatesModal = copyCoordinatesModal;
+    window.updateCoordinatePreview = updateCoordinatePreview;
     window.goToPage = goToPage;
     window.prevPage = prevPage;
     window.nextPage = nextPage;
@@ -1501,14 +1749,14 @@ window.copyCoordinates = copyCoordinates;
     window.editDevice = editDevice;
     window.changeDeviceStatus = changeDeviceStatus;
     window.deleteDevice = deleteDevice;
-window.showAddLocationModal = showAddLocationModal;
-      window.toggleLocationStatus = toggleLocationStatus;
-      window.deleteTenantLocation = deleteTenantLocation;
-      window.loadTenantLocations = loadTenantLocations;
-      window.updateToggleVisual = updateToggleVisual;
-      window.showAddTenantModal = showAddTenantModal;
-      window.hideAddTenantModal = hideAddTenantModal;
-      window.loadScannerDevices = loadScannerDevices;
+    window.showAddLocationModal = showAddLocationModal;
+    window.toggleLocationStatus = toggleLocationStatus;
+    window.deleteTenantLocation = deleteTenantLocation;
+    window.loadTenantLocations = loadTenantLocations;
+    window.updateToggleVisual = updateToggleVisual;
+    window.showAddTenantModal = showAddTenantModal;
+    window.hideAddTenantModal = hideAddTenantModal;
+    window.loadScannerDevices = loadScannerDevices;
     window.loadQRLogs = loadQRLogs;
 
     async function fetchDashboardData() {
@@ -1518,7 +1766,8 @@ window.showAddLocationModal = showAddLocationModal;
         });
 
         if (response.status === 401 || response.status === 403) {
-          localStorage.clear();
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
           window.location.replace('login.html');
           return;
         }
@@ -1527,13 +1776,23 @@ window.showAddLocationModal = showAddLocationModal;
 
         if (res.success) {
           const d = res.data;
-          setEl('totalTeachers', d.totalTeachers || 0);
-          setEl('todayAttendance', d.activeToday || 0);
-          setEl('lateCount', d.lateToday || 0);
+          setEl('totalTeachers', d.totalTeachers ?? 0);
+          setEl('todayAttendance', d.activeToday ?? 0);
+          setEl('lateCount', d.lateToday ?? 0);
           setEl('scannerStatus', 'Online');
+        } else {
+          // Clear loading animation even on error
+          setEl('totalTeachers', 0);
+          setEl('todayAttendance', 0);
+          setEl('lateCount', 0);
+          setEl('scannerStatus', 'Error');
         }
       } catch (error) {
         console.error('Dashboard fetch error:', error);
+        setEl('totalTeachers', 0);
+        setEl('todayAttendance', 0);
+        setEl('lateCount', 0);
+        setEl('scannerStatus', 'OFF');
       }
     }
 
@@ -1544,7 +1803,8 @@ window.showAddLocationModal = showAddLocationModal;
         });
 
         if (response.status === 401 || response.status === 403) {
-          localStorage.clear();
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
           window.location.replace('login.html');
           return;
         }
@@ -1612,7 +1872,8 @@ window.showAddLocationModal = showAddLocationModal;
         });
 
         if (response.status === 401 || response.status === 403) {
-          localStorage.clear();
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
           window.location.replace('login.html');
           return;
         }
@@ -1673,7 +1934,8 @@ window.showAddLocationModal = showAddLocationModal;
         });
 
         if (response.status === 401 || response.status === 403) {
-          localStorage.clear();
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
           window.location.replace('login.html');
           return;
         }
@@ -1710,7 +1972,8 @@ window.showAddLocationModal = showAddLocationModal;
         });
 
         if (response.status === 401 || response.status === 403) {
-          localStorage.clear();
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
           window.location.replace('login.html');
           return;
         }
@@ -1846,7 +2109,7 @@ window.showAddLocationModal = showAddLocationModal;
     function attachLocationButtonListeners() {
       // Auto-detect buttons
       document.querySelectorAll('[data-action="auto-detect"]').forEach(button => {
-        button.addEventListener('click', function() {
+        button.addEventListener('click', function () {
           const tenantId = this.getAttribute('data-tenant-id');
           autoDetectLocation(tenantId);
         });
@@ -1854,7 +2117,7 @@ window.showAddLocationModal = showAddLocationModal;
 
       // Edit location buttons
       document.querySelectorAll('[data-action="edit-location"]').forEach(button => {
-        button.addEventListener('click', function() {
+        button.addEventListener('click', function () {
           const tenantId = this.getAttribute('data-tenant-id');
           editTenantLocation(tenantId);
         });
@@ -1866,7 +2129,7 @@ window.showAddLocationModal = showAddLocationModal;
         updateToggleVisual(checkbox);
 
         // Listen for changes
-        checkbox.addEventListener('change', function() {
+        checkbox.addEventListener('change', function () {
           const tenantId = this.getAttribute('data-tenant-id');
           const isChecked = this.checked;
           updateToggleVisual(this);
@@ -1899,7 +2162,8 @@ window.showAddLocationModal = showAddLocationModal;
 
         if (response.status === 401 || response.status === 403) {
           console.warn('[TOGGLE] Token expired / unauthorized, redirecting ke login');
-          localStorage.clear();
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
           window.location.replace('login.html');
           return;
         }
@@ -2001,18 +2265,18 @@ window.showAddLocationModal = showAddLocationModal;
       fetch('/api/admin/tenants', {
         headers: { 'Authorization': `Bearer ${window.authToken || localStorage.getItem('token') || ''}` }
       })
-      .then(res => res.json())
-      .then(data => {
-        if (data.success) {
-          data.data.forEach(tenant => {
-            const option = document.createElement('option');
-            option.value = tenant.tenant_id;
-            option.textContent = tenant.nama_sekolah;
-            tenantSelect.appendChild(option);
-          });
-        }
-      })
-      .catch(error => console.error('Error fetching tenants:', error));
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            data.data.forEach(tenant => {
+              const option = document.createElement('option');
+              option.value = tenant.tenant_id;
+              option.textContent = tenant.nama_sekolah;
+              tenantSelect.appendChild(option);
+            });
+          }
+        })
+        .catch(error => console.error('Error fetching tenants:', error));
 
       document.getElementById('ruleModal').classList.add('show');
     }
@@ -2021,10 +2285,10 @@ window.showAddLocationModal = showAddLocationModal;
       document.getElementById('ruleModal').classList.remove('show');
     }
 
-function showLocationModal() {
-       currentMapContext = 'edit';
-       document.getElementById('locationModal').classList.add('show');
-     }
+    function showLocationModal() {
+      currentMapContext = 'edit';
+      document.getElementById('locationModal').classList.add('show');
+    }
 
     function hideLocationModal() {
       document.getElementById('locationModal').classList.remove('show');
@@ -2081,19 +2345,19 @@ function showLocationModal() {
             fetch('/api/admin/tenants', {
               headers: { 'Authorization': `Bearer ${window.authToken || localStorage.getItem('token') || ''}` }
             })
-            .then(res => res.json())
-            .then(data => {
-              if (data.success) {
-                tenantSelect.innerHTML = '<option value="">Pilih Tenant</option>';
-                data.data.forEach(tenant => {
-                  const option = document.createElement('option');
-                  option.value = tenant.tenant_id;
-                  option.textContent = tenant.nama_sekolah;
-                  tenantSelect.appendChild(option);
-                });
-                tenantSelect.value = rule.tenant_id;
-              }
-            });
+              .then(res => res.json())
+              .then(data => {
+                if (data.success) {
+                  tenantSelect.innerHTML = '<option value="">Pilih Tenant</option>';
+                  data.data.forEach(tenant => {
+                    const option = document.createElement('option');
+                    option.value = tenant.tenant_id;
+                    option.textContent = tenant.nama_sekolah;
+                    tenantSelect.appendChild(option);
+                  });
+                  tenantSelect.value = rule.tenant_id;
+                }
+              });
           }
 
           document.getElementById('ruleModal').classList.add('show');
@@ -2150,10 +2414,10 @@ function showLocationModal() {
             method: 'DELETE',
             headers: { 'Authorization': `Bearer ${window.authToken || localStorage.getItem('token') || ''}` }
           });
-        const res = await response.json();
-        if (res.success) {
-          fetchTeachers(currentPage);
-        }
+          const res = await response.json();
+          if (res.success) {
+            fetchTeachers(currentPage);
+          }
         } catch (error) {
           console.error('Delete teacher error:', error);
         }
@@ -2278,7 +2542,8 @@ function showLocationModal() {
     }
 
     function logout() {
-      localStorage.clear();
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
       window.location.href = 'login.html';
     }
 
@@ -2346,11 +2611,10 @@ function showLocationModal() {
 
     function createPageButton(pageNum, isActive = false) {
       const button = document.createElement('button');
-      button.className = `px-3 py-2 text-sm font-medium rounded-md ${
-        isActive
+      button.className = `px-3 py-2 text-sm font-medium rounded-md ${isActive
           ? 'bg-blue-600 text-white'
           : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-50'
-      }`;
+        }`;
       button.textContent = pageNum;
       if (!isActive) {
         button.onclick = () => goToPage(pageNum);
@@ -2381,19 +2645,17 @@ function showLocationModal() {
     function showToast(message, type = 'info') {
       // Create toast element
       const toast = document.createElement('div');
-      toast.className = `fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg max-w-sm ${
-        type === 'success' ? 'bg-green-500 text-white' :
-        type === 'error' ? 'bg-red-500 text-white' :
-        'bg-blue-500 text-white'
-      }`;
+      toast.className = `fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg max-w-sm ${type === 'success' ? 'bg-green-500 text-white' :
+          type === 'error' ? 'bg-red-500 text-white' :
+            'bg-blue-500 text-white'
+        }`;
 
       toast.innerHTML = `
         <div class="flex items-center">
-          <i class="fas ${
-            type === 'success' ? 'fa-check-circle' :
-            type === 'error' ? 'fa-exclamation-circle' :
+          <i class="fas ${type === 'success' ? 'fa-check-circle' :
+          type === 'error' ? 'fa-exclamation-circle' :
             'fa-info-circle'
-          } mr-2"></i>
+        } mr-2"></i>
           <span>${message}</span>
         </div>
       `;
@@ -2429,16 +2691,16 @@ function showLocationModal() {
         navItem.classList.remove('text-gray-500', 'border-transparent');
       }
 
-// Load data based on tab
-       if (tabName === 'locations') {
-         fetchTenantLocations();
-         // Update all toggle visuals after loading
-         setTimeout(updateAllToggleVisuals, 100);
-       } else if (tabName === 'locations-multi') {
-         loadTenantLocations();
-       } else if (tabName === 'attendance') {
-         fetchRules();
-       }
+      // Load data based on tab
+      if (tabName === 'locations') {
+        fetchTenantLocations();
+        // Update all toggle visuals after loading
+        setTimeout(updateAllToggleVisuals, 100);
+      } else if (tabName === 'locations-multi') {
+        loadTenantLocations();
+      } else if (tabName === 'attendance') {
+        fetchRules();
+      }
     }
 
     // Auto Detect Location Functions
@@ -2503,116 +2765,116 @@ function showLocationModal() {
       }
     }
 
-async function autoDetectLocationModal(event) {
-       console.log('🔍 Detect location button clicked');
+    async function autoDetectLocationModal(event) {
+      console.log('🔍 Detect location button clicked');
 
-       // Tentukan field berdasarkan konteks modal
-       const isAddModal = currentMapContext === 'add';
-       const latFieldId = isAddModal ? 'locationLat' : 'latitudeInput';
-       const lngFieldId = isAddModal ? 'locationLng' : 'longitudeInput';
-       const coordPreviewId = isAddModal ? 'coordinatePreviewModal' : 'coordinatePreview';
-       const statusDivId = isAddModal ? 'tenantLocationStatus' : 'locationStatus';
+      // Tentukan field berdasarkan konteks modal
+      const isAddModal = currentMapContext === 'add';
+      const latFieldId = isAddModal ? 'locationLat' : 'latitudeInput';
+      const lngFieldId = isAddModal ? 'locationLng' : 'longitudeInput';
+      const coordPreviewId = isAddModal ? 'coordinatePreviewModal' : 'coordinatePreview';
+      const statusDivId = isAddModal ? 'tenantLocationStatus' : 'locationStatus';
 
-       if (!navigator.geolocation) {
-         console.error('❌ Geolocation not supported');
-         alert('Browser tidak mendukung geolokasi');
-         return;
-       }
+      if (!navigator.geolocation) {
+        console.error('❌ Geolocation not supported');
+        alert('Browser tidak mendukung geolokasi');
+        return;
+      }
 
-       const button = event.target.closest('button');
-       console.log('Button found:', !!button);
+      const button = event.target.closest('button');
+      console.log('Button found:', !!button);
 
-       const originalText = button.innerHTML;
-       const statusDiv = document.getElementById(statusDivId);
-       const latInput = document.getElementById(latFieldId);
-       const lngInput = document.getElementById(lngFieldId);
-       const coordPreview = document.getElementById(coordPreviewId);
+      const originalText = button.innerHTML;
+      const statusDiv = document.getElementById(statusDivId);
+      const latInput = document.getElementById(latFieldId);
+      const lngInput = document.getElementById(lngFieldId);
+      const coordPreview = document.getElementById(coordPreviewId);
 
-       console.log('Status div found:', !!statusDiv);
-       console.log('Lat input found:', !!latInput);
-       console.log('Lng input found:', !!lngInput);
+      console.log('Status div found:', !!statusDiv);
+      console.log('Lat input found:', !!latInput);
+      console.log('Lng input found:', !!lngInput);
 
-       button.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Detecting...';
-       button.disabled = true;
-       statusDiv.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i>Mendapatkan koordinat GPS...';
+      button.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Detecting...';
+      button.disabled = true;
+      statusDiv.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i>Mendapatkan koordinat GPS...';
 
-       try {
-         const position = await new Promise((resolve, reject) => {
-           navigator.geolocation.getCurrentPosition(resolve, reject, {
-             enableHighAccuracy: true,
-             timeout: 15000,
-             maximumAge: 300000
-           });
-         });
+      try {
+        const position = await new Promise((resolve, reject) => {
+          navigator.geolocation.getCurrentPosition(resolve, reject, {
+            enableHighAccuracy: true,
+            timeout: 15000,
+            maximumAge: 300000
+          });
+        });
 
-         const latitude = position.coords.latitude.toFixed(6);
-         const longitude = position.coords.longitude.toFixed(6);
-         const accuracy = Math.round(position.coords.accuracy);
+        const latitude = position.coords.latitude.toFixed(6);
+        const longitude = position.coords.longitude.toFixed(6);
+        const accuracy = Math.round(position.coords.accuracy);
 
-         console.log('📍 GPS coordinates obtained:', { latitude, longitude, accuracy });
+        console.log('📍 GPS coordinates obtained:', { latitude, longitude, accuracy });
 
-         // Fill the form inputs
-         if (latInput) latInput.value = latitude;
-         if (lngInput) lngInput.value = longitude;
+        // Fill the form inputs
+        if (latInput) latInput.value = latitude;
+        if (lngInput) lngInput.value = longitude;
 
-         // Update coordinate preview
-         if (coordPreview) coordPreview.innerHTML = `📍 ${latitude}, ${longitude}`;
+        // Update coordinate preview
+        if (coordPreview) coordPreview.innerHTML = `📍 ${latitude}, ${longitude}`;
 
-         // Update status
-         statusDiv.innerHTML = `<i class="fas fa-check-circle mr-1 text-green-600"></i>Lokasi berhasil dideteksi (akurasi: ${accuracy}m)`;
-         statusDiv.classList.add('text-green-600');
-         setTimeout(() => {
-           statusDiv.classList.remove('text-green-600');
-         }, 3000);
+        // Update status
+        statusDiv.innerHTML = `<i class="fas fa-check-circle mr-1 text-green-600"></i>Lokasi berhasil dideteksi (akurasi: ${accuracy}m)`;
+        statusDiv.classList.add('text-green-600');
+        setTimeout(() => {
+          statusDiv.classList.remove('text-green-600');
+        }, 3000);
 
-         console.log('Form updated successfully');
+        console.log('Form updated successfully');
 
-         // Update mini map with GPS coordinates
-         if (isAddModal) {
-           updateMiniMap(latitude, longitude);
-         } else {
-           updateLocationMap(latitude, longitude);
-         }
-         console.log('Map updated with GPS coordinates');
+        // Update mini map with GPS coordinates
+        if (isAddModal) {
+          updateMiniMap(latitude, longitude);
+        } else {
+          updateLocationMap(latitude, longitude);
+        }
+        console.log('Map updated with GPS coordinates');
 
-       } catch (error) {
-         console.error('Modal location detection error:', error);
-         let errorMessage = 'Gagal mendapatkan lokasi';
+      } catch (error) {
+        console.error('Modal location detection error:', error);
+        let errorMessage = 'Gagal mendapatkan lokasi';
 
-         if (error.code === 1) {
-           errorMessage = 'Akses lokasi ditolak. Izinkan akses lokasi di browser.';
-         } else if (error.code === 2) {
-           errorMessage = 'Lokasi tidak dapat ditemukan. Pastikan GPS aktif.';
-         } else if (error.code === 3) {
-           errorMessage = 'Timeout mendeteksi lokasi. Coba lagi.';
-         }
+        if (error.code === 1) {
+          errorMessage = 'Akses lokasi ditolak. Izinkan akses lokasi di browser.';
+        } else if (error.code === 2) {
+          errorMessage = 'Lokasi tidak dapat ditemukan. Pastikan GPS aktif.';
+        } else if (error.code === 3) {
+          errorMessage = 'Timeout mendeteksi lokasi. Coba lagi.';
+        }
 
-         statusDiv.innerHTML = `<i class="fas fa-exclamation-triangle mr-1 text-red-600"></i>${errorMessage}`;
-         statusDiv.classList.add('text-red-600');
-         setTimeout(() => {
-           statusDiv.classList.remove('text-red-600');
-         }, 3000);
+        statusDiv.innerHTML = `<i class="fas fa-exclamation-triangle mr-1 text-red-600"></i>${errorMessage}`;
+        statusDiv.classList.add('text-red-600');
+        setTimeout(() => {
+          statusDiv.classList.remove('text-red-600');
+        }, 3000);
 
-         // Fallback: Update map with default coordinates
-         console.log('⚠️ GPS failed, using default coordinates');
-         const defaultLat = -2.2166;
-         const defaultLng = 113.9209;
+        // Fallback: Update map with default coordinates
+        console.log('⚠️ GPS failed, using default coordinates');
+        const defaultLat = -2.2166;
+        const defaultLng = 113.9209;
 
-         if (isAddModal) {
-           updateMiniMap(defaultLat, defaultLng);
-         } else {
-           updateLocationMap(defaultLat, defaultLng);
-         }
+        if (isAddModal) {
+          updateMiniMap(defaultLat, defaultLng);
+        } else {
+          updateLocationMap(defaultLat, defaultLng);
+        }
 
-         if (latInput) latInput.value = defaultLat.toFixed(6);
-         if (lngInput) lngInput.value = defaultLng.toFixed(6);
-         if (coordPreview) coordPreview.innerHTML = `📍 ${defaultLat.toFixed(6)}, ${defaultLng.toFixed(6)} (Default)`;
+        if (latInput) latInput.value = defaultLat.toFixed(6);
+        if (lngInput) lngInput.value = defaultLng.toFixed(6);
+        if (coordPreview) coordPreview.innerHTML = `📍 ${defaultLat.toFixed(6)}, ${defaultLng.toFixed(6)} (Default)`;
 
-       } finally {
-         button.innerHTML = originalText;
-         button.disabled = false;
-       }
-     }
+      } finally {
+        button.innerHTML = originalText;
+        button.disabled = false;
+      }
+    }
 
     // Refresh tenant locations
     function refreshTenantLocations() {
@@ -2739,7 +3001,8 @@ async function autoDetectLocationModal(event) {
         });
 
         if (response.status === 401 || response.status === 403) {
-          localStorage.clear();
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
           window.location.replace('login.html');
           return;
         }
@@ -2789,7 +3052,8 @@ async function autoDetectLocationModal(event) {
 
           if (response.status === 401 || response.status === 403) {
             console.warn('[TENANT LOCATION] Token expired / unauthorized, redirecting to login');
-            localStorage.clear();
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
             window.location.replace('login.html');
             return;
           }
@@ -2811,16 +3075,16 @@ async function autoDetectLocationModal(event) {
         }
       });
 
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
       // Run auth check first
       const token = localStorage.getItem('token');
       const userData = localStorage.getItem('user');
-      
+
       if (!token || !userData) {
         window.location.replace('/login.html');
         return;
       }
-      
+
       try {
         const user = JSON.parse(userData);
         if (user.role !== 'admin') {
@@ -2829,7 +3093,7 @@ async function autoDetectLocationModal(event) {
         }
         window.authToken = token;
         window.currentUser = user;
-        
+
         // Now initialize UI components after auth is confirmed
         initAllUI();
       } catch (e) {
@@ -2850,7 +3114,7 @@ async function autoDetectLocationModal(event) {
 
       // Attach tab click handlers
       document.querySelectorAll('.nav-item').forEach(btn => {
-        btn.addEventListener('click', function() {
+        btn.addEventListener('click', function () {
           const tab = this.getAttribute('data-tab');
           showTab(tab);
         });
@@ -2858,7 +3122,7 @@ async function autoDetectLocationModal(event) {
 
       // Add settings navigation event listeners
       document.querySelectorAll('.settings-nav-item').forEach(item => {
-        item.addEventListener('click', function() {
+        item.addEventListener('click', function () {
           const setting = this.getAttribute('data-setting');
           showSettingsTab(setting);
         });
@@ -2881,20 +3145,20 @@ async function autoDetectLocationModal(event) {
         fetch('/api/admin/tenants', {
           headers: { 'Authorization': `Bearer ${window.authToken || localStorage.getItem('token') || ''}` }
         })
-        .then(res => res.json())
-        .then(data => {
-          if (data.success) {
-            const select = document.getElementById('deviceTenantId');
-            select.innerHTML = '<option value="">Pilih Sekolah</option>';
-            data.data.forEach(tenant => {
-              const option = document.createElement('option');
-              option.value = tenant.tenant_id;
-              option.textContent = tenant.nama_sekolah;
-              select.appendChild(option);
-            });
-          }
-        })
-        .catch(error => console.error('Error loading tenants for device modal:', error));
+          .then(res => res.json())
+          .then(data => {
+            if (data.success) {
+              const select = document.getElementById('deviceTenantId');
+              select.innerHTML = '<option value="">Pilih Sekolah</option>';
+              data.data.forEach(tenant => {
+                const option = document.createElement('option');
+                option.value = tenant.tenant_id;
+                option.textContent = tenant.nama_sekolah;
+                select.appendChild(option);
+              });
+            }
+          })
+          .catch(error => console.error('Error loading tenants for device modal:', error));
       });
 
       // Refresh devices button
@@ -3090,56 +3354,56 @@ async function autoDetectLocationModal(event) {
       }
     }
 
-async function loadTeachersForWhatsApp() {
-       try {
-         // all=1: tanpa limit, has_wa=1: hanya guru yang punya nomor WA
-         const response = await fetch('/api/admin/teachers?all=1&has_wa=1', {
-           headers: { 'Authorization': `Bearer ${window.authToken || localStorage.getItem('token') || ''}` }
-         });
+    async function loadTeachersForWhatsApp() {
+      try {
+        // all=1: tanpa limit, has_wa=1: hanya guru yang punya nomor WA
+        const response = await fetch('/api/admin/teachers?all=1&has_wa=1', {
+          headers: { 'Authorization': `Bearer ${window.authToken || localStorage.getItem('token') || ''}` }
+        });
 
-         if (response.ok) {
-           const result = await response.json();
-           // Store teacher data for lookup
-           window.teacherDataList = result.data || [];
+        if (response.ok) {
+          const result = await response.json();
+          // Store teacher data for lookup
+          window.teacherDataList = result.data || [];
 
-           // Add input event listener for real-time search
-           const input = document.getElementById('singleTeacherInput');
-           const hiddenInput = document.getElementById('singleTeacherSelect');
-           const resultsDiv = document.getElementById('teacherSearchResults');
-           const selectedInfo = document.getElementById('teacherSelectedInfo');
+          // Add input event listener for real-time search
+          const input = document.getElementById('singleTeacherInput');
+          const hiddenInput = document.getElementById('singleTeacherSelect');
+          const resultsDiv = document.getElementById('teacherSearchResults');
+          const selectedInfo = document.getElementById('teacherSelectedInfo');
 
-           let debounceTimer = null;
+          let debounceTimer = null;
 
-           input.addEventListener('input', function() {
-             clearTimeout(debounceTimer);
-             const query = this.value.trim().toLowerCase();
+          input.addEventListener('input', function () {
+            clearTimeout(debounceTimer);
+            const query = this.value.trim().toLowerCase();
 
-             if (query.length < 1) {
-               resultsDiv.classList.add('hidden');
-               resultsDiv.innerHTML = '';
-               hiddenInput.value = '';
-               selectedInfo.innerHTML = '';
-               return;
-             }
+            if (query.length < 1) {
+              resultsDiv.classList.add('hidden');
+              resultsDiv.innerHTML = '';
+              hiddenInput.value = '';
+              selectedInfo.innerHTML = '';
+              return;
+            }
 
-             debounceTimer = setTimeout(() => {
-               const filtered = window.teacherDataList.filter(teacher => {
-                 if (!teacher.no_wa) return false;
-                 const nameMatch = (teacher.nama || '').toLowerCase().includes(query);
-                 const waMatch = (teacher.no_wa || '').includes(query);
-                 return nameMatch || waMatch;
-               });
+            debounceTimer = setTimeout(() => {
+              const filtered = window.teacherDataList.filter(teacher => {
+                if (!teacher.no_wa) return false;
+                const nameMatch = (teacher.nama || '').toLowerCase().includes(query);
+                const waMatch = (teacher.no_wa || '').includes(query);
+                return nameMatch || waMatch;
+              });
 
-               if (filtered.length === 0) {
-                 resultsDiv.innerHTML = '<div class="px-4 py-3 text-sm text-gray-500 text-center">Tidak ada guru ditemukan</div>';
-                 resultsDiv.classList.remove('hidden');
-                 hiddenInput.value = '';
-               } else {
-                 resultsDiv.innerHTML = filtered.map(teacher => {
-                   const assignment = teacher.assignments && teacher.assignments.length > 0 ? teacher.assignments[0] : null;
-                   const jabatan = assignment ? assignment.jabatan_di_unit || 'Guru' : 'Guru';
-                   const schoolName = assignment ? assignment.nama_sekolah || '-' : '-';
-return `<div class="teacher-search-item px-4 py-3 hover:bg-blue-50 cursor-pointer text-sm border-b border-gray-100 last:border-b-0"
+              if (filtered.length === 0) {
+                resultsDiv.innerHTML = '<div class="px-4 py-3 text-sm text-gray-500 text-center">Tidak ada guru ditemukan</div>';
+                resultsDiv.classList.remove('hidden');
+                hiddenInput.value = '';
+              } else {
+                resultsDiv.innerHTML = filtered.map(teacher => {
+                  const assignment = teacher.assignments && teacher.assignments.length > 0 ? teacher.assignments[0] : null;
+                  const jabatan = assignment ? assignment.jabatan_di_unit || 'Guru' : 'Guru';
+                  const schoolName = assignment ? assignment.nama_sekolah || '-' : '-';
+                  return `<div class="teacher-search-item px-4 py-3 hover:bg-blue-50 cursor-pointer text-sm border-b border-gray-100 last:border-b-0"
                       data-id="${teacher.id}"
                       data-nama="${teacher.nama.replace(/"/g, '&quot;')}"
                       data-wa="${teacher.no_wa}"
@@ -3148,51 +3412,51 @@ return `<div class="teacher-search-item px-4 py-3 hover:bg-blue-50 cursor-pointe
                       <div class="font-medium text-gray-900">${teacher.nama}</div>
                       <div class="text-xs text-gray-500">\u{1F4F7} ${teacher.no_wa} &middot; ${jabatan} &middot; ${schoolName}</div>
                     </div>`;
-                 }).join('');
-                 resultsDiv.classList.remove('hidden');
+                }).join('');
+                resultsDiv.classList.remove('hidden');
 
-                 // Attach click handlers to search items
-                 resultsDiv.querySelectorAll('.teacher-search-item').forEach(item => {
-                   item.addEventListener('click', function() {
-                     const id = this.getAttribute('data-id');
-                     const nama = this.getAttribute('data-nama');
-                     const wa = this.getAttribute('data-wa');
-                     const jabatan = this.getAttribute('data-jabatan');
-                     const sekolah = this.getAttribute('data-sekolah');
+                // Attach click handlers to search items
+                resultsDiv.querySelectorAll('.teacher-search-item').forEach(item => {
+                  item.addEventListener('click', function () {
+                    const id = this.getAttribute('data-id');
+                    const nama = this.getAttribute('data-nama');
+                    const wa = this.getAttribute('data-wa');
+                    const jabatan = this.getAttribute('data-jabatan');
+                    const sekolah = this.getAttribute('data-sekolah');
 
-                     input.value = `${nama} (${wa}) - ${jabatan}`;
-                     hiddenInput.value = id;
-                     selectedInfo.innerHTML = `<span class="text-green-600">✅ Dipilih: ${nama} (${sekolah})</span>`;
-                     resultsDiv.classList.add('hidden');
-                   });
-                 });
-               }
-             }, 200);
-           });
-
-// Close dropdown when clicking outside
-            document.addEventListener('click', function(e) {
-              if (!resultsDiv.contains(e.target) && e.target !== input) {
-                resultsDiv.classList.add('hidden');
+                    input.value = `${nama} (${wa}) - ${jabatan}`;
+                    hiddenInput.value = id;
+                    selectedInfo.innerHTML = `<span class="text-green-600">✅ Dipilih: ${nama} (${sekolah})</span>`;
+                    resultsDiv.classList.add('hidden');
+                  });
+                });
               }
-            });
+            }, 200);
+          });
 
-           input.addEventListener('blur', function() {
-             setTimeout(() => {
-               resultsDiv.classList.add('hidden');
-             }, 200);
-           });
+          // Close dropdown when clicking outside
+          document.addEventListener('click', function (e) {
+            if (!resultsDiv.contains(e.target) && e.target !== input) {
+              resultsDiv.classList.add('hidden');
+            }
+          });
 
-           input.addEventListener('focus', function() {
-             if (this.value.trim().length > 0) {
-               this.dispatchEvent(new Event('input'));
-             }
-           });
-         }
-       } catch (error) {
-         console.error('Error loading teachers for WhatsApp:', error);
-       }
-     }
+          input.addEventListener('blur', function () {
+            setTimeout(() => {
+              resultsDiv.classList.add('hidden');
+            }, 200);
+          });
+
+          input.addEventListener('focus', function () {
+            if (this.value.trim().length > 0) {
+              this.dispatchEvent(new Event('input'));
+            }
+          });
+        }
+      } catch (error) {
+        console.error('Error loading teachers for WhatsApp:', error);
+      }
+    }
 
     function updateWhatsAppStatus(message, type = 'info') {
       const statusDiv = document.getElementById('whatsappStatus');
@@ -3251,39 +3515,39 @@ return `<div class="teacher-search-item px-4 py-3 hover:bg-blue-50 cursor-pointe
           attributionControl: false
         });
 
-// Add OpenStreetMap tiles
-         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-           maxZoom: 19,
-         }).addTo(miniMap);
+        // Add OpenStreetMap tiles
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          maxZoom: 19,
+        }).addTo(miniMap);
 
-         // Add click handler to mini map
-         miniMap.on('click', function(e) {
-           setLocationFromMap(e.latlng.lat, e.latlng.lng);
-         });
+        // Add click handler to mini map
+        miniMap.on('click', function (e) {
+          setLocationFromMap(e.latlng.lat, e.latlng.lng);
+        });
 
-         // Add marker
-         currentMarker = L.marker([lat, lng]).addTo(miniMap);
+        // Add marker
+        currentMarker = L.marker([lat, lng]).addTo(miniMap);
 
-         // Fit bounds
-         miniMap.fitBounds([[lat, lng], [lat, lng]], { maxZoom: 16 });
+        // Fit bounds
+        miniMap.fitBounds([[lat, lng], [lat, lng]], { maxZoom: 16 });
 
-         // Try to get current location for initial marker
-         if (navigator.geolocation) {
-           navigator.geolocation.getCurrentPosition(
-             function(position) {
-               const curLat = position.coords.latitude;
-               const curLng = position.coords.longitude;
-               miniMap.setView([curLat, curLng], 13);
-             },
-             function() {
-               // Default center if geolocation fails
-               miniMap.setView([lat, lng], 16);
-             },
-             { timeout: 10000 }
-           );
-         }
+        // Try to get current location for initial marker
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(
+            function (position) {
+              const curLat = position.coords.latitude;
+              const curLng = position.coords.longitude;
+              miniMap.setView([curLat, curLng], 13);
+            },
+            function () {
+              // Default center if geolocation fails
+              miniMap.setView([lat, lng], 16);
+            },
+            { timeout: 10000 }
+          );
+        }
 
-         console.log('✅ Mini map updated successfully');
+        console.log('✅ Mini map updated successfully');
       } catch (error) {
         console.error('❌ Error creating mini map:', error);
         mapContainer.innerHTML = `
@@ -3341,20 +3605,20 @@ return `<div class="teacher-search-item px-4 py-3 hover:bg-blue-50 cursor-pointe
         }).addTo(locationMap);
 
         // Add click handler to map
-        locationMap.on('click', function(e) {
+        locationMap.on('click', function (e) {
           setLocationFromMap(e.latlng.lat, e.latlng.lng);
         });
 
         // Try to get current location
         if (navigator.geolocation) {
           navigator.geolocation.getCurrentPosition(
-            function(position) {
+            function (position) {
               const lat = position.coords.latitude;
               const lng = position.coords.longitude;
               locationMap.setView([lat, lng], 13);
               setLocationFromMap(lat, lng);
             },
-            function(error) {
+            function (error) {
               console.log('Geolocation error:', error);
               // Set default marker
               setLocationFromMap(defaultLat, defaultLng);
@@ -3380,62 +3644,62 @@ return `<div class="teacher-search-item px-4 py-3 hover:bg-blue-50 cursor-pointe
       }
     }
 
-function setLocationFromMap(lat, lng) {
-       currentLatLng = { lat, lng };
+    function setLocationFromMap(lat, lng) {
+      currentLatLng = { lat, lng };
 
-       // Tentukan field berdasarkan konteks modal
-       const isAddModal = currentMapContext === 'add';
-       const latFieldId = isAddModal ? 'locationLat' : 'latitudeInput';
-       const lngFieldId = isAddModal ? 'locationLng' : 'longitudeInput';
-       const previewId = isAddModal ? 'coordinatePreviewModal' : 'coordinatePreview';
+      // Tentukan field berdasarkan konteks modal
+      const isAddModal = currentMapContext === 'add';
+      const latFieldId = isAddModal ? 'locationLat' : 'latitudeInput';
+      const lngFieldId = isAddModal ? 'locationLng' : 'longitudeInput';
+      const previewId = isAddModal ? 'coordinatePreviewModal' : 'coordinatePreview';
 
-       // Update form inputs
-       const latField = document.getElementById(latFieldId);
-       const lngField = document.getElementById(lngFieldId);
-       if (latField) latField.value = lat.toFixed(6);
-       if (lngField) lngField.value = lng.toFixed(6);
+      // Update form inputs
+      const latField = document.getElementById(latFieldId);
+      const lngField = document.getElementById(lngFieldId);
+      if (latField) latField.value = lat.toFixed(6);
+      if (lngField) lngField.value = lng.toFixed(6);
 
-       // Update coordinate preview
-       const coordPreview = document.getElementById(previewId);
-       if (coordPreview) coordPreview.innerHTML = '<span class="text-green-600">📍 ' + lat.toFixed(6) + ', ' + lng.toFixed(6) + '</span>';
+      // Update coordinate preview
+      const coordPreview = document.getElementById(previewId);
+      if (coordPreview) coordPreview.innerHTML = '<span class="text-green-600">📍 ' + lat.toFixed(6) + ', ' + lng.toFixed(6) + '</span>';
 
-       // Update or create marker
-       if (locationMarker) {
-         locationMarker.setLatLng([lat, lng]);
-       } else {
-         const activeMap = isAddModal ? miniMap : locationMap;
-         if (activeMap) {
-           locationMarker = L.marker([lat, lng], {
-             draggable: true
-           }).addTo(activeMap);
+      // Update or create marker
+      if (locationMarker) {
+        locationMarker.setLatLng([lat, lng]);
+      } else {
+        const activeMap = isAddModal ? miniMap : locationMap;
+        if (activeMap) {
+          locationMarker = L.marker([lat, lng], {
+            draggable: true
+          }).addTo(activeMap);
 
-           // Add drag handler
-           locationMarker.on('dragend', function(e) {
-             const position = e.target.getLatLng();
-             setLocationFromMap(position.lat, position.lng);
-           });
-         }
-       }
+          // Add drag handler
+          locationMarker.on('dragend', function (e) {
+            const position = e.target.getLatLng();
+            setLocationFromMap(position.lat, position.lng);
+          });
+        }
+      }
 
-       // Center map on marker
-       const activeMap = isAddModal ? miniMap : locationMap;
-       if (activeMap) {
-         activeMap.setView([lat, lng], 15);
-       }
-     }
+      // Center map on marker
+      const activeMap = isAddModal ? miniMap : locationMap;
+      if (activeMap) {
+        activeMap.setView([lat, lng], 15);
+      }
+    }
 
     function centerMapOnCurrent() {
       if (currentLatLng) {
         locationMap.setView([currentLatLng.lat, currentLatLng.lng], 15);
       } else if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
-          function(position) {
+          function (position) {
             const lat = position.coords.latitude;
             const lng = position.coords.longitude;
             locationMap.setView([lat, lng], 15);
             setLocationFromMap(lat, lng);
           },
-          function(error) {
+          function (error) {
             console.log('Geolocation error:', error);
             alert('Tidak dapat mendapatkan lokasi saat ini. Pastikan GPS aktif.');
           }
@@ -3503,45 +3767,45 @@ function setLocationFromMap(lat, lng) {
             alert('Gagal menyalin koordinat. Coba lagi.');
           });
         }
-} else {
-          alert('Belum ada koordinat yang bisa disalin');
-        }
+      } else {
+        alert('Belum ada koordinat yang bisa disalin');
       }
+    }
 
-      // Copy coordinates from modal tambah
-      function copyCoordinatesModal() {
-        const preview = document.getElementById('coordinatePreviewModal');
-        if (!preview) return;
-        const coordinates = preview.textContent;
+    // Copy coordinates from modal tambah
+    function copyCoordinatesModal() {
+      const preview = document.getElementById('coordinatePreviewModal');
+      if (!preview) return;
+      const coordinates = preview.textContent;
 
-        if (coordinates && !coordinates.includes('Belum ada koordinat')) {
-          const coordMatch = coordinates.match(/(-?\d+\.\d+),\s*(-?\d+\.\d+)/);
-          if (coordMatch) {
-            const coordsOnly = coordMatch[1] + ', ' + coordMatch[2];
-            navigator.clipboard.writeText(coordsOnly).then(() => {
-              const originalHTML = preview.innerHTML;
-              preview.innerHTML = '<div class="flex items-center text-green-700"><i class="fas fa-check-circle mr-2"></i><span class="font-semibold">Koordinat berhasil disalin!</span></div>';
-              preview.classList.add('bg-green-50', 'border-green-300');
-              setTimeout(() => {
-                preview.innerHTML = originalHTML;
-                preview.classList.remove('bg-green-50', 'border-green-300');
-              }, 2000);
-            }).catch(err => {
-              console.error('Failed to copy:', err);
-              alert('Gagal menyalin koordinat. Coba lagi.');
-            });
-          }
-        } else {
-          alert('Belum ada koordinat yang bisa disalin');
+      if (coordinates && !coordinates.includes('Belum ada koordinat')) {
+        const coordMatch = coordinates.match(/(-?\d+\.\d+),\s*(-?\d+\.\d+)/);
+        if (coordMatch) {
+          const coordsOnly = coordMatch[1] + ', ' + coordMatch[2];
+          navigator.clipboard.writeText(coordsOnly).then(() => {
+            const originalHTML = preview.innerHTML;
+            preview.innerHTML = '<div class="flex items-center text-green-700"><i class="fas fa-check-circle mr-2"></i><span class="font-semibold">Koordinat berhasil disalin!</span></div>';
+            preview.classList.add('bg-green-50', 'border-green-300');
+            setTimeout(() => {
+              preview.innerHTML = originalHTML;
+              preview.classList.remove('bg-green-50', 'border-green-300');
+            }, 2000);
+          }).catch(err => {
+            console.error('Failed to copy:', err);
+            alert('Gagal menyalin koordinat. Coba lagi.');
+          });
         }
+      } else {
+        alert('Belum ada koordinat yang bisa disalin');
       }
+    }
 
-     // Override the existing updateCoordinatePreview to work with our new system
+    // Override the existing updateCoordinatePreview to work with our new system
     window.updateCoordinatePreview = updateCoordinatePreview;
 
     // ===== MISSING MODAL FUNCTIONS =====
 
-function hideTenantLocationModal() {
+    function hideTenantLocationModal() {
       console.log('Hiding tenant location modal...');
       const modal = document.getElementById('tenantLocationModal');
       modal.classList.remove('show');
@@ -3563,74 +3827,75 @@ function hideTenantLocationModal() {
       }
       currentMarker = null;
 
-console.log('Modal hidden');
-     }
+      console.log('Modal hidden');
+    }
 
-     function showAddTenantModal() {
-       console.log('Opening add tenant modal...');
-       document.getElementById('addTenantForm').reset();
-       document.getElementById('addTenantModal').classList.remove('hidden');
-       document.getElementById('addTenantModal').classList.add('show');
-     }
+    function showAddTenantModal() {
+      console.log('Opening add tenant modal...');
+      document.getElementById('addTenantForm').reset();
+      document.getElementById('addTenantModal').classList.remove('hidden');
+      document.getElementById('addTenantModal').classList.add('show');
+    }
 
-     function hideAddTenantModal() {
-       console.log('Hiding add tenant modal...');
-       document.getElementById('addTenantModal').classList.remove('show');
-       document.getElementById('addTenantModal').classList.add('hidden');
-     }
+    function hideAddTenantModal() {
+      console.log('Hiding add tenant modal...');
+      document.getElementById('addTenantModal').classList.remove('show');
+      document.getElementById('addTenantModal').classList.add('hidden');
+    }
 
-     // Handle add tenant form submission
-     document.getElementById('addTenantForm').addEventListener('submit', async (e) => {
-       e.preventDefault();
-       const formData = new FormData(e.target);
-       const data = Object.fromEntries(formData);
+    // Handle add tenant form submission
+    document.getElementById('addTenantForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const formData = new FormData(e.target);
+      const data = Object.fromEntries(formData);
 
-       const submitBtn = document.getElementById('addTenantSubmitBtn');
-       const originalText = submitBtn.innerHTML;
-       submitBtn.disabled = true;
-       submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan...';
+      const submitBtn = document.getElementById('addTenantSubmitBtn');
+      const originalText = submitBtn.innerHTML;
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan...';
 
-       try {
-         const response = await fetch('/api/admin/tenants', {
-           method: 'POST',
-           headers: {
-             'Content-Type': 'application/json',
-             'Authorization': `Bearer ${window.authToken || localStorage.getItem('token') || ''}`
-           },
-           body: JSON.stringify(data)
-         });
+      try {
+        const response = await fetch('/api/admin/tenants', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${window.authToken || localStorage.getItem('token') || ''}`
+          },
+          body: JSON.stringify(data)
+        });
 
-         if (response.status === 401 || response.status === 403) {
-           console.warn('[ADD TENANT] Token expired / unauthorized, redirecting to login');
-           localStorage.clear();
-           window.location.replace('login.html');
-           return;
-         }
+        if (response.status === 401 || response.status === 403) {
+          console.warn('[ADD TENANT] Token expired / unauthorized, redirecting to login');
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+          window.location.replace('login.html');
+          return;
+        }
 
-         const res = await response.json();
-         if (res.success) {
-           hideAddTenantModal();
-           fetchTenantLocations();
-           showToast('Tenant berhasil ditambahkan', 'success');
-         } else {
-           showToast('Gagal menambah tenant: ' + (res.message || 'Terjadi kesalahan'), 'error');
-         }
-       } catch (error) {
-         console.error('Add tenant error:', error);
-         showToast('Terjadi kesalahan saat menambah tenant', 'error');
-       } finally {
-         submitBtn.disabled = false;
-         submitBtn.innerHTML = originalText;
-       }
-     });
+        const res = await response.json();
+        if (res.success) {
+          hideAddTenantModal();
+          fetchTenantLocations();
+          showToast('Tenant berhasil ditambahkan', 'success');
+        } else {
+          showToast('Gagal menambah tenant: ' + (res.message || 'Terjadi kesalahan'), 'error');
+        }
+      } catch (error) {
+        console.error('Add tenant error:', error);
+        showToast('Terjadi kesalahan saat menambah tenant', 'error');
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalText;
+      }
+    });
 
-function showAddLocationModal() {
-       // This function shows the modal for adding new tenant locations
-       console.log('Opening add location modal...');
-       currentMapContext = 'add';
+    function showAddLocationModal() {
+      // This function shows the modal for adding new tenant locations
+      console.log('Opening add location modal...');
+      currentMapContext = 'add';
 
-        // Hide all other modals first
-        document.querySelectorAll('.modal').forEach(modal => {
+      // Hide all other modals first
+      document.querySelectorAll('.modal').forEach(modal => {
         modal.classList.add('hidden');
         modal.classList.remove('show');
       });
@@ -3710,7 +3975,7 @@ function showAddLocationModal() {
       console.log('Modal visible:', modal ? modal.classList.contains('show') : false);
 
       const authToken = window.authToken || localStorage.getItem('token');
-        if (!authToken) {
+      if (!authToken) {
         console.error('No auth token available for tenant loading');
         const select = document.getElementById('locationTenantId');
         if (select) select.innerHTML = '<option value="">Token autentikasi tidak tersedia</option>';
@@ -3720,88 +3985,88 @@ function showAddLocationModal() {
       fetch('/api/admin/tenants', {
         headers: { 'Authorization': `Bearer ${window.authToken || localStorage.getItem('token') || ''}` }
       })
-      .then(res => {
-        console.log('Tenant API response status:', res.status);
-        return res.json();
-      })
-      .then(data => {
-        try {
-          console.log('Tenant API response data:', data);
-          if (data.success && data.data) {
-            console.log('Processing tenant data...');
+        .then(res => {
+          console.log('Tenant API response status:', res.status);
+          return res.json();
+        })
+        .then(data => {
+          try {
+            console.log('Tenant API response data:', data);
+            if (data.success && data.data) {
+              console.log('Processing tenant data...');
 
-            // Get select element fresh each time to avoid stale references
-            const selectElement = document.getElementById('locationTenantId');
-            console.log('Select element found:', !!selectElement);
-            console.log('Select element type:', selectElement ? selectElement.tagName : 'N/A');
+              // Get select element fresh each time to avoid stale references
+              const selectElement = document.getElementById('locationTenantId');
+              console.log('Select element found:', !!selectElement);
+              console.log('Select element type:', selectElement ? selectElement.tagName : 'N/A');
 
-            if (!selectElement) {
-              console.error('Select element locationTenantId not found!');
-              console.error('Available elements with locationTenantId:', document.querySelectorAll('[id*="locationTenantId"]'));
-              return;
-            }
-
-            selectElement.innerHTML = '<option value="">Pilih Sekolah</option>';
-
-            if (Array.isArray(data.data)) {
-              console.log('Data array length:', data.data.length);
-
-              data.data.forEach(function(tenant, index) {
-                console.log(`Adding tenant ${index}:`, tenant.tenant_id, tenant.nama_sekolah);
-                const option = document.createElement('option');
-                option.value = tenant.tenant_id;
-                option.textContent = tenant.nama_sekolah;
-                selectElement.appendChild(option);
-              });
-
-              // Force DOM update and log final state
-              console.log('Tenant options loaded successfully');
-              console.log('Select element still exists:', !!selectElement);
-              console.log('Final select HTML:', selectElement ? selectElement.innerHTML : 'N/A');
-              console.log('Final select options count:', selectElement && selectElement.options ? selectElement.options.length : 'N/A');
-
-              // Verify each option was added
-              if (selectElement && selectElement.options) {
-                for (let i = 0; i < selectElement.options.length; i++) {
-                  console.log(`Option ${i}: value="${selectElement.options[i].value}" text="${selectElement.options[i].textContent}"`);
-                }
+              if (!selectElement) {
+                console.error('Select element locationTenantId not found!');
+                console.error('Available elements with locationTenantId:', document.querySelectorAll('[id*="locationTenantId"]'));
+                return;
               }
 
-              // Trigger change event to ensure UI updates
-              selectElement.dispatchEvent(new Event('change', { bubbles: true }));
+              selectElement.innerHTML = '<option value="">Pilih Sekolah</option>';
 
-              // Final verification
-              setTimeout(() => {
-                const finalSelect = document.getElementById('locationTenantId');
-                console.log('FINAL CHECK - Select element:', !!finalSelect);
-                console.log('FINAL CHECK - Options count:', finalSelect ? finalSelect.options.length : 'N/A');
-                console.log('FINAL CHECK - First few options:');
-                if (finalSelect && finalSelect.options.length > 0) {
-                  for (let i = 0; i < Math.min(3, finalSelect.options.length); i++) {
-                    console.log(`  ${i}: "${finalSelect.options[i].textContent}"`);
+              if (Array.isArray(data.data)) {
+                console.log('Data array length:', data.data.length);
+
+                data.data.forEach(function (tenant, index) {
+                  console.log(`Adding tenant ${index}:`, tenant.tenant_id, tenant.nama_sekolah);
+                  const option = document.createElement('option');
+                  option.value = tenant.tenant_id;
+                  option.textContent = tenant.nama_sekolah;
+                  selectElement.appendChild(option);
+                });
+
+                // Force DOM update and log final state
+                console.log('Tenant options loaded successfully');
+                console.log('Select element still exists:', !!selectElement);
+                console.log('Final select HTML:', selectElement ? selectElement.innerHTML : 'N/A');
+                console.log('Final select options count:', selectElement && selectElement.options ? selectElement.options.length : 'N/A');
+
+                // Verify each option was added
+                if (selectElement && selectElement.options) {
+                  for (let i = 0; i < selectElement.options.length; i++) {
+                    console.log(`Option ${i}: value="${selectElement.options[i].value}" text="${selectElement.options[i].textContent}"`);
                   }
                 }
-              }, 500);
+
+                // Trigger change event to ensure UI updates
+                selectElement.dispatchEvent(new Event('change', { bubbles: true }));
+
+                // Final verification
+                setTimeout(() => {
+                  const finalSelect = document.getElementById('locationTenantId');
+                  console.log('FINAL CHECK - Select element:', !!finalSelect);
+                  console.log('FINAL CHECK - Options count:', finalSelect ? finalSelect.options.length : 'N/A');
+                  console.log('FINAL CHECK - First few options:');
+                  if (finalSelect && finalSelect.options.length > 0) {
+                    for (let i = 0; i < Math.min(3, finalSelect.options.length); i++) {
+                      console.log(`  ${i}: "${finalSelect.options[i].textContent}"`);
+                    }
+                  }
+                }, 500);
+              } else {
+                console.error('data.data is not an array:', data.data);
+              }
             } else {
-              console.error('data.data is not an array:', data.data);
+              console.error('API returned success=false or no data:', data);
+              console.error('Data.success:', data.success);
+              console.error('Data.data exists:', !!data.data);
+              console.error('Data.data type:', typeof data.data);
             }
-          } else {
-            console.error('API returned success=false or no data:', data);
-            console.error('Data.success:', data.success);
-            console.error('Data.data exists:', !!data.data);
-            console.error('Data.data type:', typeof data.data);
+          } catch (innerError) {
+            console.error('Error processing tenant data:', innerError);
+            console.error('Data that caused error:', data);
           }
-        } catch (innerError) {
-          console.error('Error processing tenant data:', innerError);
-          console.error('Data that caused error:', data);
-        }
-      })
-      .catch(error => {
-        console.error('Error loading tenants for modal:', error);
-        // Show error in select
-        const select = document.getElementById('locationTenantId');
-        if (select) select.innerHTML = '<option value="">Error memuat data sekolah</option>';
-      });
+        })
+        .catch(error => {
+          console.error('Error loading tenants for modal:', error);
+          // Show error in select
+          const select = document.getElementById('locationTenantId');
+          if (select) select.innerHTML = '<option value="">Error memuat data sekolah</option>';
+        });
     }
 
     // ===== MISSING DEVICE AND TEACHER FUNCTIONS =====
@@ -3830,11 +4095,10 @@ function showAddLocationModal() {
                     <p class="text-sm text-gray-600">${dev.device_name || dev.device_id}</p>
                     <p class="text-xs text-gray-500 mt-1">Device ID: ${dev.device_id}</p>
                   </div>
-                  <span class="px-2 py-1 text-xs font-semibold rounded-full ${
-                    dev.status === 'active' ? 'bg-green-100 text-green-800' :
-                    dev.status === 'maintenance' ? 'bg-yellow-100 text-yellow-800' :
-                    'bg-red-100 text-red-800'
-                  }">${dev.status}</span>
+                  <span class="px-2 py-1 text-xs font-semibold rounded-full ${dev.status === 'active' ? 'bg-green-100 text-green-800' :
+                dev.status === 'maintenance' ? 'bg-yellow-100 text-yellow-800' :
+                  'bg-red-100 text-red-800'
+              }">${dev.status}</span>
                 </div>
                 <div class="mt-3 flex items-center justify-between text-sm">
                   <span class="text-gray-500">
@@ -3983,12 +4247,11 @@ function showAddLocationModal() {
                   ${new Date(log.waktu_scan).toLocaleString('id-ID', { hour: '2-digit', minute: '2-digit' })}
                 </td>
                 <td class="px-4 py-3">
-                  <span class="px-2 py-1 text-xs font-semibold rounded-full ${
-                    log.sync_status === 'synced' ? 'bg-green-100 text-green-800' :
-                    log.sync_status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-                    log.sync_status === 'failed' ? 'bg-red-100 text-red-800' :
+                  <span class="px-2 py-1 text-xs font-semibold rounded-full ${log.sync_status === 'synced' ? 'bg-green-100 text-green-800' :
+                log.sync_status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                  log.sync_status === 'failed' ? 'bg-red-100 text-red-800' :
                     'bg-gray-100 text-gray-800'
-                  }">${log.sync_status}</span>
+              }">${log.sync_status}</span>
                 </td>
               </tr>
             `).join('');
@@ -3998,37 +4261,38 @@ function showAddLocationModal() {
         console.error('QR logs load error:', error);
         tbody.innerHTML = '<tr><td colspan="5" class="px-4 py-6 text-center text-red-500">Gagal memuat logs</td></tr>';
       }
-}
+    }
 
-     // Load tenant locations for "Lokasi Multiple" tab
-     async function loadTenantLocations() {
-       try {
-         const container = document.getElementById('tenantLocationsList');
-         container.innerHTML = `
+    // Load tenant locations for "Lokasi Multiple" tab
+    async function loadTenantLocations() {
+      try {
+        const container = document.getElementById('tenantLocationsList');
+        container.innerHTML = `
            <div class="text-center py-12">
              <div class="animate-spin rounded-full h-12 w-12 border-4 border-blue-500 border-t-transparent mx-auto mb-4"></div>
              <p class="text-gray-600">Memuat data lokasi...</p>
            </div>
          `;
 
-         const response = await fetch('/api/admin/tenant-locations', {
-           headers: { 'Authorization': `Bearer ${window.authToken || localStorage.getItem('token') || ''}` }
-         });
+        const response = await fetch('/api/admin/tenant-locations', {
+          headers: { 'Authorization': `Bearer ${window.authToken || localStorage.getItem('token') || ''}` }
+        });
 
-         if (response.status === 401 || response.status === 403) {
-           localStorage.clear();
-           window.location.replace('login.html');
-           return;
-         }
+        if (response.status === 401 || response.status === 403) {
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+          window.location.replace('login.html');
+          return;
+        }
 
-         const res = await response.json();
+        const res = await response.json();
 
-         if (res.success) {
-           const items = Array.isArray(res.data) ? res.data : (res.data ? [res.data] : []);
-           console.log('[TENANT LOCATIONS] Loaded:', items.length, 'locations');
+        if (res.success) {
+          const items = Array.isArray(res.data) ? res.data : (res.data ? [res.data] : []);
+          console.log('[TENANT LOCATIONS] Loaded:', items.length, 'locations');
 
-           if (items.length === 0) {
-             container.innerHTML = `
+          if (items.length === 0) {
+            container.innerHTML = `
                <div class="text-center py-12">
                  <i class="fas fa-map text-4xl text-gray-400 mb-4"></i>
                  <p class="text-gray-600">Belum ada lokasi</p>
@@ -4038,20 +4302,20 @@ function showAddLocationModal() {
                  </button>
                </div>
              `;
-             return;
-           }
+            return;
+          }
 
-           container.innerHTML = items.map(loc => {
-             const statusBadge = loc.is_active
-               ? '<span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Aktif</span>'
-               : '<span class="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">Nonaktif</span>';
+          container.innerHTML = items.map(loc => {
+            const statusBadge = loc.is_active
+              ? '<span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Aktif</span>'
+              : '<span class="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">Nonaktif</span>';
 
-             const hasCoords = loc.latitude && loc.longitude;
-             const coordsText = hasCoords
-               ? parseFloat(loc.latitude).toFixed(6) + ', ' + parseFloat(loc.longitude).toFixed(6)
-               : 'Belum diatur';
+            const hasCoords = loc.latitude && loc.longitude;
+            const coordsText = hasCoords
+              ? parseFloat(loc.latitude).toFixed(6) + ', ' + parseFloat(loc.longitude).toFixed(6)
+              : 'Belum diatur';
 
-             return `
+            return `
                <div class="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-sm transition-shadow">
                  <div class="flex items-start justify-between mb-3">
                    <div class="flex-1">
@@ -4089,34 +4353,34 @@ function showAddLocationModal() {
                  </div>
                </div>
              `;
-           }).join('');
+          }).join('');
 
-           // Attach event listeners to action buttons
-           document.querySelectorAll('[data-action="toggle-location-status"]').forEach(btn => {
-             btn.addEventListener('click', function() {
-               const id = parseInt(this.getAttribute('data-location-id'));
-               const currentStatus = this.getAttribute('data-current-status') === 'true';
-               toggleLocationStatus(id, currentStatus);
-             });
-           });
+          // Attach event listeners to action buttons
+          document.querySelectorAll('[data-action="toggle-location-status"]').forEach(btn => {
+            btn.addEventListener('click', function () {
+              const id = parseInt(this.getAttribute('data-location-id'));
+              const currentStatus = this.getAttribute('data-current-status') === 'true';
+              toggleLocationStatus(id, currentStatus);
+            });
+          });
 
-           document.querySelectorAll('[data-action="delete-location"]').forEach(btn => {
-             btn.addEventListener('click', function() {
-               const id = parseInt(this.getAttribute('data-location-id'));
-               deleteTenantLocation(id);
-             });
-           });
+          document.querySelectorAll('[data-action="delete-location"]').forEach(btn => {
+            btn.addEventListener('click', function () {
+              const id = parseInt(this.getAttribute('data-location-id'));
+              deleteTenantLocation(id);
+            });
+          });
 
-         } else {
-           container.innerHTML = '<p class="text-gray-600 text-center py-12">Gagal memuat data lokasi</p>';
-         }
-       } catch (error) {
-         console.error('Tenant locations load error:', error);
-         container.innerHTML = '<p class="text-red-600 text-center py-12">Error memuat data lokasi</p>';
-       }
-     }
+        } else {
+          container.innerHTML = '<p class="text-gray-600 text-center py-12">Gagal memuat data lokasi</p>';
+        }
+      } catch (error) {
+        console.error('Tenant locations load error:', error);
+        container.innerHTML = '<p class="text-red-600 text-center py-12">Error memuat data lokasi</p>';
+      }
+    }
 
-     async function toggleLocationStatus(id, currentStatus) {
+    async function toggleLocationStatus(id, currentStatus) {
       const newStatus = !currentStatus;
       const action = newStatus ? 'mengaktifkan' : 'menonaktifkan';
 
@@ -4173,7 +4437,7 @@ function showAddLocationModal() {
     function initPdfReport() {
       const year = new Date().getFullYear();
       const month = new Date().getMonth() + 1;
-      
+
       const yearSelect = document.getElementById('pdfYearSelect');
       if (yearSelect) {
         yearSelect.innerHTML = '';
@@ -4185,37 +4449,37 @@ function showAddLocationModal() {
           yearSelect.appendChild(opt);
         }
       }
-      
+
       const monthSelect = document.getElementById('pdfMonthSelect');
       if (monthSelect) {
         monthSelect.value = month;
       }
-      
+
       loadTenantsForPdfDropdown();
-      
+
       const exportBtn = document.getElementById('exportMonthlyPdfBtn');
       if (exportBtn) {
         exportBtn.onclick = exportMonthlyPdf;
       }
     }
-    
+
     async function loadTenantsForPdfDropdown() {
       const select = document.getElementById('pdfTenantSelect');
       if (!select) return;
-      
+
       select.innerHTML = '<option value="">Pilih Sekolah...</option>';
-      
+
       const token = window.authToken || localStorage.getItem('token');
       if (!token) {
         console.error('No auth token available');
         return;
       }
-      
+
       try {
         const response = await fetch('/api/admin/tenants', {
           headers: { 'Authorization': `Bearer ${token}` }
         });
-        
+
         if (response.ok) {
           const result = await response.json();
           if (result.success && result.data) {
@@ -4231,24 +4495,24 @@ function showAddLocationModal() {
         console.error('Error loading tenants for PDF:', error);
       }
     }
-    
+
     async function loadTenantsForRecapDropdown() {
       const select = document.getElementById('recapTenantSelect');
       if (!select) return;
-      
+
       select.innerHTML = '<option value="">Pilih Sekolah...</option>';
-      
+
       const token = window.authToken || localStorage.getItem('token');
       if (!token) {
         console.error('No auth token available');
         return;
       }
-      
+
       try {
         const response = await fetch('/api/admin/tenants', {
           headers: { 'Authorization': `Bearer ${token}` }
         });
-        
+
         if (response.ok) {
           const result = await response.json();
           if (result.success && result.data) {
@@ -4264,52 +4528,52 @@ function showAddLocationModal() {
         console.error('Error loading tenants for recap:', error);
       }
     }
-    
+
     function getCurrentTenantId() {
       const select = document.getElementById('pdfTenantSelect');
       return select ? select.value : '';
     }
-    
+
     function getCurrentRecapTenantId() {
       const select = document.getElementById('recapTenantSelect');
       return select ? select.value : '';
     }
-    
+
     async function exportMonthlyPdf() {
       const tenantId = getCurrentTenantId();
       const monthSelect = document.getElementById('pdfMonthSelect');
       const yearSelect = document.getElementById('pdfYearSelect');
       const month = monthSelect ? monthSelect.value : '';
       const year = yearSelect ? yearSelect.value : '';
-      
+
       if (!tenantId) {
         showToast('Pilih sekolah terlebih dahulu', 'error');
         return;
       }
-      
+
       const statusDiv = document.getElementById('pdfExportStatus');
       const btn = document.getElementById('exportMonthlyPdfBtn');
       if (!btn) return;
-      
+
       const originalBtn = btn.innerHTML;
       const token = window.authToken || localStorage.getItem('token');
-      
+
       if (statusDiv) statusDiv.classList.remove('hidden');
       btn.disabled = true;
       btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Generating...';
-      
+
       try {
         const pdfUrl = `/api/admin/monthly-report/pdf?tenant_id=${encodeURIComponent(tenantId)}&month=${month}&year=${year}`;
-        
+
         const response = await fetch(pdfUrl, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
-        
+
         if (!response.ok) {
           const error = await response.json().catch(() => ({ message: 'Failed to generate PDF' }));
           throw new Error(error.message || 'Failed to generate PDF');
         }
-        
+
         const blob = await response.blob();
         const url = window.URL.createObjectURL(blob);
         const newWindow = window.open(url, '_blank');
@@ -4317,7 +4581,7 @@ function showAddLocationModal() {
           showToast('Pop-up browser blocked. Please allow pop-ups for this page.', 'error');
         }
         setTimeout(() => window.URL.revokeObjectURL(url), 1000);
-        
+
         showToast('PDF berhasil dihasilkan', 'success');
       } catch (error) {
         console.error('PDF Export error:', error);
@@ -4328,39 +4592,39 @@ function showAddLocationModal() {
         btn.innerHTML = originalBtn;
       }
     }
-    
-async function exportPdfWithTenant(tenantId, month, year, templateName = '') {
-       if (!tenantId) {
-         showToast('Pilih sekolah terlebih dahulu', 'error');
-         return;
-       }
-       
-       const token = window.authToken || localStorage.getItem('token');
-       if (!token) {
-         showToast('Session expired. Please login again.', 'error');
-         window.location.replace('/login.html');
-         return;
-       }
-       
-       try {
-         const params = new URLSearchParams({
-           tenant_id: tenantId,
-           month: month,
-           year: year
-         });
-         if (templateName) params.set('templateName', templateName);
-         
-         const pdfUrl = `/api/admin/monthly-report/pdf?${params.toString()}`;
-        
+
+    async function exportPdfWithTenant(tenantId, month, year, templateName = '') {
+      if (!tenantId) {
+        showToast('Pilih sekolah terlebih dahulu', 'error');
+        return;
+      }
+
+      const token = window.authToken || localStorage.getItem('token');
+      if (!token) {
+        showToast('Session expired. Please login again.', 'error');
+        window.location.replace('/login.html');
+        return;
+      }
+
+      try {
+        const params = new URLSearchParams({
+          tenant_id: tenantId,
+          month: month,
+          year: year
+        });
+        if (templateName) params.set('templateName', templateName);
+
+        const pdfUrl = `/api/admin/monthly-report/pdf?${params.toString()}`;
+
         const response = await fetch(pdfUrl, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
-        
+
         if (!response.ok) {
           const error = await response.json().catch(() => ({ message: 'Failed to generate PDF' }));
           throw new Error(error.message || 'Failed to generate PDF');
         }
-        
+
         const blob = await response.blob();
         const url = window.URL.createObjectURL(blob);
         const newWindow = window.open(url, '_blank');
@@ -4368,7 +4632,7 @@ async function exportPdfWithTenant(tenantId, month, year, templateName = '') {
           showToast('Pop-up browser blocked. Please allow pop-ups for this page.', 'error');
         }
         setTimeout(() => window.URL.revokeObjectURL(url), 1000);
-        
+
         showToast('PDF berhasil dihasilkan', 'success');
       } catch (error) {
         console.error('PDF Export error:', error);
@@ -4381,9 +4645,9 @@ async function exportPdfWithTenant(tenantId, month, year, templateName = '') {
       const month = document.getElementById('recapMonthSelect')?.value;
       const year = document.getElementById('recapYearSelect')?.value;
       const container = document.getElementById('monthlyRecapContent');
-      
+
       if (!month || !year) return;
-      
+
       const tenantId = getCurrentRecapTenantId();
       if (!tenantId) {
         container.innerHTML = `
@@ -4394,16 +4658,16 @@ async function exportPdfWithTenant(tenantId, month, year, templateName = '') {
         `;
         return;
       }
-      
+
       container.innerHTML = '<div class="text-center py-8"><i class="fas fa-spinner fa-spin text-xl"></i><p class="mt-2">Memuat rekap...</p></div>';
-      
+
       try {
         const token = window.authToken || localStorage.getItem('token');
-        
+
         const response = await fetch(`/api/admin/monthly-report/html?tenant_id=${tenantId}&month=${month}&year=${year}`, {
           headers: { 'Authorization': `Bearer ${token || ''}` }
         });
-        
+
         if (response.ok) {
           container.innerHTML = await response.text();
         } else {
@@ -4453,7 +4717,7 @@ async function exportPdfWithTenant(tenantId, month, year, templateName = '') {
 
       const logViewBtn = document.getElementById('logViewBtn');
       const monthlyViewBtn = document.getElementById('monthlyViewBtn');
-      
+
       if (logViewBtn) {
         logViewBtn.addEventListener('click', () => {
           document.getElementById('logViewSection').classList.remove('hidden');
@@ -4462,7 +4726,7 @@ async function exportPdfWithTenant(tenantId, month, year, templateName = '') {
           monthlyViewBtn.className = 'px-4 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-300';
         });
       }
-      
+
       if (monthlyViewBtn) {
         monthlyViewBtn.addEventListener('click', () => {
           document.getElementById('logViewSection').classList.add('hidden');
@@ -4475,22 +4739,22 @@ async function exportPdfWithTenant(tenantId, month, year, templateName = '') {
 
       document.getElementById('recapMonthSelect')?.addEventListener('change', loadMonthlyRecap);
       document.getElementById('recapYearSelect')?.addEventListener('change', loadMonthlyRecap);
-      
+
       // Search button handler
       document.getElementById('searchRecapBtn')?.addEventListener('click', loadMonthlyRecap);
     }
 
     // Switch tab function
-    window.switchTab = function(tabName) {
+    window.switchTab = function (tabName) {
       document.querySelectorAll('.tab-content').forEach(t => t.classList.add('hidden'));
       document.querySelectorAll('.nav-item').forEach(n => {
         n.classList.remove('nav-active');
       });
-      
+
       document.getElementById(tabName + 'Tab').classList.remove('hidden');
       const btn = document.querySelector(`button[data-tab="${tabName}"]`);
       if (btn) btn.classList.add('nav-active');
-      
+
       const titles = {
         'dashboard': 'Dashboard',
         'teachers': 'Manajemen Guru',
@@ -4509,19 +4773,19 @@ async function exportPdfWithTenant(tenantId, month, year, templateName = '') {
     async function runAutoEvaluation() {
       const btn = document.getElementById('runAutoEvaluation');
       const originalHtml = btn.innerHTML;
-      
+
       btn.disabled = true;
       btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Menjalankan...';
-      
+
       try {
         const token = localStorage.getItem('token');
         const response = await fetch('/api/evaluations/auto-calculate', {
           method: 'POST',
           headers: { 'Authorization': `Bearer ${token}` }
         });
-        
+
         const result = await response.json();
-        
+
         if (result.success) {
           showToast(`Berhasil menilai ${result.data.length} guru`, 'success');
           loadEvaluationsResults();
@@ -4539,15 +4803,15 @@ async function exportPdfWithTenant(tenantId, month, year, templateName = '') {
 
     async function loadEvaluationsResults() {
       const container = document.getElementById('evaluationsResults');
-      
+
       try {
         const token = localStorage.getItem('token');
         const response = await fetch('/api/evaluations/all', {
           headers: { 'Authorization': `Bearer ${token}` }
         });
-        
+
         const result = await response.json();
-        
+
         if (result.success && result.data.length > 0) {
           container.innerHTML = result.data.map(e => `
             <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg mb-2">
@@ -4571,4 +4835,5 @@ async function exportPdfWithTenant(tenantId, month, year, templateName = '') {
     }
   </script>
 </body>
+
 </html>
