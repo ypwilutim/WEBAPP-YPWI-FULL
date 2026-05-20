@@ -3,7 +3,7 @@ const ASSETS_TO_CACHE = [
     '/scanner.html',
     '/css/tailwind.css',
     '/js/jsQR.js',
-    '/assets/images/YPWI LOGO HITAM.png',
+    '/assets/images/icon.png',
     'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css'
 ];
 
@@ -35,16 +35,14 @@ self.addEventListener('activate', (event) => {
 
 // 3. Strategi Network First, Fallback to Cache (Sangat cocok untuk Scanner yang butuh data realtime)
 self.addEventListener('fetch', (event) => {
-    // Lewati request eksternal / API backend agar tidak merusak pengiriman data absensi
-    if (!event.request.url.startsWith(self.location.origin) && !event.request.url.includes('cdnjs.cloudflare.com')) {
-        return;
-    }
+    // Abaikan request API (misal: POST ke /api/...)
+    if (event.request.method !== 'GET') return;
 
     event.respondWith(
         fetch(event.request)
             .then((response) => {
-                // Jika sukses dapet jaringan, duplikat hasilnya ke cache terbaru
-                if (response.status === 200) {
+                // Cek apakah response valid
+                if (response && response.status === 200 && response.type === 'basic') {
                     const responseClone = response.clone();
                     caches.open(CACHE_NAME).then((cache) => {
                         cache.put(event.request, responseClone);
@@ -53,7 +51,7 @@ self.addEventListener('fetch', (event) => {
                 return response;
             })
             .catch(() => {
-                // Jika offline / jaringan gagal, ambil langsung dari cache lokal
+                // Fallback ke cache
                 return caches.match(event.request);
             })
     );

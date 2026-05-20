@@ -13,7 +13,7 @@
   <!-- PWA Manifest -->
   <link rel="manifest" href="/scanner-manifest.json">
   <link rel="icon" href="/assets/images/YPWI LOGO HITAM.png" type="image/png">
-  <link rel="apple-touch-icon" href="/assets/images/YPWI LOGO HITAM.png">
+  <link rel="apple-touch-icon" href="/assets/icon.png">
 
   <!-- QR Scanner Library - Using jsQR -->
   <script src="/js/jsQR.js"></script>
@@ -23,6 +23,14 @@
 
   <!-- Tailwind CSS -->
   <link href="/css/tailwind.css" rel="stylesheet">
+
+  <!-- <script src="https://unpkg.com/vconsole@latest/dist/vconsole.min.js"></script>
+  <script>
+    // Inisialisasi vConsole
+    var vConsole = new window.VConsole();
+  </script> -->
+
+  <script src="https://unpkg.com/dexie/dist/dexie.js"></script>
 
   <style>
     /* --- TOAST NOTIFICATION STYLING --- */
@@ -258,6 +266,17 @@
         height: 240px;
       }
     }
+
+    #camera-switch {
+      position: relative;
+      /* Memastikan dia punya layer */
+      z-index: 1000;
+      /* Memastikan dia ada di paling atas */
+      cursor: pointer;
+      /* Penting untuk iOS agar dikenali sebagai tombol */
+      pointer-events: auto !important;
+      /* Memaksa agar bisa diklik */
+    }
   </style>
 </head>
 
@@ -430,9 +449,77 @@
   <div id="toastContainer" class="toast-container"></div>
   <!-- Memuat Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="auth-manager.js"></script>
+
   <!-- CORE SCRIPTS MANAGEMENT -->
   <script>
-    document.addEventListener("DOMContentLoaded", () => {
+    // 1. Inisialisasi Database Lokal
+    const db = new Dexie('YPWI_ScannerDB');
+    db.version(1).stores({
+      rules: '++id, tipe',           // Tabel untuk jam aturan
+      attendance_queue: '++id',      // Tabel untuk antrean offline
+      history: 'key'                 // Tabel untuk history scan (ganti localScanHistory)
+    });
+
+    // 2. Variabel global untuk menampung data sementara di memori
+    let attendanceRules = [];
+    let localScanHistory = {};
+
+    // 3. Fungsi untuk memuat data saat aplikasi dibuka
+    async function initLocalData() {
+      attendanceRules = await db.rules.toArray();
+
+      const historyData = await db.history.toArray();
+      localScanHistory = historyData.reduce((acc, item) => {
+        acc[item.key] = item.value;
+        return acc;
+      }, {});
+
+      console.log("Data berhasil dimuat dari IndexedDB");
+    }
+
+    // Jalankan saat halaman dimuat
+    initLocalData();
+
+    async function getActiveAttendanceType() {
+      const now = new Date();
+      const currentTimeStr = now.toTimeString().split(' ')[0]; // "HH:MM:SS"
+
+      // Ambil semua rules yang tersimpan di IndexedDB
+      const rules = await db.rules.toArray();
+
+      // Cari yang cocok
+      const activeRule = rules.find(rule => {
+        return (currentTimeStr >= rule.jam_mulai && currentTimeStr <= rule.jam_selesai);
+      });
+
+      return activeRule ? (activeRule.tipe.toLowerCase() === 'datang' ? 'masuk' : 'pulang') : null;
+    }
+
+    async function initScanner() {
+      // 1. Cek kredensial di IndexedDB
+      const deviceId = await ambilDariDB('device_id');
+      const token = await ambilDariDB('reg_token');
+      const secret = await ambilDariDB('secret_key'); // Pastikan secret key juga dicek
+
+      // 2. Jika ada salah satu yang hilang, tampilkan Modal (setupModal)
+      if (!deviceId || !token || !secret) {
+        console.log("Device belum terdaftar. Menampilkan modal registrasi...");
+        if (setupModal) {
+          setupModal.classList.remove("hidden"); // Tampilkan modal
+        }
+        return;
+      }
+
+      // 3. Jika data lengkap, sembunyikan modal dan mulai kamera
+      console.log("Perangkat dikenal sebagai:", deviceId);
+      if (setupModal) setupModal.classList.add("hidden");
+
+      // Panggil fungsi inisialisasi kamera Anda di sini
+      startCamera();
+    }
+    document.addEventListener("DOMContentLoaded", async () => {
+
       // === 1. DOM Elements ===
       const video = document.getElementById("reader");
       const schoolNameEl = document.getElementById("school-name");
@@ -467,19 +554,48 @@
       const queueCountEl = document.getElementById("queue-count");
 
       // === 2. State & Engine Parameters ===
+      // Config tetap di localStorage karena statis
       let config = JSON.parse(localStorage.getItem("ypwi_scanner_config")) || null;
-      let offlineQueue = JSON.parse(localStorage.getItem("ypwi_offline_queue")) || [];
 
-      // MEMORI LOKAL: Menyimpan tanda sukses absen guru hari ini agar tidak bisa double-scan
-      let localScanHistory = JSON.parse(localStorage.getItem("ypwi_local_history")) || {};
+      // Ganti localStorage untuk data dinamis dengan IndexedDB
+      // Kita tidak lagi memanggil JSON.parse() di awal, karena kita akan mengambil data secara asinkron
+      let attendanceRules = [];
+      let localScanHistory = {}; // Ini nanti akan kita ambil dari tabel 'history' di IndexedDB
 
-      // MEMORI ATURAN: Menyimpan salinan jam operasional absensi dari server
-      let attendanceRules = JSON.parse(localStorage.getItem("ypwi_attendance_rules")) || null;
+      // Pastikan data ini dimuat saat aplikasi pertama kali dijalankan
+      async function initializeState() {
+        attendanceRules = await db.rules.toArray();
+
+        // Ambil history dari tabel history di IndexedDB
+        const historyData = await db.history.toArray();
+        localScanHistory = historyData.reduce((acc, item) => {
+          acc[item.key] = item.value;
+          return acc;
+        }, {});
+
+        console.log("State berhasil dimuat dari IndexedDB");
+      }
 
       let isScanningActive = false;
       let facingMode = "environment"; // current camera facing mode
       let canvasElement = document.createElement("canvas");
       let canvasCtx = canvasElement.getContext("2d");
+
+      const savedDeviceId = await ambilDariDB("device_id");
+
+      if (savedDeviceId) {
+        console.log("Device ditemukan di IndexedDB, melewati modal registrasi.");
+        if (setupModal) setupModal.classList.add("hidden");
+
+        // Opsional: Jika config di localStorage hilang tapi di IndexedDB ada, 
+        // Anda bisa memuat ulang data atau memicu verifikasi ulang
+        if (typeof verifyDeviceStatusFromServer === "function") {
+          verifyDeviceStatusFromServer();
+        }
+      } else {
+        console.log("Perangkat belum terdaftar, menampilkan modal.");
+        if (setupModal) setupModal.classList.remove("hidden");
+      }
 
       function toggleCamera() {
         facingMode = facingMode === "environment" ? "user" : "environment";
@@ -571,19 +687,26 @@
       }
 
       // === 4b. Fetch Attendance Rules dari Backend ===
-      function fetchAttendanceRules() {
+      async function fetchAttendanceRules() {
         if (!config || !navigator.onLine) return;
 
-        fetch(`/api/scanner/attendance-rules?tenant_id=${config.tenant_id}`)
-          .then(res => res.json())
-          .then(resData => {
-            if (resData.success && resData.rules) {
-              attendanceRules = resData.rules;
-              localStorage.setItem("ypwi_attendance_rules", JSON.stringify(attendanceRules));
-              console.log("[RULES UTK SCANNER AMAN]:", attendanceRules);
-            }
-          })
-          .catch(err => console.error('[FETCH RULES ERROR]', err));
+        try {
+          const response = await fetch(`/api/scanner/attendance-rules?tenant_id=${config.tenant_id}`);
+          const resData = await response.json();
+
+          if (resData.success && resData.rules) {
+            // Update variabel lokal agar UI/Logika lain bisa baca
+            attendanceRules = resData.rules;
+
+            // Operasi Dexie
+            await db.rules.clear();
+            await db.rules.bulkPut(attendanceRules); // Pastikan ini menggunakan 'resData.rules' bukan 'dataRules'
+
+            console.log("[RULES UTK SCANNER AMAN]:", attendanceRules);
+          }
+        } catch (err) {
+          console.error('[FETCH RULES ERROR]', err);
+        }
       }
 
       // === 5. Tenant Registration Framework ===
@@ -642,7 +765,23 @@
               if (!res.ok) throw new Error(data.message || "Gagal memproses pendaftaran.");
               return data;
             })
-            .then(resData => {
+            .then(async (resData) => {
+              // ... di dalam .then(resData => { ...
+              if (resData.success) {
+                config = resData.data;
+
+                // 1. Simpan ke LocalStorage (Untuk kompatibilitas lama)
+                localStorage.setItem("ypwi_scanner_config", JSON.stringify(config));
+
+                // 2. TAMBAHKAN PEMANGGILAN SIMPAN KE INDEXEDDB (Untuk stabilitas iPhone)
+                await simpanKeDB("device_id", payload.device_id);
+                await simpanKeDB("reg_token", payload.reg_token);
+                await simpanKeDB("secret_key", payload.secret_key);
+                // -------------------------------------------------------------
+
+                if (schoolNameEl) schoolNameEl.textContent = config.school_name;
+                // ... sisa kode Anda ...
+              }
               if (resData.success) {
                 config = resData.data;
                 localStorage.setItem("ypwi_scanner_config", JSON.stringify(config));
@@ -735,7 +874,7 @@
       }
 
       // === 7. Attendance Logic & Transmission ===
-      function handleQrDecoded(qrRawData) {
+      async function handleQrDecoded(qrRawData) {
         if (!qrRawData || qrRawData.trim() === "") {
           console.warn("[SCAN REJECTED] QR mentah kosong.");
           triggerNextScan(false, "Gagal membaca QR. Pastikan kode QR terlihat jelas.");
@@ -748,17 +887,14 @@
         let parsedData = {};
         let cleanData = qrRawData.trim();
 
-        // 1. Ekstraksi data ID dasar dari QR kartu
+        // 1. Ekstraksi data
         if (/^\d+$/.test(cleanData)) {
           parsedData = { scan_id: cleanData };
         } else {
           try {
             const testParse = JSON.parse(cleanData);
-            if (testParse && typeof testParse === 'object') {
-              parsedData = testParse;
-            } else {
-              throw new Error("Bukan JSON");
-            }
+            if (testParse && typeof testParse === 'object') parsedData = testParse;
+            else throw new Error("Bukan JSON");
           } catch (e) {
             const parts = cleanData.split('|');
             parsedData = { scan_id: parts[0] };
@@ -770,51 +906,56 @@
           return;
         }
 
-        // 2. LOGIKA UTAMA: Identifikasi Jendela Waktu Berdasarkan Real Attendance Rules
+        // 2. LOGIKA ATURAN (Menggunakan Array dari IndexedDB)
         const now = new Date();
-        const currentTimeStr = now.toTimeString().split(' ')[0]; // Format lokal "HH:MM:SS"
-        const todayStr = now.toISOString().split('T')[0]; // Format "YYYY-MM-DD"
+        const currentTimeStr = now.toTimeString().split(' ')[0];
+        const todayStr = now.toISOString().split('T')[0];
 
+        // Ambil data rules terbaru dari Dexie
+        const attendanceRules = await db.rules.toArray();
         let statusAbsenMatang = '';
 
-        if (attendanceRules) {
-          if (currentTimeStr >= attendanceRules.jam_masuk_mulai && currentTimeStr <= attendanceRules.jam_masuk_selesai) {
-            statusAbsenMatang = 'masuk';
-          }
-          else if (currentTimeStr >= attendanceRules.jam_pulang_mulai && currentTimeStr <= attendanceRules.jam_pulang_selesai) {
-            statusAbsenMatang = 'pulang';
-          }
-          else {
-            // Ketegasan Aturan: Jika di luar jendela jam, langsung reject di tempat
-            triggerNextScan(false, "Sesi Absensi Ditutup! Anda berada di luar jam datang/pulang yang ditentukan.");
+        if (attendanceRules && attendanceRules.length > 0) {
+          const activeRule = attendanceRules.find(rule =>
+            (currentTimeStr >= rule.jam_mulai && currentTimeStr <= rule.jam_selesai)
+          );
+          if (activeRule) {
+            statusAbsenMatang = activeRule.tipe.toLowerCase() === 'datang' ? 'masuk' : 'pulang';
+          } else {
+            triggerNextScan(false, "Sesi Absensi Ditutup! Anda berada di luar jam.");
             return;
           }
         } else {
-          // Fallback darurat jika database aturan kosong/gagal fetch pertama kali
           statusAbsenMatang = (now.getHours() < 12) ? 'masuk' : 'pulang';
         }
 
-        // 3. SECURE LAYER: Blokir Double-Scan Berdasarkan Tipe Absen untuk Hari Ini
+        // 3. SECURE LAYER (Cek History di Dexie)
         const historyKey = `${parsedData.scan_id}_${statusAbsenMatang}`;
+
+        // Cek di memori (localScanHistory)
         if (localScanHistory[historyKey] === todayStr) {
-          triggerNextScan(false, `Ditolak! Anda sudah melakukan Absen ${statusAbsenMatang.toUpperCase()} untuk hari ini.`);
+          triggerNextScan(false, `Ditolak! Anda sudah melakukan Absen ${statusAbsenMatang.toUpperCase()} hari ini.`);
           return;
         }
 
-        // 4. Membangun Payload Matang
+        // 4. Membangun Payload
         const attendancePayload = {
           scan_id: String(parsedData.scan_id),
-          timestamp: todayStr + ' ' + currentTimeStr, // Mengirim data mentah tanggal & jam tablet lokal
+          timestamp: todayStr + ' ' + currentTimeStr,
           type: statusAbsenMatang,
           device_id: config ? config.device_id : "YPWI-SCANNER-LOCAL",
           tenant_id: config ? config.tenant_id : "YPWILUTIM",
-          signature: parsedData.signature || ('local-sig-' + parsedData.scan_id),
+          signature: parsedData.signature || ('legacy-' + parsedData.scan_id),
           offline_validated: !navigator.onLine
         };
 
         lastScanEl.textContent = `Last: ${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
 
-        // 5. Eksekusi Pengiriman Berdasarkan Status Koneksi
+        // 5. Eksekusi & Simpan History ke IndexedDB
+        // Kita update memori dan database sekaligus
+        localScanHistory[historyKey] = todayStr;
+        await db.history.put({ key: historyKey, value: todayStr });
+
         if (navigator.onLine) {
           sendAttendanceToServer(attendancePayload, historyKey, todayStr);
         } else {
@@ -822,74 +963,145 @@
         }
       }
 
-      function sendAttendanceToServer(payload, historyKey, todayStr) {
-        const secretKey = config ? config.secret_key : "";
-
-        fetch('/api/scanner/attendance', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-Scanner-Secret-Key': secretKey
-          },
-          body: JSON.stringify(payload)
-        })
-          .then(async res => {
-            const data = await res.json();
-            // Jika backend menolak karena aturan internal server, tangkap pesan errornya
-            if (!res.ok) throw new Error(data.message || "Gagal memproses absensi.");
-            return data;
-          })
-          .then(result => {
-            const labelOutput = result.data.teacher_name || result.data.name || "Pegawai";
-            const typeOutput = (result.data.type || payload.type).toUpperCase();
-
-            // Sukses di server -> Kunci status kartu ini secara permanen di tablet untuk hari ini
-            localScanHistory[historyKey] = todayStr;
-            localStorage.setItem("ypwi_local_history", JSON.stringify(localScanHistory));
-
-            triggerNextScan(true, `${labelOutput} [${typeOutput}] - Berhasil dicatat (${result.data.status || 'Sukses Center'})`);
-          })
-          .catch(err => {
-            // Jika ditolak murni karena aturan bisnis yang bentrok di server pusat (misal data ganda)
-            if (err.message.includes("sudah absen") || err.message.includes("ditolak") || err.message.includes("Conflict")) {
-              localScanHistory[historyKey] = todayStr;
-              localStorage.setItem("ypwi_local_history", JSON.stringify(localScanHistory));
-              triggerNextScan(false, err.message);
-            }
-            // Jika murni gangguan transmisi jaringan internet putus di tengah jalan
-            else if (err.message.includes("Fetch") || err.message.includes("Server") || err.message.includes("Failed to fetch")) {
-              console.warn("Koneksi terputus saat kirim, dialihkan ke antrean offline.");
-              saveToOfflineQueue(payload, historyKey, todayStr);
-            } else {
-              triggerNextScan(false, err.message);
-            }
-          });
+      async function processAttendance(payload) {
+        if (navigator.onLine) {
+          // Mode Online: Kirim langsung
+          try {
+            await fetch('/api/scanner/attendance', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(payload)
+            });
+            alert("Absensi Berhasil!");
+          } catch (err) {
+            saveToQueue(payload); // Kalau gagal kirim, masukkan ke antrean
+          }
+        } else {
+          // Mode Offline: Simpan ke IndexedDB
+          saveToQueue(payload);
+        }
       }
 
-      function saveToOfflineQueue(payload, historyKey, todayStr) {
+      async function saveToQueue(payload) {
+        await db.attendance_queue.add({ ...payload, timestamp_local: new Date().toISOString() });
+        alert("Offline: Absensi disimpan di perangkat.");
+      }
+
+      async function uploadPendingLogs() {
+        const pending = await db.attendance_queue.toArray();
+        if (pending.length === 0) return;
+
+        for (const log of pending) {
+          try {
+            const res = await fetch('/api/scanner/attendance', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(log)
+            });
+            if (res.ok) {
+              await db.attendance_queue.delete(log.id);
+            }
+          } catch (e) {
+            console.log("Masih offline, tunggu nanti...");
+            break;
+          }
+        }
+      }
+
+      // Deteksi saat internet kembali online
+      window.addEventListener('online', uploadPendingLogs);
+
+      async function sendAttendanceToServer(payload, historyKey, todayStr) {
+        let secretKey = await ambilDariDB('secret_key'); // Pastikan ini fungsi yang mengambil dari db.settings atau sejenisnya
+
+        if (!secretKey) {
+          console.error("Gagal mengirim: Secret Key tidak ditemukan!");
+          return;
+        }
+
+        try {
+          const res = await fetch('/api/scanner/attendance', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-Scanner-Secret-Key': secretKey
+            },
+            body: JSON.stringify(payload)
+          });
+
+          const result = await res.json();
+
+          if (!res.ok) throw new Error(result.message || "Gagal memproses absensi.");
+
+          // Jika Sukses: Simpan ke IndexedDB
+          localScanHistory[historyKey] = todayStr;
+          await db.history.put({ key: historyKey, value: todayStr }); // <--- PENGGANTI localStorage
+
+          const labelOutput = result.data.teacher_name || "Pegawai";
+          triggerNextScan(true, `${labelOutput} [${payload.type.toUpperCase()}] - Berhasil.`);
+
+        } catch (err) {
+          // Logika Error Handling
+          if (err.message.includes("sudah absen") || err.message.includes("ditolak")) {
+            // Jika ditolak server, kunci saja lokal agar tidak scan lagi
+            localScanHistory[historyKey] = todayStr;
+            await db.history.put({ key: historyKey, value: todayStr });
+            triggerNextScan(false, err.message);
+          } else if (err.message.includes("Failed to fetch") || err.message.includes("network")) {
+            // Jika jaringan benar-benar mati, masukkan ke antrean
+            console.warn("Jaringan putus, masuk ke offline queue.");
+            saveToOfflineQueue(payload, historyKey, todayStr);
+          } else {
+            triggerNextScan(false, err.message);
+          }
+        }
+      }
+
+      async function saveToOfflineQueue(payload, historyKey, todayStr) {
         payload.offline_validated = true;
-        offlineQueue.push(payload);
-        localStorage.setItem("ypwi_offline_queue", JSON.stringify(offlineQueue));
 
-        // Kunci status kartu secara instan di lokal agar aman dari upaya double-scan saat offline
-        localScanHistory[historyKey] = todayStr;
-        localStorage.setItem("ypwi_local_history", JSON.stringify(localScanHistory));
+        try {
+          // 1. Simpan ke database antrean (IndexedDB)
+          // Kita gunakan .add() agar setiap scan jadi record baru yang unik
+          await db.attendance_queue.add({
+            ...payload,
+            created_at: new Date().getTime() // Membantu urutan saat sync nanti
+          });
 
-        updateQueueIndicator();
-        triggerNextScan(true, `Offline Sukses: Absen ${payload.type.toUpperCase()} disimpan lokal di tablet.`);
+          // 2. Kunci status kartu secara instan di lokal (IndexedDB)
+          // Ini menggantikan localScanHistory agar tidak bisa double-scan
+          localScanHistory[historyKey] = todayStr;
+          await db.history.put({ key: historyKey, value: todayStr });
+
+          // Update UI
+          updateQueueIndicator();
+          triggerNextScan(true, `Offline Sukses: Absen ${payload.type.toUpperCase()} disimpan lokal di tablet.`);
+
+        } catch (err) {
+          console.error("Gagal menyimpan ke IndexedDB:", err);
+          triggerNextScan(false, "Error: Gagal menyimpan data ke penyimpanan lokal.");
+        }
       }
 
       // === 8. Background Synchronization (Offline Engine) ===
       async function syncOfflineQueue() {
-        if (!navigator.onLine || offlineQueue.length === 0) return;
+        // Ambil semua antrean dari IndexedDB
+        const queue = await db.attendance_queue.toArray();
+
+        // Jika tidak ada data atau sedang offline, hentikan
+        if (!navigator.onLine || queue.length === 0) return;
 
         scanningStatus.textContent = "Status: Sinkronisasi data offline...";
-        const secretKey = config ? config.secret_key : "";
-        const queueBackup = [...offlineQueue];
 
-        for (let i = 0; i < queueBackup.length; i++) {
+        let secretKey = await ambilDariDB('secret_key') || (config ? config.secret_key : null);
+
+        if (!secretKey) {
+          console.error("Sinkronisasi gagal: Secret Key tidak ditemukan!");
+          return;
+        }
+
+        for (const item of queue) {
           try {
-            const item = queueBackup[i];
             const res = await fetch('/api/scanner/attendance', {
               method: 'POST',
               headers: {
@@ -899,19 +1111,17 @@
               body: JSON.stringify(item)
             });
 
-            // Respon 200 (OK), 409 (Conflict/Sudah ada di database), atau 403 (Forbidden)
-            // Menandakan antrean ini tidak perlu diproses ulang dan bisa dihapus dengan aman.
+            // Sukses atau ditolak karena alasan valid (duplikat/invalid) tetap dianggap "selesai diproses"
             if (res.ok || res.status === 409 || res.status === 403) {
-              offlineQueue.shift();
-              localStorage.setItem("ypwi_offline_queue", JSON.stringify(offlineQueue));
-              updateQueueIndicator();
+              await db.attendance_queue.delete(item.id);
             }
           } catch (err) {
-            console.error("Gagal sync antrean ini, menanti sinyal stabil:", err);
-            break;
+            console.error("Gagal sync antrean ID:", item.id, err);
+            break; // Berhenti jika jaringan terputus
           }
         }
 
+        updateQueueIndicator();
         const now = new Date();
         syncTimeEl.textContent = `Sync: ${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
         scanningStatus.textContent = "Status: Menunggu QR...";
@@ -956,9 +1166,12 @@
         }, 1200); // Jeda lensa 1.2 detik demi kenyamanan pergerakan tangan guru
       }
 
-      function updateQueueIndicator() {
-        if (offlineQueue.length > 0) {
-          queueCountEl.textContent = offlineQueue.length;
+      async function updateQueueIndicator() {
+        // Hitung jumlah record di database
+        const count = await db.attendance_queue.count();
+
+        if (count > 0) {
+          queueCountEl.textContent = count;
           queueIndicator.classList.remove("hidden");
         } else {
           queueIndicator.classList.add("hidden");

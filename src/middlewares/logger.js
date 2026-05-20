@@ -37,7 +37,7 @@ function requestLogger(req, res, next) {
 
   // Log response on finish for errors
   const originalSend = res.send;
-  res.send = function(data) {
+  res.send = function (data) {
     if (res.statusCode >= 500) {
       console.error('=== [ERROR 500] STACK TRACE ===');
       console.error(new Error('Server Error at ' + req.method + ' ' + req.originalUrl).stack);

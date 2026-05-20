@@ -1,18 +1,12 @@
 {
     "short_name": "YPWI Scanner",
-    "name": "YPWI Scanner Absensi Terpadu",
-    "description": "Aplikasi Pemindai QR Code Absensi Yayasan Pendidikan Wirausaha Indonesia",
+    "name": "YPWI Scanner",
+    "description": "Aplikasi Pemindai QR Code Absensi Yayasan Pesantren Wahdah Islamiyah",
     "icons": [
         {
-            "src": "/assets/images/YPWI LOGO HITAM.png",
+            "src": "/assets/images/icon.png",
             "type": "image/png",
             "sizes": "192x192",
-            "purpose": "any maskable"
-        },
-        {
-            "src": "/assets/images/YPWI LOGO HITAM.png",
-            "type": "image/png",
-            "sizes": "512x512",
             "purpose": "any maskable"
         }
     ],

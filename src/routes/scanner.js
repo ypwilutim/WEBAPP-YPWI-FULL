@@ -438,12 +438,12 @@ router.get('/scanner/attendance-rules', async (req, res) => {
   }
 
   // 2. Ambil aturan absensi yang berlaku
-  const [rules] = await db.query("SELECT * FROM attendance_rules WHERE tenant_id = ?", [targetTenant]);
+  const rules = await db.query("SELECT * FROM attendance_rules WHERE tenant_id = ?", [targetTenant]);
 
   res.json({
     success: true,
     use_central: tenant ? tenant.use_central_rules === 1 : false,
-    rules: rules || null // Berisi jam_masuk_mulai, jam_masuk_selesai, dll.
+    rules: rules || [] // Mengirimkan array penuh
   });
 });
 
@@ -653,57 +653,62 @@ router.get('/scanner/devices', authenticateToken, async (req, res) => {
 // ============================================================
 router.post('/scanner/devices', authenticateToken, async (req, res) => {
   try {
-    // Logging internal untuk memastikan req.body murni belum dimodifikasi middleware lain
-    console.log("=== DIAGNOSIS BACKEND INCOMING ===");
+    // Logging internal untuk memastikan data masuk dengan sempurna
+    console.log("=== DIAGNOSIS BACKEND INCOMING V5.0 ===");
     console.log("Isi req.body asli:", JSON.stringify(req.body, null, 2));
 
     const { tenant_id, device_id, school_name, device_name, status } = req.body;
 
-    // 1. Ambil token dengan toleransi tinggi (Cek semua kemungkinan properti)
-    let rawToken = req.body.registration_token || req.body.deviceRegistrationToken;
-
-    console.log("Nilai token sebelum divalidasi:", rawToken, "Tipe data:", typeof rawToken);
-
-    // Paksa ambil string murninya
+    // Paksa ambil string murninya dengan toleransi snake_case dan camelCase
     const finalToken = String(req.body.registration_token || req.body.deviceRegistrationToken || '').trim();
 
     console.log("Nilai finalToken yang SIAP DIKIRIM ke MySQL:", finalToken);
-    console.log("==================================");
+    console.log("=======================================");
 
-    if (!device_id || !tenant_id || !school_name) {
+    // Validasi data wajib dari admin pusat
+    if (!tenant_id || !school_name || !finalToken) {
       return res.status(400).json({
         success: false,
-        message: 'device_id, tenant_id, dan school_name wajib diisi'
+        message: 'tenant_id, school_name, dan registration_token wajib terpenuhi.'
       });
     }
 
-    // Masukkan variabel finalToken LANGSUNG ke dalam string SQL menggunakan template literals (`${}`)
-    const sql = `
-  INSERT INTO scanner_devices 
-  (device_id, tenant_id, school_name, device_name, registration_token, status, created_at) 
-  VALUES (?, ?, ?, ?, '${finalToken}', ?, NOW())
-`;
+    // Ambil fallback aman jika device_id atau device_name kosong dari client-side
+    const securedDeviceId = device_id || `${tenant_id.toUpperCase()}-GEN-${Math.floor(1000 + Math.random() * 9000)}`;
+    const securedDeviceName = device_name || `Scanner ${school_name}`;
+    const securedStatus = status || 'active';
 
-    // Karena token sudah di-hardcode di dalam string, di dalam array parameter di bawah ini slotnya kita hapus!
+    // Query SQL yang aman. Kita gunakan tanda tanya (?) untuk token agar terhindar dari SQL Injection bugs.
+    const sql = `
+      INSERT INTO scanner_devices 
+      (device_id, tenant_id, school_name, device_name, registration_token, status, created_at) 
+      VALUES (?, ?, ?, ?, ?, ?, NOW())
+    `;
+
+    // Eksekusi data ke MySQL. Array parameter HARUS sejajar dengan urutan tanda tanya (?) di atas.
     await db.query(sql, [
-      // String(device_id),
-      // String(tenant_id),
-      // String(school_name),
-      // String(device_name || `Scanner ${school_name}`),
-      // Slot tanda tanya untuk token sudah dihilangkan karena diganti '${finalToken}' di atas
-      String(status || 'active')
+      String(securedDeviceId),
+      String(tenant_id),
+      String(school_name),
+      String(securedDeviceName),
+      String(finalToken),
+      String(securedStatus)
     ]);
 
     res.json({
       success: true,
-      message: 'Perangkat scanner baru berhasil didaftarkan ke database'
+      message: 'Otorisasi Tenant & Token Baru Berhasil Direkam di Database Pusat.',
+      data: {
+        tenant_id: tenant_id,
+        token: finalToken
+      }
     });
 
   } catch (error) {
     console.error('Error saat menyimpan device baru:', error);
     res.status(500).json({
       success: false,
-      message: 'Terjadi kesalahan internal: ' + error.message
+      message: 'Terjadi kesalahan internal server pusat: ' + error.message
     });
   }
 });

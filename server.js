@@ -3379,6 +3379,12 @@ async function startServer() {
   // END EVALUATION ENDPOINTS
   // ============================================
 
+  app.use((req, res, next) => {
+    // Debugging mentah: lihat semua header yang benar-benar masuk ke server
+    console.log("Daftar Header Lengkap:", req.headers);
+    next();
+  });
+
   app.listen(PORT, '0.0.0.0', () => {
     console.log('🚀 Server YPWI Lutim berjalan di http://localhost:' + PORT);
     console.log('🌐 Juga dapat diakses di http://0.0.0.0:' + PORT + ' atau IP lokal Anda');

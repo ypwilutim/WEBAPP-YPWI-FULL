@@ -1,18 +1,20 @@
 {
-  "name": "YPWI Absensi Admin",
-  "short_name": "YPWI Admin",
-  "description": "Dashboard Admin Sistem Absensi YPWI Lutim",
-  "start_url": "/admin-dashboard.html",
+  "name": "Absensi YPWI",
+  "short_name": "YPWI Scan",
+  "start_url": "scanner.html",
   "display": "standalone",
   "background_color": "#ffffff",
-  "theme_color": "#3b82f6",
-  "orientation": "portrait-primary",
+  "theme_color": "#000000",
   "icons": [
     {
-      "src": "/assets/images/YPWI%20LOGO%20HITAM.png",
-      "sizes": "any",
-      "type": "image/png",
-      "purpose": "any"
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/assets/images/YPWI LOGO HITAM.png",
+      "sizes": "512x512",
+      "type": "image/png"
     }
   ]
 }
