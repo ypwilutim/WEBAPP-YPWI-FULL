@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -14,16 +15,97 @@
   <link rel="icon" href="/assets/images/YPWI LOGO HITAM.png" type="image/png">
   <link rel="apple-touch-icon" href="/assets/images/YPWI LOGO HITAM.png">
 
-   <!-- QR Scanner Library - Using jsQR -->
-   <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+  <!-- QR Scanner Library - Using jsQR -->
+  <script src="/js/jsQR.js"></script>
 
-    <!-- Font Awesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    <!-- Tailwind CSS (production build) -->
-    <link href="/css/tailwind.css" rel="stylesheet">
+  <!-- Tailwind CSS -->
+  <link href="/css/tailwind.css" rel="stylesheet">
 
   <style>
+    /* --- TOAST NOTIFICATION STYLING --- */
+    .toast-container {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-20px);
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      width: 90%;
+      max-width: 400px;
+      pointer-events: none;
+    }
+
+    .toast-box {
+      background: #ffffff;
+      color: #333333;
+      padding: 15px 20px;
+      border-radius: 12px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 600;
+      font-size: 1rem;
+      opacity: 0;
+      transform: translateY(-20px);
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      border-left: 6px solid #ccc;
+      pointer-events: auto;
+    }
+
+    .toast-box.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Variasi Warna Berdasarkan Status */
+    .toast-success {
+      border-left-color: #2ec4b6;
+      background: #e6f9f7;
+      color: #0f5146;
+    }
+
+    .toast-error {
+      border-left-color: #e71d36;
+      background: #ffebee;
+      color: #842029;
+    }
+
+    .toast-warning {
+      border-left-color: #ff9f1c;
+      background: #fff3cd;
+      color: #664d03;
+    }
+
+    .toast-info {
+      border-left-color: #4361ee;
+      background: #e8f0fe;
+      color: #1a41a5;
+    }
+
+    /* Animasi progress bar kecil di bawah toast */
+    .toast-progress {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      height: 3px;
+      background: rgba(0, 0, 0, 0.1);
+      width: 100%;
+      transform-origin: left;
+      animation: toast-countdown 3s linear forwards;
+    }
+
+    @keyframes toast-countdown {
+      to {
+        transform: scaleX(0);
+      }
+    }
+
     body {
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
       background-color: #1f2937;
@@ -77,90 +159,96 @@
       display: inline-block;
       animation: pulse 2s infinite;
     }
-    .status-online { background-color: #10b981; }
-    .status-offline { background-color: #ef4444; }
+
+    .status-online {
+      background-color: #10b981;
+    }
+
+    .status-offline {
+      background-color: #ef4444;
+    }
 
     @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.5; }
+
+      0%,
+      100% {
+        opacity: 1;
+      }
+
+      50% {
+        opacity: 0.5;
+      }
     }
 
-     /* Scan region overlay */
-     #scan-region {
-       position: absolute;
-       top: 50%;
-       left: 50%;
-       transform: translate(-50%, -50%);
-       width: 350px;
-       height: 350px;
-       border: 3px solid #3b82f6;
-       border-radius: 12px;
-       box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.5);
-       overflow: hidden;
-     }
+    /* Scan region overlay */
+    #scan-region {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 350px;
+      height: 350px;
+      border: 3px solid #3b82f6;
+      border-radius: 12px;
+      box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.5);
+      overflow: hidden;
+    }
 
-     /* Scan line animation */
-     #scan-region::after {
-       content: '';
-       position: absolute;
-       top: 0;
-       left: 0;
-       right: 0;
-       height: 2px;
-       background: linear-gradient(90deg, transparent, #3b82f6, transparent);
-       box-shadow: 0 0 8px #3b82f6;
-       animation: scan-line 2s linear infinite;
-     }
+    /* Scan line animation */
+    #scan-region::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, #3b82f6, transparent);
+      box-shadow: 0 0 8px #3b82f6;
+      animation: scan-line 2s linear infinite;
+    }
 
-     @keyframes scan-line {
-       0% { top: 0; opacity: 0; }
-       10% { opacity: 1; }
-       90% { opacity: 1; }
-       100% { top: 100%; opacity: 0; }
-     }
+    @keyframes scan-line {
+      0% {
+        top: 0;
+        opacity: 0;
+      }
 
-     #scan-region::before {
-       content: '';
-       position: absolute;
-       top: -2px;
-       left: -2px;
-       right: -2px;
-       bottom: -2px;
-       border: 2px solid rgba(59, 130, 246, 0.5);
-       border-radius: 14px;
-       animation: scan-pulse 2s ease-out infinite;
-     }
+      10% {
+        opacity: 1;
+      }
+
+      90% {
+        opacity: 1;
+      }
+
+      100% {
+        top: 100%;
+        opacity: 0;
+      }
+    }
+
+    #scan-region::before {
+      content: '';
+      position: absolute;
+      top: -2px;
+      left: -2px;
+      right: -2px;
+      bottom: -2px;
+      border: 2px solid rgba(59, 130, 246, 0.5);
+      border-radius: 14px;
+      animation: scan-pulse 2s ease-out infinite;
+    }
 
     @keyframes scan-pulse {
-      0% { transform: scale(1); opacity: 1; }
-      100% { transform: scale(1.1); opacity: 0; }
-    }
+      0% {
+        transform: scale(1);
+        opacity: 1;
+      }
 
-    /* Toast notification */
-    .toast {
-      position: fixed;
-      top: 80px;
-      left: 50%;
-      transform: translateX(-50%);
-      z-index: 100;
-      min-width: 300px;
-      max-width: 90%;
-      transition: all 0.3s ease;
-    }
-
-    /* Pending counter badge */
-    .badge-pending {
-      position: absolute;
-      top: -8px;
-      right: -8px;
-      background-color: #ef4444;
-      color: white;
-      font-size: 12px;
-      font-weight: bold;
-      padding: 2px 8px;
-      border-radius: 9999px;
-      min-width: 20px;
-      text-align: center;
+      100% {
+        transform: scale(1.1);
+        opacity: 0;
+      }
     }
 
     /* Hide on small screens */
@@ -170,103 +258,146 @@
         height: 240px;
       }
     }
-
-    /* Button click animation */
-    .button-click {
-      animation: buttonPulse 0.3s ease;
-    }
-
-    @keyframes buttonPulse {
-      0% { transform: scale(1); }
-      50% { transform: scale(1.1); }
-      100% { transform: scale(1); }
-    }
   </style>
 </head>
-  <body>
-   <!-- Header -->
-   <header id="scanner-header" class="scanner-content">
+
+<body>
+
+  <!-- Header -->
+  <header id="scanner-header" class="scanner-content">
     <div class="flex justify-between items-center">
       <div class="flex items-center space-x-3">
-        <img src="/assets/images/YPWI LOGO HITAM.png" alt="Logo" class="w-10 h-10 object-contain bg-white rounded-lg p-1">
+        <img src="/assets/images/YPWI LOGO HITAM.png" alt="Logo"
+          class="w-10 h-10 object-contain bg-white rounded-lg p-1">
         <div>
           <h1 class="text-lg font-bold">Scanner Absensi</h1>
           <p class="text-sm text-gray-300" id="school-name">Loading...</p>
         </div>
       </div>
-        <div class="flex items-center space-x-2">
-          <div id="connection-status" class="flex items-center space-x-2">
-            <span class="status-dot status-offline" id="status-dot"></span>
-            <span class="text-sm" id="status-text">Offline</span>
-          </div>
+      <div class="flex items-center space-x-2">
+        <div id="connection-status" class="flex items-center space-x-2">
+          <span class="status-dot status-offline" id="status-dot"></span>
+          <span class="text-sm" id="status-text">Offline</span>
         </div>
-       </div>
-     </div>
-   </header>
-
-  <!-- Toast Container -->
-  <div id="toast-container" class="toast-container"></div>
-
-   <!-- Scanner Region -->
-   <div id="scanner-container">
-     <div id="scan-region"></div>
-     <video id="reader" class="w-full h-full object-cover" playsinline autoplay muted></video>
-   </div>
-
-    <!-- Footer -->
-    <footer id="scanner-footer" class="scanner-content">
-      <div class="text-center">
-        <p class="text-sm text-gray-300 mb-2">Arahkan QR code guru ke dalam kotak biru</p>
-        <p class="text-xs text-gray-400 mb-2" id="scanning-status">Status: Menunggu QR...</p>
-        <div class="flex justify-center space-x-4 text-xs text-gray-400">
-          <span id="last-scan">Belum ada scan</span>
-          <span>•</span>
-          <span id="sync-time">Sync: --:--</span>
-        </div>
+        <button id="camera-switch"
+          class="bg-gray-800 bg-opacity-50 hover:bg-gray-700 text-white px-3 py-1 rounded-full text-sm flex items-center justify-center">
+          <!-- Mengganti fa-camera-retoggle menjadi fa-camera-rotate -->
+          <i class="fas fa-camera-rotate"></i>
+        </button>
       </div>
-    </footer>
+    </div>
+  </header>
 
-  <!-- Setup Modal (first time) -->
+  <!-- Scanner Region -->
+  <div id="scanner-container">
+    <div id="scan-region"></div>
+    <video id="reader" class="w-full h-full object-cover" playsinline autoplay muted></video>
+  </div>
+
+  <!-- Footer -->
+  <footer id="scanner-footer" class="scanner-content">
+    <div class="text-center">
+      <p class="text-sm text-gray-300 mb-2">Arahkan QR code guru ke dalam kotak biru</p>
+      <p class="text-xs text-gray-400 mb-2" id="scanning-status">Status: Menunggu QR...</p>
+      <div class="flex justify-center space-x-4 text-xs text-gray-400">
+        <span id="last-scan">Belum ada scan</span>
+        <span>•</span>
+        <span id="sync-time">Sync: --:--</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Setup Modal (First Time) -->
   <div id="setup-modal" class="fixed inset-0 bg-black bg-opacity-80 z-[100] flex items-center justify-center hidden">
     <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4 text-gray-900">
       <h2 class="text-xl font-bold mb-4">Setup Scanner Device</h2>
       <p class="text-sm text-gray-600 mb-4">
-        Masukkan informasi sekolah untuk mendaftarkan device scanner ini.
+        Masukkan informasi sekolah dan token autentikasi untuk mendaftarkan device scanner ini.
       </p>
-      <form id="setup-form">
+      <form id="setup-form" class="max-w-md mx-auto bg-white p-6 rounded-lg shadow-md">
+
+        <!-- 1. INPUT DEVICE ID -->
         <div class="mb-4">
           <label class="block text-sm font-medium text-gray-700 mb-1">Device ID</label>
-          <input type="text" name="device_id" id="device-id-input" class="w-full px-3 py-2 border border-gray-300 rounded-md" placeholder="Contoh: SDIT-TABLET-01" required>
-          <p class="text-xs text-gray-500 mt-1">ID unik untuk device ini (bisa diisi manual)</p>
+          <input type="text" name="device_id" id="device-id-input"
+            class="w-full px-3 py-2 border border-gray-300 rounded-md uppercase font-mono tracking-wider focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            placeholder="Contoh: YPWILUTIM-SCANNER-5676" required>
+          <p class="text-xs text-gray-400 mt-1">Masukkan kode Device ID yang terdaftar di Admin Pusat YPWI.</p>
         </div>
+
+        <!-- 2. DROPDOWN SEKOLAH (TENANT ID) -->
         <div class="mb-4">
           <label class="block text-sm font-medium text-gray-700 mb-1">Sekolah (Tenant ID)</label>
-          <select name="tenant_id" id="tenant-select" class="w-full px-3 py-2 border border-gray-300 rounded-md" required>
-            <option value="">Pilih Sekolah...</option>
+          <select name="tenant_id" id="tenant-select"
+            class="w-full px-3 py-2 border border-gray-300 rounded-md bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            required>
+            <option value="">-- Memuat Daftar Sekolah YPWI... --</option>
           </select>
         </div>
+
+        <!-- 3. INPUT NAMA SEKOLAH (OTOMATIS / READONLY) -->
         <div class="mb-4">
           <label class="block text-sm font-medium text-gray-700 mb-1">Nama Sekolah</label>
-          <input type="text" name="school_name" id="school-name-input" class="w-full px-3 py-2 border border-gray-300 rounded-md" placeholder="Contoh: SDIT Al-Ikhlas" required>
+          <input type="text" name="school_name" id="school-name-input"
+            class="w-full px-3 py-2 border border-gray-200 bg-gray-50 text-gray-500 rounded-md font-medium cursor-not-allowed"
+            placeholder="Terisi otomatis saat sekolah dipilih..." readonly required>
         </div>
+
+        <!-- 4. INPUT NAMA DEVICE (DITENTUKAN OLEH LAPANGAN) -->
         <div class="mb-4">
-          <label class="block text-sm font-medium text-gray-700 mb-1">Nama Device (Opsional)</label>
-          <input type="text" name="device_name" class="w-full px-3 py-2 border border-gray-300 rounded-md" placeholder="Contoh: Tablet Security SDIT">
+          <label class="block text-sm font-medium text-gray-700 mb-1 font-semibold text-blue-700">Nama Perangkat
+            Ini</label>
+          <input type="text" name="device_name" id="device-name-input"
+            class="w-full px-3 py-2 border border-blue-300 bg-blue-50 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            placeholder="Contoh: Tablet Gerbang Utama / HP Pak Akbar" required>
+          <p class="text-xs text-gray-500 mt-1">Berikan nama penanda khusus untuk perangkat fisik ini.</p>
         </div>
+
+        <!-- 5. INPUT TOKEN AUTENTIKASI -->
+        <div class="mb-6">
+          <label class="block text-sm font-medium text-red-600 font-semibold mb-1">Token Autentikasi Sekolah</label>
+          <input type="password" id="reg-token-input"
+            class="w-full px-3 py-2 border border-orange-400 bg-orange-50 rounded-md font-mono tracking-widest focus:ring-2 focus:ring-orange-500 focus:outline-none"
+            placeholder="••••••••" required>
+          <p class="text-xs text-gray-500 mt-1">Masukkan token otorisasi rahasia dari Admin Pusat YPWI.</p>
+        </div>
+
+        <!-- 6. TOMBOL AKSI -->
         <div class="flex space-x-2">
-          <button type="submit" class="flex-1 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700">
-            Daftarkan Device
+          <button type="submit"
+            class="flex-1 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400">
+            Aktifkan & Hubungkan
           </button>
-          <button type="button" id="skip-setup" class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">
-            Lewati (Demo)
+          <button type="button" id="skip-setup"
+            class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors focus:outline-none">
+            Lewati
           </button>
         </div>
       </form>
+
+      <!-- INDIKATOR STATUS HALAMAN -->
+      <p id="scanning-status" class="text-sm text-center text-gray-500 mt-4 font-medium">Status: Menunggu Konfigurasi
+      </p>
+    </div>
+  </div>
+
+  <!-- Lockout System Modal (Maintenance / Inactive Perangkat) -->
+  <div id="maintenance-modal" class="fixed inset-0 bg-gray-900 z-[200] flex items-center justify-center hidden">
+    <div class="text-center p-6 max-w-md mx-4">
+      <div class="w-20 h-20 bg-amber-500 bg-opacity-20 rounded-full flex items-center justify-center mx-auto mb-6">
+        <i class="fas fa-charging-station text-amber-500 text-4xl animate-bounce"></i>
+      </div>
+      <h2 id="maintenance-title" class="text-2xl font-bold tracking-wide text-white mb-3">Sistem Ditangguhkan</h2>
+      <p id="maintenance-message" class="text-gray-400 text-base leading-relaxed mb-6">
+        Perangkat pemindai tidak dapat digunakan sementara waktu.
+      </p>
+      <div class="text-xs text-gray-500 font-mono">YPWI INTEGRATED SYSTEM V5.0</div>
     </div>
   </div>
 
   <!-- QR Scan Result Modal -->
-  <div id="scan-result-modal" class="fixed inset-0 bg-black bg-opacity-80 z-[100] flex items-center justify-center hidden">
+  <div id="scan-result-modal"
+    class="fixed inset-0 bg-black bg-opacity-80 z-[100] flex items-center justify-center hidden">
     <div class="bg-white rounded-lg p-6 max-w-sm w-full mx-4 text-gray-900 text-center">
       <div id="scan-success" class="hidden">
         <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -289,34 +420,595 @@
   </div>
 
   <!-- Offline Queue Indicator (bottom-right) -->
-  <div id="offline-queue-indicator" class="fixed bottom-20 right-4 bg-black bg-opacity-75 text-white px-3 py-2 rounded-lg text-sm hidden">
-    <i class="fas fa-wifi-slash mr-2"></i>
+  <div id="offline-queue-indicator"
+    class="fixed bottom-20 right-4 bg-black bg-opacity-75 text-white px-3 py-2 rounded-lg text-sm hidden">
+    <i class="fas fa-wifi-slash mr-2 text-amber-500"></i>
     <span id="queue-count">0</span> pending
   </div>
 
-     <!-- QR Scanner Library -->
-     <script src="/js/scanner-app.js"></script>
-    <script>
-      // Register Service Worker
-      if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('/scanner-sw.js')
-          .then(reg => {
-            console.log('[SW] Registered:', reg.scope);
-            console.log('[SW] Service worker state:', reg.active?.state);
-            console.log('[SW] Waiting service worker:', reg.waiting?.state);
-            console.log('[SW] Installing service worker:', reg.installing?.state);
+  <!-- Wadah untuk menampung semua toast yang muncul -->
+  <div id="toastContainer" class="toast-container"></div>
+  <!-- Memuat Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- CORE SCRIPTS MANAGEMENT -->
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      // === 1. DOM Elements ===
+      const video = document.getElementById("reader");
+      const schoolNameEl = document.getElementById("school-name");
+      const statusDot = document.getElementById("status-dot");
+      const statusText = document.getElementById("status-text");
+      const scanningStatus = document.getElementById("scanning-status");
+      const lastScanEl = document.getElementById("last-scan");
+      const syncTimeEl = document.getElementById("sync-time");
+
+      const setupModal = document.getElementById("setup-modal");
+      const setupForm = document.getElementById("setup-form");
+      const tenantSelect = document.getElementById("tenant-select");
+      const schoolNameInput = document.getElementById("school-name-input");
+      const deviceIdInput = document.getElementById("device-id-input");
+      const deviceNameInput = document.getElementById("device-name-input");
+      const regTokenInput = document.getElementById("reg-token-input");
+      const skipSetupBtn = document.getElementById("skip-setup");
+
+      const maintenanceModal = document.getElementById("maintenance-modal");
+      const maintenanceTitle = document.getElementById("maintenance-title");
+      const maintenanceMessage = document.getElementById("maintenance-message");
+
+      let toastContainer = document.getElementById("toastContainer");
+      if (!toastContainer) {
+        toastContainer = document.createElement("div");
+        toastContainer.id = "toastContainer";
+        toastContainer.className = "toast-container";
+        document.body.appendChild(toastContainer);
+      }
+
+      const queueIndicator = document.getElementById("offline-queue-indicator");
+      const queueCountEl = document.getElementById("queue-count");
+
+      // === 2. State & Engine Parameters ===
+      let config = JSON.parse(localStorage.getItem("ypwi_scanner_config")) || null;
+      let offlineQueue = JSON.parse(localStorage.getItem("ypwi_offline_queue")) || [];
+
+      // MEMORI LOKAL: Menyimpan tanda sukses absen guru hari ini agar tidak bisa double-scan
+      let localScanHistory = JSON.parse(localStorage.getItem("ypwi_local_history")) || {};
+
+      // MEMORI ATURAN: Menyimpan salinan jam operasional absensi dari server
+      let attendanceRules = JSON.parse(localStorage.getItem("ypwi_attendance_rules")) || null;
+
+      let isScanningActive = false;
+      let facingMode = "environment"; // current camera facing mode
+      let canvasElement = document.createElement("canvas");
+      let canvasCtx = canvasElement.getContext("2d");
+
+      function toggleCamera() {
+        facingMode = facingMode === "environment" ? "user" : "environment";
+        // If currently scanning, we need to restart the camera
+        if (isScanningActive) {
+          stopCamera();
+          startCamera();
+        }
+      }
+
+      // === 3. Application Lifecycle Initialization ===
+      function initApp() {
+        checkConnection();
+        updateQueueIndicator();
+        fetchTenants();
+        clearOldLocalHistory(); // Bersihkan history hari kemarin otomatis saat startup
+
+        if (!config) {
+          deviceIdInput.value = "YPWI-SCANNER-" + Math.random().toString(36).substr(2, 6).toUpperCase();
+          setupModal.classList.remove("hidden");
+        } else {
+          verifyDeviceStatusFromServer();
+          fetchAttendanceRules(); // Ambil/perbarui aturan absensi terbaru saat startup
+        }
+
+        setInterval(verifyDeviceStatusFromServer, 60000);
+        setInterval(syncOfflineQueue, 30000);
+        setInterval(fetchAttendanceRules, 300000); // Sinkronisasi aturan berkala setiap 5 menit jika online
+      }
+
+      // Pembersih otomatis memori pencegah double-scan jika mendeteksi tanggal lama
+      function clearOldLocalHistory() {
+        const todayStr = new Date().toISOString().split('T')[0];
+        let hasChanges = false;
+
+        for (let key in localScanHistory) {
+          if (localScanHistory[key] !== todayStr) {
+            delete localScanHistory[key];
+            hasChanges = true;
+          }
+        }
+        if (hasChanges) {
+          localStorage.setItem("ypwi_local_history", JSON.stringify(localScanHistory));
+        }
+      }
+
+      // === 4. Device Lockout & Heartbeat Engine ===
+      function verifyDeviceStatusFromServer() {
+        if (!config) return;
+
+        if (!navigator.onLine) {
+          schoolNameEl.textContent = config.school_name;
+          startCamera();
+          return;
+        }
+
+        const secretKey = config.secret_key || "";
+        fetch(`/api/scanner/device-status?device_id=${config.device_id}&secret_key=${secretKey}`)
+          .then(res => res.json())
+          .then(resData => {
+            if (resData.success) {
+              if (resData.status === 'active') {
+                maintenanceModal.classList.add("hidden");
+                schoolNameEl.textContent = resData.school_name || config.school_name;
+                startCamera();
+              }
+              else if (resData.status === 'maintenance') {
+                stopCamera();
+                maintenanceTitle.textContent = "Sistem Masa Perbaikan";
+                maintenanceMessage.innerHTML = "Perangkat pemindai ini sedang berada dalam masa pemeliharaan sistem berkala.<br><br><span class='text-amber-500 font-semibold'>Silakan hubungi Administrator IT YPWI untuk info lebih lanjut.</span>";
+                maintenanceModal.classList.remove("hidden");
+              }
+              else if (resData.status === 'inactive') {
+                stopCamera();
+                maintenanceTitle.textContent = "Perangkat Dinonaktifkan";
+                maintenanceMessage.textContent = "Akses operasional untuk unit scanner ini telah dinonaktifkan oleh Admin Pusat YPWI.";
+                maintenanceModal.classList.remove("hidden");
+              }
+              else if (resData.status === 'unregistered') {
+                localStorage.removeItem("ypwi_scanner_config");
+                window.location.reload();
+              }
+            }
           })
           .catch(err => {
-            console.error('[SW] Registration failed:', err);
-            // Try fallback registration
-            console.log('[SW] Attempting fallback registration...');
-            navigator.serviceWorker.register('./scanner-sw.js')
-              .then(reg => console.log('[SW] Fallback registered:', reg.scope))
-              .catch(fallbackErr => console.error('[SW] Fallback failed:', fallbackErr));
+            console.error('[STATUS MONITOR ERROR]', err);
+            startCamera();
           });
-      } else {
-        console.warn('[SW] Service Worker not supported in this browser');
       }
-    </script>
+
+      // === 4b. Fetch Attendance Rules dari Backend ===
+      function fetchAttendanceRules() {
+        if (!config || !navigator.onLine) return;
+
+        fetch(`/api/scanner/attendance-rules?tenant_id=${config.tenant_id}`)
+          .then(res => res.json())
+          .then(resData => {
+            if (resData.success && resData.rules) {
+              attendanceRules = resData.rules;
+              localStorage.setItem("ypwi_attendance_rules", JSON.stringify(attendanceRules));
+              console.log("[RULES UTK SCANNER AMAN]:", attendanceRules);
+            }
+          })
+          .catch(err => console.error('[FETCH RULES ERROR]', err));
+      }
+
+      // === 5. Tenant Registration Framework ===
+      function fetchTenants() {
+        fetch('/api/public/tenants')
+          .then(res => res.json())
+          .then(resData => {
+            if (resData.success && resData.data) {
+              tenantSelect.innerHTML = '<option value="">Pilih Sekolah...</option>';
+              resData.data.forEach(tenant => {
+                const opt = document.createElement("option");
+                opt.value = tenant.tenant_id;
+                opt.textContent = tenant.nama_sekolah;
+                tenantSelect.appendChild(opt);
+              });
+            }
+          })
+          .catch(err => console.error('[FETCH TENANTS ERROR]', err));
+      }
+
+      tenantSelect.addEventListener("change", (e) => {
+        const selected = e.target.options[e.target.selectedIndex];
+        schoolNameInput.value = selected.value ? selected.text : "";
+      });
+
+      if (setupForm) {
+        setupForm.addEventListener("submit", (e) => {
+          e.preventDefault();
+
+          if (scanningStatus) {
+            scanningStatus.textContent = "Status: Mengunci perangkat & memvalidasi token...";
+          }
+
+          const array = new Uint8Array(20);
+          window.crypto.getRandomValues(array);
+          const generatedClientSecret = Array.from(array).map(b => b.toString(16).padStart(2, '0')).join('');
+
+          const payload = {
+            device_id: deviceIdInput.value.trim(),
+            tenant_id: tenantSelect.value,
+            school_name: schoolNameInput.value,
+            device_name: deviceNameInput.value.trim() || 'Scanner Tablet',
+            reg_token: regTokenInput.value.trim(),
+            secret_key: generatedClientSecret
+          };
+
+          fetch('/api/scanner/register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          })
+            .then(async res => {
+              const data = await res.json();
+              if (res.status === 401) throw new Error(data.message || "Token Autentikasi salah/tidak valid.");
+              if (res.status === 409) throw new Error(data.message || "Token ini sudah dikunci oleh perangkat lain!");
+              if (!res.ok) throw new Error(data.message || "Gagal memproses pendaftaran.");
+              return data;
+            })
+            .then(resData => {
+              if (resData.success) {
+                config = resData.data;
+                localStorage.setItem("ypwi_scanner_config", JSON.stringify(config));
+
+                if (schoolNameEl) schoolNameEl.textContent = config.school_name;
+                if (scanningStatus) scanningStatus.textContent = `Status: Terhubung (${config.device_name})`;
+
+                showToast("Aktivasi Sukses! Token terkunci ke perangkat ini.", "success");
+
+                if (setupModal) setupModal.classList.add("hidden");
+
+                // Ambil aturan absensi untuk unit sekolah yang baru didaftarkan ini
+                fetchAttendanceRules();
+                if (typeof verifyDeviceStatusFromServer === "function") {
+                  verifyDeviceStatusFromServer();
+                }
+              }
+            })
+            .catch(err => {
+              showToast(err.message, "error");
+              if (scanningStatus) scanningStatus.textContent = "Status: Registrasi Gagal";
+            });
+        });
+      }
+
+      skipSetupBtn.addEventListener("click", () => {
+        config = { device_id: "DEMO-DEVICE", tenant_id: "demo-tenant", school_name: "Sekolah Demo (Lokal)", secret_key: "demo-secret" };
+        schoolNameEl.textContent = config.school_name;
+        setupModal.classList.add("hidden");
+        startCamera();
+      });
+
+      // Camera switch button event listener
+      const cameraSwitchBtn = document.getElementById("camera-switch");
+      if (cameraSwitchBtn) {
+        cameraSwitchBtn.addEventListener("click", toggleCamera);
+      }
+
+
+      // === 6. Camera Stream & jsQR Implementation ===
+      function startCamera() {
+        if (video.srcObject && isScanningActive) return;
+
+        scanningStatus.textContent = "Status: Mengaktifkan Kamera...";
+        navigator.mediaDevices.getUserMedia({ video: { facingMode: facingMode } })
+          .then((stream) => {
+            video.srcObject = stream;
+            video.setAttribute("playsinline", true);
+            // Apply mirror effect for front camera
+            video.style.transform = facingMode === "user" ? "scaleX(-1)" : "scaleX(1)";
+            video.play();
+            isScanningActive = true;
+            requestAnimationFrame(tick);
+          })
+          .catch((err) => {
+            console.error("Kamera error:", err);
+            scanningStatus.textContent = "Status: Kamera Gagal Diakses";
+          });
+      }
+
+      function stopCamera() {
+        isScanningActive = false;
+        if (video.srcObject) {
+          const stream = video.srcObject;
+          stream.getTracks().forEach(track => track.stop());
+          video.srcObject = null;
+        }
+      }
+
+      function tick() {
+        if (video.readyState === video.HAVE_ENOUGH_DATA && isScanningActive) {
+          canvasElement.height = video.videoHeight;
+          canvasElement.width = video.videoWidth;
+          canvasCtx.drawImage(video, 0, 0, canvasElement.width, canvasElement.height);
+
+          const imageData = canvasCtx.getImageData(0, 0, canvasElement.width, canvasElement.height);
+          const code = jsQR(imageData.data, imageData.width, imageData.height, {
+            versionAttempts: "dontInvert",
+          });
+
+          if (code) {
+            isScanningActive = false;
+            handleQrDecoded(code.data);
+            return;
+          }
+        }
+        if (isScanningActive) {
+          requestAnimationFrame(tick);
+        }
+      }
+
+      // === 7. Attendance Logic & Transmission ===
+      function handleQrDecoded(qrRawData) {
+        if (!qrRawData || qrRawData.trim() === "") {
+          console.warn("[SCAN REJECTED] QR mentah kosong.");
+          triggerNextScan(false, "Gagal membaca QR. Pastikan kode QR terlihat jelas.");
+          return;
+        }
+
+        scanningStatus.textContent = "Status: Menguraikan QR...";
+        playBeep();
+
+        let parsedData = {};
+        let cleanData = qrRawData.trim();
+
+        // 1. Ekstraksi data ID dasar dari QR kartu
+        if (/^\d+$/.test(cleanData)) {
+          parsedData = { scan_id: cleanData };
+        } else {
+          try {
+            const testParse = JSON.parse(cleanData);
+            if (testParse && typeof testParse === 'object') {
+              parsedData = testParse;
+            } else {
+              throw new Error("Bukan JSON");
+            }
+          } catch (e) {
+            const parts = cleanData.split('|');
+            parsedData = { scan_id: parts[0] };
+          }
+        }
+
+        if (!parsedData || !parsedData.scan_id) {
+          triggerNextScan(false, "Gagal mengekstrak ID dari QR Code.");
+          return;
+        }
+
+        // 2. LOGIKA UTAMA: Identifikasi Jendela Waktu Berdasarkan Real Attendance Rules
+        const now = new Date();
+        const currentTimeStr = now.toTimeString().split(' ')[0]; // Format lokal "HH:MM:SS"
+        const todayStr = now.toISOString().split('T')[0]; // Format "YYYY-MM-DD"
+
+        let statusAbsenMatang = '';
+
+        if (attendanceRules) {
+          if (currentTimeStr >= attendanceRules.jam_masuk_mulai && currentTimeStr <= attendanceRules.jam_masuk_selesai) {
+            statusAbsenMatang = 'masuk';
+          }
+          else if (currentTimeStr >= attendanceRules.jam_pulang_mulai && currentTimeStr <= attendanceRules.jam_pulang_selesai) {
+            statusAbsenMatang = 'pulang';
+          }
+          else {
+            // Ketegasan Aturan: Jika di luar jendela jam, langsung reject di tempat
+            triggerNextScan(false, "Sesi Absensi Ditutup! Anda berada di luar jam datang/pulang yang ditentukan.");
+            return;
+          }
+        } else {
+          // Fallback darurat jika database aturan kosong/gagal fetch pertama kali
+          statusAbsenMatang = (now.getHours() < 12) ? 'masuk' : 'pulang';
+        }
+
+        // 3. SECURE LAYER: Blokir Double-Scan Berdasarkan Tipe Absen untuk Hari Ini
+        const historyKey = `${parsedData.scan_id}_${statusAbsenMatang}`;
+        if (localScanHistory[historyKey] === todayStr) {
+          triggerNextScan(false, `Ditolak! Anda sudah melakukan Absen ${statusAbsenMatang.toUpperCase()} untuk hari ini.`);
+          return;
+        }
+
+        // 4. Membangun Payload Matang
+        const attendancePayload = {
+          scan_id: String(parsedData.scan_id),
+          timestamp: todayStr + ' ' + currentTimeStr, // Mengirim data mentah tanggal & jam tablet lokal
+          type: statusAbsenMatang,
+          device_id: config ? config.device_id : "YPWI-SCANNER-LOCAL",
+          tenant_id: config ? config.tenant_id : "YPWILUTIM",
+          signature: parsedData.signature || ('local-sig-' + parsedData.scan_id),
+          offline_validated: !navigator.onLine
+        };
+
+        lastScanEl.textContent = `Last: ${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+
+        // 5. Eksekusi Pengiriman Berdasarkan Status Koneksi
+        if (navigator.onLine) {
+          sendAttendanceToServer(attendancePayload, historyKey, todayStr);
+        } else {
+          saveToOfflineQueue(attendancePayload, historyKey, todayStr);
+        }
+      }
+
+      function sendAttendanceToServer(payload, historyKey, todayStr) {
+        const secretKey = config ? config.secret_key : "";
+
+        fetch('/api/scanner/attendance', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Scanner-Secret-Key': secretKey
+          },
+          body: JSON.stringify(payload)
+        })
+          .then(async res => {
+            const data = await res.json();
+            // Jika backend menolak karena aturan internal server, tangkap pesan errornya
+            if (!res.ok) throw new Error(data.message || "Gagal memproses absensi.");
+            return data;
+          })
+          .then(result => {
+            const labelOutput = result.data.teacher_name || result.data.name || "Pegawai";
+            const typeOutput = (result.data.type || payload.type).toUpperCase();
+
+            // Sukses di server -> Kunci status kartu ini secara permanen di tablet untuk hari ini
+            localScanHistory[historyKey] = todayStr;
+            localStorage.setItem("ypwi_local_history", JSON.stringify(localScanHistory));
+
+            triggerNextScan(true, `${labelOutput} [${typeOutput}] - Berhasil dicatat (${result.data.status || 'Sukses Center'})`);
+          })
+          .catch(err => {
+            // Jika ditolak murni karena aturan bisnis yang bentrok di server pusat (misal data ganda)
+            if (err.message.includes("sudah absen") || err.message.includes("ditolak") || err.message.includes("Conflict")) {
+              localScanHistory[historyKey] = todayStr;
+              localStorage.setItem("ypwi_local_history", JSON.stringify(localScanHistory));
+              triggerNextScan(false, err.message);
+            }
+            // Jika murni gangguan transmisi jaringan internet putus di tengah jalan
+            else if (err.message.includes("Fetch") || err.message.includes("Server") || err.message.includes("Failed to fetch")) {
+              console.warn("Koneksi terputus saat kirim, dialihkan ke antrean offline.");
+              saveToOfflineQueue(payload, historyKey, todayStr);
+            } else {
+              triggerNextScan(false, err.message);
+            }
+          });
+      }
+
+      function saveToOfflineQueue(payload, historyKey, todayStr) {
+        payload.offline_validated = true;
+        offlineQueue.push(payload);
+        localStorage.setItem("ypwi_offline_queue", JSON.stringify(offlineQueue));
+
+        // Kunci status kartu secara instan di lokal agar aman dari upaya double-scan saat offline
+        localScanHistory[historyKey] = todayStr;
+        localStorage.setItem("ypwi_local_history", JSON.stringify(localScanHistory));
+
+        updateQueueIndicator();
+        triggerNextScan(true, `Offline Sukses: Absen ${payload.type.toUpperCase()} disimpan lokal di tablet.`);
+      }
+
+      // === 8. Background Synchronization (Offline Engine) ===
+      async function syncOfflineQueue() {
+        if (!navigator.onLine || offlineQueue.length === 0) return;
+
+        scanningStatus.textContent = "Status: Sinkronisasi data offline...";
+        const secretKey = config ? config.secret_key : "";
+        const queueBackup = [...offlineQueue];
+
+        for (let i = 0; i < queueBackup.length; i++) {
+          try {
+            const item = queueBackup[i];
+            const res = await fetch('/api/scanner/attendance', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'X-Scanner-Secret-Key': secretKey
+              },
+              body: JSON.stringify(item)
+            });
+
+            // Respon 200 (OK), 409 (Conflict/Sudah ada di database), atau 403 (Forbidden)
+            // Menandakan antrean ini tidak perlu diproses ulang dan bisa dihapus dengan aman.
+            if (res.ok || res.status === 409 || res.status === 403) {
+              offlineQueue.shift();
+              localStorage.setItem("ypwi_offline_queue", JSON.stringify(offlineQueue));
+              updateQueueIndicator();
+            }
+          } catch (err) {
+            console.error("Gagal sync antrean ini, menanti sinyal stabil:", err);
+            break;
+          }
+        }
+
+        const now = new Date();
+        syncTimeEl.textContent = `Sync: ${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+        scanningStatus.textContent = "Status: Menunggu QR...";
+      }
+
+      // === 9. UI Utilities & TOAST ENGINE ===
+      function showToast(message, type = 'info') {
+        const container = document.getElementById('toastContainer');
+        if (!container) return;
+
+        const toast = document.createElement('div');
+        toast.className = `toast-box toast-${type}`;
+
+        let icon = '🔔';
+        if (type === 'success') icon = '✅';
+        if (type === 'error') icon = '❌';
+        if (type === 'warning') icon = '⚠️';
+
+        toast.innerHTML = `
+            <span style="font-size: 1.25rem;">${icon}</span>
+            <div style="flex-grow: 1; line-height: 1.3;">${message}</div>
+            <div class="toast-progress"></div>
+        `;
+
+        container.appendChild(toast);
+
+        setTimeout(() => { toast.classList.add('show'); }, 50);
+
+        setTimeout(() => {
+          toast.classList.remove('show');
+          setTimeout(() => { toast.remove(); }, 400);
+        }, 3000);
+      }
+
+      function triggerNextScan(isSuccess, message) {
+        showToast(message, isSuccess ? 'success' : 'error');
+        scanningStatus.textContent = "Status: Menunggu QR...";
+
+        setTimeout(() => {
+          isScanningActive = true;
+          requestAnimationFrame(tick);
+        }, 1200); // Jeda lensa 1.2 detik demi kenyamanan pergerakan tangan guru
+      }
+
+      function updateQueueIndicator() {
+        if (offlineQueue.length > 0) {
+          queueCountEl.textContent = offlineQueue.length;
+          queueIndicator.classList.remove("hidden");
+        } else {
+          queueIndicator.classList.add("hidden");
+        }
+      }
+
+      function checkConnection() {
+        if (navigator.onLine) {
+          statusDot.className = "status-dot status-online";
+          statusText.textContent = "Online";
+          fetchAttendanceRules(); // Ambil rules terbaru saat jaringan kembali online
+          syncOfflineQueue();
+        } else {
+          statusDot.className = "status-dot status-offline";
+          statusText.textContent = "Offline";
+        }
+      }
+
+      function playBeep() {
+        try {
+          const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+          const oscillator = audioCtx.createOscillator();
+          const gainNode = audioCtx.createGain();
+          oscillator.connect(gainNode);
+          gainNode.connect(audioCtx.destination);
+          oscillator.type = "sine";
+          oscillator.frequency.value = 900;
+          gainNode.gain.setValueAtTime(0.08, audioCtx.currentTime);
+          oscillator.start();
+          oscillator.stop(audioCtx.currentTime + 0.1);
+        } catch (e) { console.log("Audio API bypassed."); }
+      }
+
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/scanner-sw.js')
+          .then(reg => console.log('[SW] Registered:', reg.scope))
+          .catch(err => {
+            navigator.serviceWorker.register('./scanner-sw.js')
+              .then(reg => console.log('[SW] Fallback Registered:', reg.scope));
+          });
+      }
+
+      window.addEventListener("online", checkConnection);
+      window.addEventListener("offline", checkConnection);
+
+      initApp();
+
+
+    });
+  </script>
 </body>
+
 </html>

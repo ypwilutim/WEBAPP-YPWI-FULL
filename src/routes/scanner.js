@@ -55,55 +55,199 @@ router.get('/public/tenants', async (req, res) => {
   }
 });
 
-// POST /api/scanner/register - Register a new scanner device
-router.post('/scanner/register', async (req, res) => {
+// GET /api/scanner/device-status - [BARU] Heartbeat status untuk mendeteksi lockout/maintenance
+router.get('/scanner/device-status', async (req, res) => {
+  const { device_id } = req.query;
+  if (!device_id) {
+    return res.status(400).json({ success: false, message: 'device_id diperlukan' });
+  }
+
   try {
-    const { device_id, tenant_id, school_name, device_name } = req.body;
-
-    if (!device_id || !tenant_id || !school_name) {
-      return res.status(400).json({
-        success: false,
-        message: 'device_id, tenant_id, dan school_name wajib diisi'
-      });
+    const device = await db.query('SELECT status, school_name FROM scanner_devices WHERE device_id = ?', [device_id]);
+    if (device.length === 0) {
+      return res.json({ success: true, status: 'unregistered' });
     }
-
-    const existing = await db.query('SELECT id FROM scanner_devices WHERE device_id = ?', [device_id]);
-    if (existing.length > 0) {
-      return res.status(409).json({
-        success: false,
-        message: 'Device sudah terdaftar'
-      });
-    }
-
-    const tenant = await db.query('SELECT tenant_id, nama_sekolah FROM tenants WHERE tenant_id = ?', [tenant_id]);
-    if (tenant.length === 0) {
-      return res.status(404).json({ success: false, message: 'Sekolah tidak ditemukan' });
-    }
-
-    const secret_key = crypto.randomBytes(32).toString('hex');
-
-    const result = await db.query(
-      'INSERT INTO scanner_devices (device_id, tenant_id, school_name, secret_key, device_name, status) VALUES (?, ?, ?, ?, ?, ?)',
-      [device_id, tenant_id, school_name, secret_key, device_name || 'Scanner Device', 'active']
-    );
-
-    console.log(`[SCANNER REGISTER] Device ${device_id} registered for ${school_name}`);
 
     res.json({
       success: true,
-      message: 'Device berhasil didaftarkan',
-      data: {
-        device_id,
-        secret_key,
-        tenant_id,
-        school_name
-      }
+      status: device[0].status, // 'active', 'inactive', 'maintenance'
+      school_name: device[0].school_name
     });
   } catch (error) {
-    console.error('[SCANNER REGISTER ERROR]', error.message);
-    res.status(500).json({ success: false, message: 'Error registering device' });
+    console.error('[DEVICE STATUS] Error:', error.message);
+    res.status(500).json({ success: false, message: 'Error checking device status' });
   }
 });
+
+// GET /api/scanner/tenants/registration-token
+// 1. RUTE GET TOKEN
+router.get('/scanner/tenants/registration-token', authenticateToken, async (req, res) => {
+  try {
+    const { tenant_id } = req.query;
+    if (!tenant_id) {
+      return res.status(400).json({ success: false, message: 'Tenant ID diperlukan' });
+    }
+
+    const rows = await db.query(
+      'SELECT registration_token FROM tenants WHERE tenant_id = ?',
+      [tenant_id]
+    );
+
+    if (!rows || rows.length === 0) {
+      return res.status(404).json({ success: false, message: 'Sekolah tidak ditemukan' });
+    }
+
+    res.json({
+      success: true,
+      token: rows[0].registration_token || 'TOKEN_BELUM_DIBUAT'
+    });
+  } catch (error) {
+    console.error('Error fetching registration token:', error);
+    res.status(500).json({ success: false, message: 'Terjadi kesalahan server' });
+  }
+});
+// POST /api/scanner/tenants/generate-token
+// Rute untuk membuat atau memperbarui token registrasi sekolah
+router.post('/scanner/tenants/generate-token', authenticateToken, async (req, res) => {
+  try {
+    const { tenant_id } = req.body; // Mengambil tenant_id dari body request
+
+    if (!tenant_id) {
+      return res.status(400).json({ success: false, message: 'Tenant ID diperlukan' });
+    }
+
+    // 1. Buat token acak yang unik (contoh: reg-ypwi-xxxxxx)
+    const randomString = crypto.randomBytes(8).toString('hex');
+    const newToken = `reg-${tenant_id.toLowerCase()}-${randomString}`;
+
+    // 2. Simpan token baru tersebut ke database MySQL
+    await db.query(
+      'UPDATE tenants SET registration_token = ? WHERE tenant_id = ?',
+      [newToken, tenant_id]
+    );
+
+    // 3. Kembalikan token baru ke frontend
+    res.json({
+      success: true,
+      message: 'Token pendaftaran berhasil dibuat',
+      token: newToken
+    });
+
+  } catch (error) {
+    console.error('Error generating token:', error);
+    res.status(500).json({ success: false, message: 'Gagal membuat token baru' });
+  }
+});
+
+// POST /api/scanner/register - [DIPERBARUI DENGAN CLIENT-SIDE DEVICE LOCKING]
+router.post('/scanner/register', async (req, res) => {
+  try {
+    // Ambil data murni termasuk secret_key yang dibuat otomatis oleh tablet
+    const { device_id, tenant_id, school_name, device_name, reg_token, secret_key } = req.body;
+
+    // Validasi parameter wajib sebelum menyentuh query database
+    if (!tenant_id || !reg_token || !device_id || !secret_key) {
+      return res.status(400).json({
+        success: false,
+        message: 'Tenant ID, Token Registrasi, Device ID, dan Secret Key wajib diisi!'
+      });
+    }
+
+    // ====================================================================
+    // LANGKAH 1: PENCOCOKAN SLOT TOKEN DI DATABASE
+    // ====================================================================
+    const checkSql = `
+      SELECT id, tenant_id, registration_token, device_id, secret_key, status, school_name 
+      FROM scanner_devices 
+      WHERE TRIM(tenant_id) LIKE ? AND TRIM(registration_token) LIKE ? 
+      LIMIT 1
+    `;
+
+    const cleanTenant = tenant_id.trim();
+    const cleanToken = reg_token.trim();
+
+    const queryResult = await db.query(checkSql, [cleanTenant, cleanToken]);
+    let deviceSlot = null;
+
+    // Normalisasi Driver Database (mysql2 / Array destruct check)
+    if (Array.isArray(queryResult)) {
+      if (Array.isArray(queryResult[0]) && queryResult[0].length > 0) {
+        deviceSlot = queryResult[0][0];
+      }
+      else if (queryResult[0] && typeof queryResult[0] === 'object' && !Array.isArray(queryResult[0])) {
+        deviceSlot = queryResult[0];
+      }
+    }
+
+    // JIKA SLOT TOKEN TIDAK DITEMUKAN
+    if (!deviceSlot) {
+      return res.status(401).json({
+        success: false,
+        message: 'Kombinasi Sekolah (Tenant ID) atau Token Registrasi salah / tidak terdaftar di Pusat YPWI.'
+      });
+    }
+
+    // ====================================================================
+    // LANGKAH 2: VALIDASI PENGUNCIAN PERANGKAT (DEVICE LOCKING)
+    // ====================================================================
+    if (deviceSlot.status === 'active') {
+      // TOLERANSI RE-LOGIN: Jika device_id DAN secret_key cocok dengan yang ada di DB,
+      // artinya ini perangkat yang sama yang tidak sengaja ter-refresh atau install ulang. Izinkan lolos!
+      if (deviceSlot.device_id === device_id.trim() && deviceSlot.secret_key === secret_key.trim()) {
+        console.log(`[RE-LOGIN] Device ${device_id} masuk kembali menggunakan kunci yang sama.`);
+      } else {
+        // BLOKIR: Jika device_id atau secret_key berbeda, berarti ada perangkat lain yang coba mencuri token ini.
+        return res.status(409).json({
+          success: false,
+          message: 'Registrasi Ditolak! Token otorisasi ini sudah dikunci eksklusif oleh perangkat lain.'
+        });
+      }
+    }
+
+    // ====================================================================
+    // LANGKAH 3: MENULIS KUNCI DAN DATA TABLET KE DATABASE SISANYA
+    // ====================================================================
+    const finalDeviceName = device_name ? device_name.trim() : 'Laptop/Tablet Lapangan';
+    const cleanDeviceId = device_id.trim();
+    const cleanSecretKey = secret_key.trim();
+
+    const updateSql = `
+      UPDATE scanner_devices 
+      SET device_id = ?, device_name = ?, secret_key = ?, status = 'active', last_sync = NOW() 
+      WHERE id = ?
+    `;
+
+    // Amankan slot dengan memasukkan device_id dan secret_key milik perangkat pertama
+    await db.query(updateSql, [cleanDeviceId, finalDeviceName, cleanSecretKey, deviceSlot.id]);
+
+    console.log(`[LOCKING SUCCESS] Token ${reg_token} resmi dikunci oleh Device: ${cleanDeviceId}`);
+
+    // ====================================================================
+    // LANGKAH 4: KIRIM BALIK RESPONS SUKSES KE FRONTEND
+    // ====================================================================
+    res.json({
+      success: true,
+      message: 'Perangkat berhasil didaftarkan dan token telah dikunci!',
+      data: {
+        id: deviceSlot.id,
+        device_id: cleanDeviceId,
+        tenant_id: deviceSlot.tenant_id,
+        school_name: deviceSlot.school_name,
+        device_name: finalDeviceName,
+        secret_key: cleanSecretKey // Kembalikan secret_key murni bawaan tablet untuk disimpan ke localStorage
+      }
+    });
+
+  } catch (error) {
+    console.error('Error pada proses aktivasi token-tenant:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Terjadi kesalahan internal database: ' + error.message
+    });
+  }
+});
+
+
 
 // POST /api/scanner/attendance - Receive attendance scan from scanner device
 router.post('/scanner/attendance', async (req, res) => {
@@ -121,24 +265,48 @@ router.post('/scanner/attendance', async (req, res) => {
       return res.status(400).json({ success: false, message: 'Tipe harus masuk atau pulang' });
     }
 
-    const device = await db.query('SELECT * FROM scanner_devices WHERE device_id = ? AND status = ?', [device_id, 'active']);
+    // [DIPERBARUI] Hanya device yang berstatus 'active' yang diizinkan memproses absensi ke database online
+    const device = await db.query('SELECT * FROM scanner_devices WHERE device_id = ?', [device_id]);
     if (device.length === 0) {
-      return res.status(403).json({ success: false, message: 'Device tidak valid atau tidak aktif' });
+      return res.status(403).json({ success: false, message: 'Device tidak valid atau tidak terdaftar' });
     }
+
     const deviceRecord = device[0];
+    if (deviceRecord.status !== 'active') {
+      return res.status(403).json({
+        success: false,
+        message: `Akses ditolak. Status perangkat saat ini: ${deviceRecord.status.toUpperCase()}`
+      });
+    }
+
     const tenant_id = deviceRecord.tenant_id;
 
-    const signatureTimestamp = expiry || timestamp;
-    const isValid = verifyQRSignature(scan_id, signatureTimestamp, tenant_id, type, signature);
+    // ====================================================================
+    // 🌟 [MODIFIKASI] JALUR TOLERANSI KARTU LAMA (LEGACY / ANGKA MURNI)
+    // ====================================================================
+    let isValid = false;
+
+    if (signature && signature.startsWith('legacy-')) {
+      // Jika dikirim oleh perangkat aktif yang terdaftar di atas, kartu angka murni langsung dipercaya!
+      isValid = true;
+      console.log(`[LEGACY SCAN] Meloloskan kartu angka murni via Token Device: ${device_id} untuk ID: ${scan_id}`);
+    } else {
+      // Jalur validasi ketat QR Code V5.0 bawaan Anda
+      const signatureTimestamp = expiry || timestamp;
+      isValid = verifyQRSignature(scan_id, signatureTimestamp, tenant_id, type, signature);
+    }
+
     if (!isValid) {
       console.log(`[SCANNER] Invalid signature from device ${device_id} for scan_id ${scan_id}`);
       return res.status(403).json({ success: false, message: 'QR code tidak valid atau telah dimodifikasi' });
     }
 
-    if (expiry && new Date() > new Date(expiry)) {
+    // Pengecekan kedaluwarsa hanya berlaku untuk QR Code dinamis V5.0 (Kartu lama dilewati)
+    if (!signature.startsWith('legacy-') && expiry && new Date() > new Date(expiry)) {
       console.log(`[SCANNER] Expired QR from device ${device_id} for scan_id ${scan_id}, expiry: ${expiry}`);
       return res.status(403).json({ success: false, message: 'QR code sudah kedaluwarsa' });
     }
+    // ====================================================================
 
     const teacher = await db.query('SELECT id, nama, jenis_kelamin FROM teachers WHERE scan_id = ? AND status_aktif = 1', [scan_id]);
     if (teacher.length === 0) {
@@ -155,22 +323,39 @@ router.post('/scanner/attendance', async (req, res) => {
     if (isNaN(scanTime.getTime())) {
       return res.status(400).json({ success: false, message: 'Format timestamp tidak valid' });
     }
+    const localDateString = scanTime.toLocaleDateString('en-CA');
 
-    const fiveMinutesAgo = new Date(scanTime.getTime() - 5 * 60 * 1000);
+    // ====================================================================
+    // 🔥 [SOLUSI FINAL TIMEZONE]: Serahkan Pembandingan Tanggal ke MySQL
+    // ====================================================================
+    // Kita kirim string timestamp apa adanya ke MySQL, lalu minta MySQL
+    // mengonversi parameter input dan kolom database ke tanggal yang sama.
+
+    // ====================================================================
+    // 🛡️ [PERBAIKAN FINAL STABIL]: Gunakan String Mentah untuk Duplikasi
+    // ====================================================================
+    // Karena tablet mengirimkan teks waktu lokal ("2026-05-21 07:46:00"), 
+    // kita ambil 10 karakter pertamanya saja ("2026-05-21") untuk mencocokkan tanggal.
+    // ====================================================================
+    // 🛡️ [PERBAIKAN] Gunakan String Mentah agar Sinkron dengan Database
+    // ====================================================================
+    const rawDateString = timestamp.substring(0, 10); // "2026-05-21"
+
     const duplicate = await db.query(
-      `SELECT id FROM attendance_logs 
-       WHERE teacher_id = ? AND jenis = ? AND DATE(waktu_scan) = DATE(?) 
-       AND ABS(TIMESTAMPDIFF(SECOND, waktu_scan, ?)) <= 300`,
-      [teacher_id, type, scanTime, scanTime]
+      "SELECT id FROM attendance_logs WHERE teacher_id = ? AND jenis = ? AND DATE(waktu_scan) = ?",
+      [teacher_id, type, rawDateString]
     );
+
     if (duplicate.length > 0) {
-      console.log(`[SCANNER] Duplicate scan detected for teacher ${teacher_id} at ${timestamp}`);
+      console.log(`[SCANNER DIKUNCI] Double-scan harian ditolak untuk guru ${teacherRecord.nama} pada tanggal lokal ${rawDateString}`);
       return res.status(409).json({
         success: false,
-        message: 'Absensi sudah dicatat dalam 5 menit terakhir',
+        message: `Absensi ${type.toUpperCase()} Anda untuk tanggal ${rawDateString} sudah tercatat di sistem pusat.`,
         duplicate: true
       });
     }
+    // (Hapus blok pengecekan duplicate kedua yang double di bawahnya agar kode bersih)
+    // ====================================================================
 
     let status = 'terlambat';
 
@@ -203,18 +388,18 @@ router.post('/scanner/attendance', async (req, res) => {
 
     const result = await db.query(
       `INSERT INTO attendance_logs
-       (teacher_id, tenant_id, waktu_scan, jenis, metode, status, dinas_luar, kegiatan_dinas, selfie_url, latitude, longitude)
-       VALUES (?, ?, ?, ?, 'scanner', ?, ?, ?, NULL, NULL, NULL)`,
-      [teacher_id, tenant_id, scanTime, type, status, is_dinas_luar ? 1 : 0, is_dinas_luar ? 1 : null]
+        (teacher_id, tenant_id, waktu_scan, jenis, metode, status, dinas_luar, kegiatan_dinas, selfie_url, latitude, longitude)
+        VALUES (?, ?, ?, ?, 'scanner', ?, ?, ?, NULL, NULL, NULL)`,
+      [teacher_id, tenant_id, timestamp, type, status, is_dinas_luar ? 1 : 0, is_dinas_luar ? 1 : null] // 👈 Ganti scanTime menjadi timestamp
     );
 
     const attendance_id = result.insertId;
 
     await db.query(
       `INSERT INTO qr_attendance_logs 
-       (scan_id, teacher_id, device_id, tenant_id, waktu_scan, jenis, signature, sync_status, offline_validated) 
-       VALUES (?, ?, ?, ?, ?, ?, ?, 'synced', ?)`,
-      [scan_id, teacher_id, device_id, tenant_id, scanTime, type, signature, offline_validated || false]
+        (scan_id, teacher_id, device_id, tenant_id, waktu_scan, jenis, signature, sync_status, offline_validated) 
+        VALUES (?, ?, ?, ?, ?, ?, ?, 'synced', ?)`,
+      [scan_id, teacher_id, device_id, tenant_id, timestamp, type, signature, offline_validated || false] // 👈 Ganti scanTime menjadi timestamp
     );
 
     await db.query('UPDATE scanner_devices SET last_sync = NOW() WHERE device_id = ?', [device_id]);
@@ -236,8 +421,85 @@ router.post('/scanner/attendance', async (req, res) => {
     });
   } catch (error) {
     console.error('[SCANNER ATTENDANCE ERROR]', error.message);
-    console.error(error.stack);
     res.status(500).json({ success: false, message: 'Error processing scanner attendance', error: error.message });
+  }
+});
+
+// Konsep Logika Backend (Contoh: Node.js / Express)
+router.get('/scanner/attendance-rules', async (req, res) => {
+  const { tenant_id } = req.query; // Dikirim oleh tablet saat request
+
+  // 1. Cek pengaturan tenant
+  const [tenant] = await db.query("SELECT use_central_rules FROM tenants WHERE tenant_id = ?", [tenant_id]);
+
+  let targetTenant = tenant_id;
+  if (tenant && tenant.use_central_rules === 1) {
+    targetTenant = 'YPWILUTIM'; // Alihkan ke aturan pusat jika bernilai 1
+  }
+
+  // 2. Ambil aturan absensi yang berlaku
+  const [rules] = await db.query("SELECT * FROM attendance_rules WHERE tenant_id = ?", [targetTenant]);
+
+  res.json({
+    success: true,
+    use_central: tenant ? tenant.use_central_rules === 1 : false,
+    rules: rules || null // Berisi jam_masuk_mulai, jam_masuk_selesai, dll.
+  });
+});
+
+/**
+   * GET /api/scanner/attendance/logs
+   * Admin: View all scanner attendance logs (with filters)
+   */
+router.get('/scanner/attendance/logs', authenticateToken, async (req, res) => {
+  try {
+    if (req.user.role !== 'admin') {
+      return res.status(403).json({ success: false, message: 'Access denied' });
+    }
+
+    const { date, device_id, sync_status, limit = 100 } = req.query;
+
+    let query = `
+        SELECT 
+          qal.*,
+          t.nama as teacher_name,
+          t.scan_id,
+          sd.school_name,
+          sd.device_name
+        FROM qr_attendance_logs qal
+        LEFT JOIN teachers t ON qal.teacher_id = t.id
+        LEFT JOIN scanner_devices sd ON qal.device_id = sd.device_id
+        WHERE 1=1
+      `;
+    const params = [];
+
+    if (date) {
+      query += ' AND DATE(qal.created_at) = ?';
+      params.push(date);
+    }
+
+    if (device_id) {
+      query += ' AND qal.device_id = ?';
+      params.push(device_id);
+    }
+
+    if (sync_status) {
+      query += ' AND qal.sync_status = ?';
+      params.push(sync_status);
+    }
+
+    query += ' ORDER BY qal.created_at DESC LIMIT ?';
+    params.push(parseInt(limit));
+
+    const logs = await db.query(query, params);
+
+    res.json({
+      success: true,
+      data: logs
+    });
+  } catch (error) {
+    console.error('[SCANNER LOGS ERROR]', error.message);
+    res.status(500).json({ success: false, message: 'Error fetching logs' });
   }
 });
 
@@ -312,8 +574,6 @@ router.get('/test-buttons', (req, res) => {
 router.post('/log-click', (req, res) => {
   const { button, userAgent, timestamp } = req.body;
   console.log(`[BUTTON-CLICK] ${button} clicked at ${timestamp}`);
-  console.log(`[BUTTON-CLICK] User-Agent: ${req.get('User-Agent')}`);
-  console.log(`[BUTTON-CLICK] IP: ${req.ip}`);
 
   res.json({
     success: true,
@@ -353,6 +613,98 @@ router.get('/scanner/status', authenticateToken, async (req, res) => {
   } catch (error) {
     console.error('[SCANNER STATUS ERROR]', error.message);
     res.status(500).json({ success: false, message: 'Error fetching scanner status' });
+  }
+});
+
+/**
+   * GET /api/scanner/devices
+   * Admin: List all scanner devices with status
+   */
+router.get('/scanner/devices', authenticateToken, async (req, res) => {
+  try {
+    if (req.user.role !== 'admin') {
+      return res.status(403).json({ success: false, message: 'Access denied' });
+    }
+
+    const devices = await db.query(`
+        SELECT 
+          sd.*,
+          COUNT(qal.id) as total_scans,
+          MAX(qal.created_at) as last_scan
+        FROM scanner_devices sd
+        LEFT JOIN qr_attendance_logs qal ON sd.device_id = qal.device_id
+        GROUP BY sd.id
+        ORDER BY sd.school_name ASC
+      `);
+
+    res.json({
+      success: true,
+      data: devices
+    });
+  } catch (error) {
+    console.error('[SCANNER DEVICES LIST ERROR]', error.message);
+    res.status(500).json({ success: false, message: 'Error fetching devices' });
+  }
+});
+
+// ============================================================
+// 🌟 RUTE BARU: POST /api/scanner/devices
+// Menyimpan pendaftaran perangkat scanner baru ke database
+// ============================================================
+router.post('/scanner/devices', authenticateToken, async (req, res) => {
+  try {
+    // Logging internal untuk memastikan req.body murni belum dimodifikasi middleware lain
+    console.log("=== DIAGNOSIS BACKEND INCOMING ===");
+    console.log("Isi req.body asli:", JSON.stringify(req.body, null, 2));
+
+    const { tenant_id, device_id, school_name, device_name, status } = req.body;
+
+    // 1. Ambil token dengan toleransi tinggi (Cek semua kemungkinan properti)
+    let rawToken = req.body.registration_token || req.body.deviceRegistrationToken;
+
+    console.log("Nilai token sebelum divalidasi:", rawToken, "Tipe data:", typeof rawToken);
+
+    // Paksa ambil string murninya
+    const finalToken = String(req.body.registration_token || req.body.deviceRegistrationToken || '').trim();
+
+    console.log("Nilai finalToken yang SIAP DIKIRIM ke MySQL:", finalToken);
+    console.log("==================================");
+
+    if (!device_id || !tenant_id || !school_name) {
+      return res.status(400).json({
+        success: false,
+        message: 'device_id, tenant_id, dan school_name wajib diisi'
+      });
+    }
+
+    // Masukkan variabel finalToken LANGSUNG ke dalam string SQL menggunakan template literals (`${}`)
+    const sql = `
+  INSERT INTO scanner_devices 
+  (device_id, tenant_id, school_name, device_name, registration_token, status, created_at) 
+  VALUES (?, ?, ?, ?, '${finalToken}', ?, NOW())
+`;
+
+    // Karena token sudah di-hardcode di dalam string, di dalam array parameter di bawah ini slotnya kita hapus!
+    await db.query(sql, [
+      // String(device_id),
+      // String(tenant_id),
+      // String(school_name),
+      // String(device_name || `Scanner ${school_name}`),
+      // Slot tanda tanya untuk token sudah dihilangkan karena diganti '${finalToken}' di atas
+      String(status || 'active')
+    ]);
+
+    res.json({
+      success: true,
+      message: 'Perangkat scanner baru berhasil didaftarkan ke database'
+    });
+
+  } catch (error) {
+    console.error('Error saat menyimpan device baru:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Terjadi kesalahan internal: ' + error.message
+    });
   }
 });
 

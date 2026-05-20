@@ -1601,25 +1601,32 @@
     </div>
   </div>
 
-  <!-- Add Device Modal -->
+  <!-- Add/Edit Device Modal (Versi Sinkron Skrip Bawaan) -->
   <div id="addDeviceModal" class="modal fixed inset-0 bg-black bg-opacity-50 z-50 justify-center items-center hidden">
-    <div class="bg-white rounded-lg max-w-md w-full mx-4">
+    <div class="bg-white rounded-lg max-w-md w-full mx-4 overflow-hidden shadow-xl">
       <div class="p-6">
+        <!-- Modal Header -->
         <div class="flex items-center justify-between mb-4">
           <div class="flex items-center">
             <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center mr-3">
               <i class="fas fa-tablet-alt text-green-600"></i>
             </div>
-            <h3 class="text-lg font-semibold text-gray-900">Tambah Scanner Device</h3>
+            <h3 class="text-lg font-semibold text-gray-900" id="deviceModalTitle">Tambah Scanner Device</h3>
           </div>
-          <button onclick="hideAddDeviceModal()" class="text-gray-400 hover:text-gray-600">
+          <!-- Tetap memanggil fungsi baris 4167 bawaan Anda -->
+          <button type="button" onclick="hideAddDeviceModal()" class="text-gray-400 hover:text-gray-600">
             <i class="fas fa-times text-xl"></i>
           </button>
         </div>
 
-        <form id="addDeviceForm">
+        <!-- Form Perangkat -->
+        <form id="addDeviceForm" onsubmit="return handleSubmitDevice(event)">
+          <!-- Hidden input untuk membedakan Create / Update status -->
+          <input type="hidden" id="deviceFormAction" value="create">
+
           <div class="mb-4">
             <label class="block text-sm font-medium text-gray-700 mb-2">Tenant ID</label>
+            <!-- Select ini akan otomatis diisi oleh fetch bawaan Anda di baris 3357 -->
             <select id="deviceTenantId"
               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               required>
@@ -1629,9 +1636,15 @@
 
           <div class="mb-4">
             <label class="block text-sm font-medium text-gray-700 mb-2">Device ID</label>
-            <input type="text" id="deviceId"
-              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="Contoh: SDIT-TABLET-01" required>
+            <div class="flex space-x-2">
+              <input type="text" id="deviceId"
+                class="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent font-mono text-sm"
+                placeholder="Contoh: SDIT-TABLET-01" required>
+              <button type="button" id="btnGenerateDeviceId"
+                class="px-3 py-2 bg-gray-100 text-gray-700 border border-gray-300 rounded-md text-xs font-medium">
+                <i class="fas fa-magic"></i> Auto
+              </button>
+            </div>
             <p class="text-xs text-gray-500 mt-1">ID unik untuk device ini</p>
           </div>
 
@@ -1642,23 +1655,54 @@
               placeholder="Contoh: Tablet Security SDIT">
           </div>
 
-          <div class="mb-6">
+          <div class="mb-4">
             <label class="block text-sm font-medium text-gray-700 mb-2">Nama Sekolah</label>
             <input type="text" id="deviceSchoolName"
-              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="Contoh: SDIT Wahdah Islamiyah" required>
+              class="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 focus:outline-none focus:border-transparent"
+              placeholder="Terisi otomatis saat memilih Tenant..." readonly required>
           </div>
 
+          <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-700 mb-2">Status Perangkat</label>
+            <select id="deviceStatus"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              required>
+              <option value="active">Active (Dapat Digunakan)</option>
+              <option value="maintenance">Maintenance (Perbaikan)</option>
+              <option value="inactive">Inactive (Nonaktif)</option>
+            </select>
+          </div>
+
+          <!-- Token Otentikasi Registrasi Box -->
+          <div class="mb-6 bg-orange-50 border border-orange-200 rounded-lg p-4">
+            <div class="flex justify-between items-center mb-1">
+              <label class="block text-xs font-bold text-orange-800 uppercase tracking-wider">Token Otentikasi
+                Registrasi</label>
+              <button type="button" id="btnRegenerateToken"
+                class="text-xs text-blue-600 hover:underline font-medium hidden">
+                <i class="fas fa-sync-alt mr-1"></i> Reset Token
+              </button>
+            </div>
+            <div class="flex items-center space-x-2 mt-2">
+              <input type="text" id="deviceRegistrationToken"
+                class="w-full px-3 py-2 border border-orange-300 bg-white rounded font-mono text-center text-sm font-bold text-orange-700"
+                readonly placeholder="PILIH SEKOLAH DULU">
+              <button type="button" id="btnCopyDeviceToken"
+                class="px-3 py-2 bg-orange-600 text-white rounded hover:bg-orange-700 text-sm" title="Salin Kunci">
+                <i class="fas fa-copy"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Action Buttons -->
           <div class="flex space-x-3">
             <button type="button" onclick="hideAddDeviceModal()"
               class="flex-1 inline-flex items-center justify-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
-              <i class="fas fa-times mr-2"></i>
-              Batal
+              <i class="fas fa-times mr-2"></i> Batal
             </button>
             <button type="submit"
               class="flex-1 inline-flex items-center justify-center px-4 py-2 bg-green-600 border border-transparent rounded-lg text-sm font-medium text-white hover:bg-green-700">
-              <i class="fas fa-plus mr-2"></i>
-              Tambah Device
+              <i class="fas fa-plus mr-2"></i> Tambah Device
             </button>
           </div>
         </form>
@@ -3346,6 +3390,7 @@
           .catch(error => console.error('Error loading tenants for device modal:', error));
       });
 
+
       // Refresh devices button
       document.getElementById('refresh-devices')?.addEventListener('click', loadScannerDevices);
 
@@ -4135,7 +4180,6 @@
       const modal = document.getElementById('addDeviceModal');
       modal.classList.remove('show');
       modal.classList.add('hidden');
-      document.getElementById('addDeviceForm').reset();
     }
 
     // Load tenant options for location modal
@@ -5010,6 +5054,217 @@
         container.innerHTML = '<p class="text-center text-red-500 py-8">Error memuat data</p>';
       }
     }
+
+    // === SKRIP TAMBAHAN: MANAJEMEN OTOMASI INTERNAL MODAL DEVICE ===
+    document.addEventListener("DOMContentLoaded", () => {
+      const deviceTenantId = document.getElementById("deviceTenantId");
+      const deviceSchoolName = document.getElementById("deviceSchoolName");
+      const deviceRegistrationToken = document.getElementById("deviceRegistrationToken");
+      const btnRegenerateToken = document.getElementById("btnRegenerateToken");
+      const btnGenerateDeviceId = document.getElementById("btnGenerateDeviceId");
+      const btnCopyDeviceToken = document.getElementById("btnCopyDeviceToken");
+      const deviceId = document.getElementById("deviceId");
+
+      // 1. Sinkronisasi Nama Sekolah & Tarik Token saat Tenant dipilih
+      deviceTenantId.addEventListener("change", (e) => {
+        const selectedOpt = e.target.options[e.target.selectedIndex];
+        const tenant_id = e.target.value;
+
+        if (!tenant_id) {
+          deviceSchoolName.value = "";
+          deviceRegistrationToken.value = "PILIH SEKOLAH DULU";
+          btnRegenerateToken.classList.add("hidden");
+          return;
+        }
+
+        // Mengisi otomatis input Nama Sekolah berdasarkan pilihan select
+        deviceSchoolName.value = selectedOpt.text;
+
+        // Ambil Token pendaftaran aktif untuk sekolah ini dari Backend
+        fetch(`/api/scanner/tenants/registration-token?tenant_id=${tenant_id}`, {
+          headers: { 'Authorization': `Bearer ${window.authToken || localStorage.getItem('token') || ''}` }
+        })
+          .then(res => res.json())
+          .then(resData => {
+            if (resData.success) {
+              deviceRegistrationToken.value = resData.token;
+              btnRegenerateToken.classList.remove("hidden");
+            }
+          })
+          .catch(err => console.error("Gagal memuat token pendaftaran:", err));
+      });
+
+      // 2. Tombol Manual Regenerasi / Reset Token Sekolah
+      btnRegenerateToken.addEventListener("click", () => {
+        const tenant_id = deviceTenantId.value;
+        if (!tenant_id || !confirm("Apakah Anda yakin ingin memperbarui token pendaftaran untuk sekolah ini?")) return;
+
+        // PASTIKAN URL-NYA SUDAH MENGGUNAKAN /api/scanner/ seperti di bawah ini:
+        fetch('/api/scanner/tenants/generate-token', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${window.authToken || localStorage.getItem('token') || ''}`
+          },
+          body: JSON.stringify({ tenant_id })
+        })
+          .then(res => res.json())
+          .then(resData => {
+            if (resData.success) {
+              deviceRegistrationToken.value = resData.token;
+              alert("Token pendaftaran sekolah berhasil diperbarui!");
+            } else {
+              alert("Gagal: " + resData.message);
+            }
+          })
+          .catch(err => console.error("Gagal generate token:", err));
+      });
+
+      // 3. Auto-Generate Device ID Acak aman
+      btnGenerateDeviceId.addEventListener("click", () => {
+        const randCode = Math.random().toString(36).substr(2, 5).toUpperCase();
+        deviceId.value = `YPWI-SCAN-${randCode}`;
+      });
+
+      // 4. Salin Clipboard Token
+      btnCopyDeviceToken.addEventListener("click", () => {
+        if (deviceRegistrationToken.value && !deviceRegistrationToken.value.includes("PILIH")) {
+          navigator.clipboard.writeText(deviceRegistrationToken.value);
+          alert("Token registrasi berhasil disalin!");
+        }
+      });
+    });
+
+    function handleSubmitDevice(e) {
+      if (e && e.preventDefault) {
+        e.preventDefault();
+      } else if (window.event) {
+        window.event.returnValue = false;
+      }
+
+      console.log("Sistem: Memproses data perangkat baru...");
+
+      const tenant_id = document.getElementById("deviceTenantId")?.value;
+      const school_name = document.getElementById("deviceSchoolName")?.value;
+      const device_id = document.getElementById("deviceId")?.value;
+      const device_name = document.getElementById("deviceName")?.value || `Scanner ${school_name || 'Baru'}`;
+      const status = document.getElementById("deviceStatus")?.value || "active";
+
+      // 📝 KUNCI UTAMA: Ambil nilai asli dari input token
+      const tokenInput = document.getElementById("deviceRegistrationToken");
+      let finalToken = tokenInput ? tokenInput.value.trim() : "";
+
+      // 🛠️ PROTEKSI DATABASE NULL: 
+      // Jika input kosong, atau masih berupa teks instruksi placeholder, paksa buat token baru di sini
+      if (!finalToken || finalToken.toLowerCase().includes("pilih") || finalToken === "") {
+        finalToken = "REG-" + Math.random().toString(36).substring(2, 10).toUpperCase();
+
+        // Tampilkan token darurat ini kembali ke layar agar user bisa menyalinnya jika perlu
+        if (tokenInput) tokenInput.value = finalToken;
+        console.log("Sistem: Token kosong dideteksi. Auto-generate token berhasil dialokasikan:", finalToken);
+      }
+
+      if (!tenant_id || !device_id || !school_name) {
+        alert("Harap lengkapi pilihan Sekolah (Tenant ID) dan Device ID!");
+        return false;
+      }
+
+      // 🛠️ PROTEKSI VARIABEL: Kirim kedua format (snake & camel) sekaligus agar API tidak bingung
+      const payloadData = {
+        tenant_id: tenant_id,
+        device_id: device_id,
+        school_name: school_name,
+        device_name: device_name,
+        status: status,
+        registration_token: finalToken,       // Format A (MySQL / Snake Case)
+        deviceRegistrationToken: finalToken   // Format B (API / Camel Case)
+      };
+
+      fetch('/api/scanner/devices', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${window.authToken || localStorage.getItem('token') || localStorage.getItem('authToken') || ''}`
+        },
+        body: JSON.stringify(payloadData)
+      })
+        .then(res => {
+          const contentType = res.headers.get("content-type");
+          if (!res.ok || (contentType && contentType.includes("text/html"))) {
+            throw new Error(`Server menolak (Status ${res.status}).`);
+          }
+          return res.json();
+        })
+        .then(resData => {
+          if (resData.success) {
+            alert("Device baru berhasil ditambahkan ke database!");
+
+            if (typeof hideAddDeviceModal === "function") {
+              hideAddDeviceModal();
+            } else {
+              const modal = document.getElementById('addDeviceModal');
+              if (modal) {
+                modal.classList.add('hidden');
+                modal.classList.remove('show');
+              }
+            }
+
+            document.getElementById("addDeviceForm")?.reset();
+
+            if (typeof loadScannerDevices === "function") {
+              loadScannerDevices();
+            } else if (typeof loadDevices === "function") {
+              loadDevices();
+            }
+          } else {
+            alert("Gagal menambahkan device: " + resData.message);
+          }
+        })
+        .catch(err => {
+          console.error("Error saving new device:", err);
+          alert("Terjadi kesalahan komunikasi data: " + err.message);
+        });
+
+      return false;
+    }
+
+    // ============================================================
+    // ⚡ EVENT LISTENER SISA (TETAP DI DALAM DOM CONTENT LOADED)
+    // ============================================================
+    document.addEventListener("DOMContentLoaded", function () {
+      // Logika otomatisasi select tenant dan generate ID biarkan di sini
+      const selectTenant = document.getElementById("deviceTenantId");
+      const inputSchoolName = document.getElementById("deviceSchoolName");
+      const inputRegToken = document.getElementById("deviceRegistrationToken");
+
+      if (selectTenant && inputSchoolName) {
+        selectTenant.addEventListener("change", function () {
+          const selectedOption = selectTenant.options[selectTenant.selectedIndex];
+          if (selectedOption && selectedOption.value !== "") {
+            inputSchoolName.value = selectedOption.text;
+            if (inputRegToken && (inputRegToken.value === "" || inputRegToken.value.includes("PILIH"))) {
+              const randomToken = "REG-" + Math.random().toString(36).substring(2, 10).toUpperCase();
+              inputRegToken.value = randomToken;
+            }
+          } else {
+            inputSchoolName.value = "";
+            if (inputRegToken) inputRegToken.value = "PILIH SEKOLAH DULU";
+          }
+        });
+      }
+
+      const btnGenId = document.getElementById("btnGenerateDeviceId");
+      const inputDeviceId = document.getElementById("deviceId");
+      if (btnGenId && inputDeviceId) {
+        btnGenId.addEventListener("click", function (e) {
+          e.preventDefault();
+          const prefix = selectTenant && selectTenant.value ? selectTenant.value.toUpperCase() : "YPWI";
+          const uniqueNumber = Math.floor(1000 + Math.random() * 9000);
+          inputDeviceId.value = `${prefix}-SCANNER-${uniqueNumber}`;
+        });
+      }
+    });
+
   </script>
 </body>
 
