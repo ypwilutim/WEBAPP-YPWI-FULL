@@ -2399,14 +2399,30 @@ app.get('/api/tenants/:id', authenticateToken, async (req, res) => {
   }
 });
 
-// Get attendance history for teacher
 app.get('/api/attendance-history', authenticateToken, async (req, res) => {
   try {
     const attendance = await db.query(
       'SELECT jenis, waktu_scan, status FROM attendance_logs WHERE teacher_id = ? ORDER BY waktu_scan DESC LIMIT 10',
       [req.user.guru_id]
     );
-    res.json({ success: true, data: attendance });
+
+    // --- SISIPKAN PROSES FORMATTING DI SINI ---
+    const formattedAttendance = attendance.map(item => {
+      // Pastikan waktu_scan tidak null/undefined
+      if (!item.waktu_scan) return item;
+
+      return {
+        ...item,
+        // Ini mengubah format database ("2026-05-21 01:13:53")
+        // menjadi ISO Standard ("2026-05-20T17:13:53.000Z")
+        waktu_scan: new Date(item.waktu_scan.replace(' ', 'T') + 'Z').toISOString()
+      };
+    });
+    // ------------------------------------------
+
+    // Gunakan formattedAttendance, bukan attendance asli
+    res.json({ success: true, data: formattedAttendance });
+
   } catch (error) {
     console.error('[SERVER ERROR]', error.message);
     res.status(500).json({ success: false, message: 'Error fetching attendance history' });

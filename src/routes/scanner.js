@@ -713,4 +713,32 @@ router.post('/scanner/devices', authenticateToken, async (req, res) => {
   }
 });
 
+router.put('/scanner/devices/:device_id', authenticateToken, async (req, res) => {
+  try {
+    const { device_id } = req.params;
+    const { school_name, tenant_id, registration_token, status } = req.body;
+
+    const sql = `UPDATE scanner_devices SET 
+                 school_name = ?, tenant_id = ?, registration_token = ?, status = ? 
+                 WHERE device_id = ?`;
+
+    // UBAH DARI: const [result] = await db.query(...)
+    // MENJADI:
+    const result = await db.query(sql, [school_name, tenant_id, registration_token, status, device_id]);
+
+    // Jika result adalah array (seperti mysql2), ambil indeks 0
+    // Jika result adalah objek (seperti hasil langsung), tetap gunakan result
+    const affectedRows = Array.isArray(result) ? result[0].affectedRows : result.affectedRows;
+
+    if (affectedRows === 0) {
+      return res.status(404).json({ success: false, message: 'Device tidak ditemukan' });
+    }
+
+    res.json({ success: true, message: 'Data berhasil diperbarui' });
+  } catch (error) {
+    console.error("DEBUG ERROR:", error); // Lihat error aslinya di terminal
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
 module.exports = router;

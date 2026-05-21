@@ -14,6 +14,11 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+
+  <!-- JavaScript -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <style>
     body {
       font-family: 'Inter', sans-serif;
@@ -4287,6 +4292,9 @@
     // =========================================================================
     // SINKRONISASI DAFTAR DEVICE V5.0 (DENGAN INFO TOKEN & FITUR SCROLL)
     // =========================================================================
+
+    let allDevices = []; // Variabel global
+
     async function loadScannerDevices() {
       const container = document.getElementById('devices-list');
       if (!container) return;
@@ -4300,6 +4308,9 @@
         });
 
         const result = await response.json();
+        allDevices = result.data;
+        console.log("Data perangkat berhasil dimuat ke allDevices:", allDevices); // Debugging
+
         if (!result.success) throw new Error(result.message);
 
         if (result.data.length === 0) {
@@ -4385,31 +4396,70 @@
     }
 
     async function editDevice(deviceId) {
-      const newName = prompt('Masukkan nama device baru:', deviceId);
-      if (!newName || newName.trim() === '') return;
+      // Cari data di array global
+      let dev = allDevices.find(d => d.device_id === deviceId);
 
+      // FIX: Jika tidak ditemukan di array, coba ambil datanya dulu secara spesifik
+      if (!dev) {
+        console.warn("Device tidak ditemukan di cache lokal, mencoba ambil data...");
+        // Opsional: Anda bisa memanggil API untuk fetch detail device ini
+        Swal.fire('Error', 'Data perangkat tidak ditemukan di cache.', 'error');
+        return;
+      }
+
+      const { value: formValues } = await Swal.fire({
+        title: 'Edit Perangkat',
+        html: `
+            <div class="text-left space-y-4">
+                <input id="swal-name" class="w-full bg-slate-800 border border-slate-700 text-white rounded p-2" value="${dev.school_name || ''}" placeholder="Nama Sekolah">
+                <input id="swal-tenant" class="w-full bg-slate-800 border border-slate-700 text-white rounded p-2" value="${dev.tenant_id || ''}" placeholder="Tenant ID">
+                <input id="swal-token" class="w-full bg-slate-800 border border-slate-700 text-white rounded p-2" value="${dev.registration_token || ''}" placeholder="Token">
+                <select id="swal-status" class="w-full bg-slate-800 border border-slate-700 text-white rounded p-2">
+                    <option value="active" ${dev.status === 'active' ? 'selected' : ''}>Active</option>
+                    <option value="maintenance" ${dev.status === 'maintenance' ? 'selected' : ''}>Maintenance</option>
+                    <option value="inactive" ${dev.status === 'inactive' ? 'selected' : ''}>Inactive</option>
+                </select>
+            </div>
+        `,
+        focusConfirm: false,
+        background: '#1e293b', // Warna latar slate-800
+        confirmButtonColor: '#3b82f6',
+        preConfirm: () => {
+          return {
+            school_name: document.getElementById('swal-name').value,
+            tenant_id: document.getElementById('swal-tenant').value,
+            registration_token: document.getElementById('swal-token').value,
+            status: document.getElementById('swal-status').value
+          }
+        }
+      });
+
+      if (formValues) {
+        // Kirim update ke API
+        updateDeviceAPI(deviceId, formValues);
+      }
+    }
+
+    async function updateDeviceAPI(deviceId, data) {
       try {
         const response = await fetch(`/api/scanner/devices/${deviceId}`, {
-          method: 'PUT',
+          method: 'PUT', // atau PATCH
           headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${window.authToken || localStorage.getItem('token') || ''}`
           },
-          body: JSON.stringify({
-            device_name: newName.trim()
-          })
+          body: JSON.stringify(data)
         });
 
         const result = await response.json();
         if (result.success) {
-          loadScannerDevices();
-          showToast('Device berhasil diupdate', 'success');
+          Swal.fire('Berhasil!', 'Data perangkat telah diperbarui.', 'success');
+          loadScannerDevices(); // Reload daftar
         } else {
-          showToast('Gagal update device', 'error');
+          throw new Error(result.message);
         }
       } catch (error) {
-        console.error('Edit device error:', error);
-        showToast('Error updating device', 'error');
+        Swal.fire('Error!', error.message, 'error');
       }
     }
 

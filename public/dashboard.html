@@ -1288,7 +1288,8 @@
             jenis: jenis,
             metode: metode,
             latitude: currentLocation.latitude,
-            longitude: currentLocation.longitude
+            longitude: currentLocation.longitude,
+            waktu_absen: new Date().toISOString()
           })
         });
 
@@ -1513,9 +1514,13 @@
 
             if (timeBox && logTerbaru.waktu_scan) {
               const tanggalAbsen = new Date(logTerbaru.waktu_scan);
-              const jam = String(tanggalAbsen.getHours()).padStart(2, '0');
-              const menit = String(tanggalAbsen.getMinutes()).padStart(2, '0');
-              timeBox.innerText = `${jam}.${menit}`;
+
+              // Gunakan toLocaleTimeString untuk format otomatis yang rapi
+              timeBox.innerText = tanggalAbsen.toLocaleTimeString('id-ID', {
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: false // Memastikan format 24 jam
+              }).replace(':', '.'); // Mengubah 07:05 menjadi 07.05
             }
 
             // 3. SINKRONISASI KOTAK STATUS AKHIR
