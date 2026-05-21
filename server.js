@@ -2234,7 +2234,7 @@ app.get('/api/public/teachers/:id', async (req, res) => {
   const { id } = req.params;
   try {
     // Ambil data yang dibutuhkan untuk ditampilkan di form pengisian
-    const teacherRows = await db.query('SELECT id, nama, nik, tempat_lahir, tanggal_lahir, jenis_kelamin, alamat, no_wa, email, status_kepegawaian, tmt, nip, scan_id, link_foto FROM teachers WHERE id = ? AND status_aktif = 1', [id]);
+    const teacherRows = await db.query('SELECT id, nama, nik, tempat_lahir, tanggal_lahir, jenis_kelamin, alamat, no_wa, status_aktif, email, status_kepegawaian, tmt, nip, scan_id, link_foto FROM teachers WHERE id = ? AND status_aktif = 1', [id]);
 
     if (teacherRows.length === 0) {
       return res.status(404).json({ success: false, message: 'Guru tidak ditemukan' });
@@ -2477,6 +2477,26 @@ app.put('/api/admin/teachers/:id', teacherUpload.single('foto'), async (req, res
   } catch (error) {
     console.error('[SERVER ERROR]', error.message);
     res.status(500).json({ success: false, message: 'Error updating teacher profile' });
+  }
+});
+
+app.get('/api/teacher/assignments', authenticateToken, async (req, res) => {
+  try {
+    const assignments = await db.query(
+      `SELECT ta.id, ta.tenant_id, ta.jabatan_di_unit, n.nama_sekolah 
+       FROM teacher_assignments ta 
+       JOIN tenants n ON ta.tenant_id = n.tenant_id 
+       WHERE ta.teacher_id = ?`,
+      [req.user.guru_id]
+    );
+
+    res.json({
+      success: true,
+      assignments: assignments
+    });
+  } catch (error) {
+    console.error('[SERVER ERROR]', error.message);
+    res.status(500).json({ success: false, message: 'Gagal mengambil data penugasan' });
   }
 });
 

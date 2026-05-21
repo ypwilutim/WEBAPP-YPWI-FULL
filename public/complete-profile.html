@@ -161,8 +161,9 @@
                   <select id="status_aktif" name="status_aktif" required
                     class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 bg-white outline-none font-medium">
                     <option value="1">Aktif</option>
-                    <option value="0">Tidak Aktif</option>
+                    <!-- <option value="0">Tidak Aktif</option> -->
                   </select>
+
                 </div>
                 <div>
                   <label for="tmt" class="block text-sm font-semibold text-gray-700 mb-2">TMT (Tanggal Masuk) <span
@@ -352,14 +353,43 @@
       });
     }
 
+    // function testing() {
+    //   // Tambahkan '/' di depan api
+    //   fetch('/api/teacher/info')
+    //     .then(response => {
+    //       // Cek apakah respons sukses (status 200)
+    //       if (!response.ok) {
+    //         throw new Error('Gagal terhubung ke server: ' + response.status);
+    //       }
+    //       return response.json();
+    //     })
+    //     .then(data => {
+    //       // Cek apakah objek teacher ada sebelum mengakses nama
+    //       if (data && data.teacher) {
+    //         console.log("Nama Guru:", data.teacher.nama);
+    //       } else {
+    //         console.warn("Data teacher tidak ditemukan dalam respons");
+    //       }
+    //     })
+    //     .catch(error => {
+    //       // Jika ada error (misal salah url atau server down)
+    //       console.error("Terjadi kesalahan saat fetch:", error);
+    //     });
+    // }
+
     function populateForm(teacher) {
+      // 1. TAMBAHKAN LOG INI
+      console.log("ISI DATA GURU:", teacher);
+      console.log("NILAI STATUS_AKTIF:", teacher.status_aktif, "TIPE DATA:", typeof teacher.status_aktif);
+
       const setValue = (id, value) => {
         const el = document.getElementById(id);
-        if (el) el.value = value || '';
+        if (el) {
+          el.value = (value !== null && value !== undefined) ? String(value) : '';
+        }
       };
 
-
-
+      // Panggil setValue untuk semua field
       setValue('nama', teacher.nama);
       setValue('nik', teacher.nik);
       setValue('tempat_lahir', teacher.tempat_lahir);
@@ -371,16 +401,40 @@
       setValue('nip', teacher.nip);
       setValue('status_kepegawaian', teacher.status_kepegawaian);
       setValue('tmt', teacher.tmt);
-      setValue('status_aktif', teacher.status_aktif);
+      setValue('status_aktif', teacher.status_aktif); // Sudah otomatis ditangani String() di atas
       setValue('link_foto', teacher.link_foto);
 
-      if (teacher.link_foto) {
-        document.getElementById('photo-preview').src = teacher.link_foto;
-        document.getElementById('photo-preview').classList.remove('hidden');
-        document.getElementById('photo-icon').classList.add('hidden');
-        document.getElementById('existing-photo-info').classList.remove('hidden');
+      // Penanganan Foto
+      const photoPreview = document.getElementById('photo-preview');
+      const photoIcon = document.getElementById('photo-icon');
+      const photoInfo = document.getElementById('existing-photo-info');
+
+      if (teacher.link_foto && teacher.link_foto !== 'null' && teacher.link_foto.trim() !== '') {
+        if (photoPreview) {
+          photoPreview.src = teacher.link_foto;
+          photoPreview.classList.remove('hidden');
+        }
+        if (photoIcon) photoIcon.classList.add('hidden');
+        if (photoInfo) photoInfo.classList.remove('hidden');
       } else {
-        document.getElementById('existing-photo-info').classList.add('hidden');
+        if (photoInfo) photoInfo.classList.add('hidden');
+      }
+      // Di dalam populateForm
+      setValue('status_aktif', teacher.status_aktif);
+
+      // TAMBAHKAN INI:
+      const statusEl = document.getElementById('status_aktif');
+      if (statusEl) {
+        statusEl.value = String(teacher.status_aktif); // Pastikan nilainya string "1" atau "0"
+
+        // Memicu event agar script lain (jika ada) tahu nilainya berubah
+        statusEl.dispatchEvent(new Event('change'));
+      }
+
+      const el = document.getElementById('status_aktif');
+      if (el) {
+        el.value = String(teacher.status_aktif);
+        console.log("Nilai select setelah diset:", el.value);
       }
     }
 
@@ -484,11 +538,11 @@
             if (noWa && nama && email) {
               const content = `Selamat! Profil Anda di Sistem YPWI Lutim telah berhasil dilengkapi.
 
-Anda sekarang dapat login menggunakan:
-📧 Email: ${email}
-🔑 Password: ypwi123 (segera ganti setelah login pertama)
+                Anda sekarang dapat login menggunakan:
+                📧 Email: ${email}
+                🔑 Password: ypwi123 (segera ganti setelah login pertama)
 
-Silakan login dan ubah password default Anda untuk keamanan.`;
+                Silakan login dan ubah password default Anda untuk keamanan.`;
 
               // Send WhatsApp in background (don't wait for response)
               fetch('/api/send-whatsapp-public', {
@@ -614,6 +668,38 @@ Silakan login dan ubah password default Anda untuk keamanan.`;
       }
     }
 
+    async function loadExistingAssignments() {
+      try {
+        const response = await fetch('/api/teacher/assignments', { // Sesuaikan endpoint API Anda
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await response.json();
+
+        const tableBody = document.getElementById('assignments-table-body');
+        tableBody.innerHTML = ''; // Bersihkan tabel sebelum diisi
+
+        if (data.success && data.assignments.length > 0) {
+          data.assignments.forEach(a => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                    <td class="px-4 py-3">${a.nama_sekolah}</td>
+                    <td class="px-4 py-3">${a.jabatan_di_unit}</td>
+                    <td class="px-4 py-3 text-center">
+                        <button onclick="removeAssignment(${a.id})" class="text-red-500 hover:text-red-700">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </td>
+                `;
+            tableBody.appendChild(row);
+          });
+        } else {
+          tableBody.innerHTML = '<tr><td colspan="3" class="px-4 py-3 text-center text-gray-500">Belum ada penugasan</td></tr>';
+        }
+      } catch (error) {
+        console.error('Gagal memuat penugasan:', error);
+      }
+    }
+
     // Event listeners for CSP compliance
     document.addEventListener('DOMContentLoaded', function () {
       // Add assignment button
@@ -641,6 +727,9 @@ Silakan login dan ubah password default Anda untuk keamanan.`;
           removeAssignment(index);
         }
       });
+
+      loadExistingAssignments();
+
     });
   </script>
 </body>
