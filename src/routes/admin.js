@@ -378,24 +378,24 @@ router.get('/admin/teachers', authenticateOperator, async (req, res) => {
   }
 });
 
-// GET /api/admin/teachers/:id - Get teacher by ID
-router.get('/admin/teachers/:id', authenticateOperator, async (req, res) => {
-  try {
-    const [teacher] = await db.query(
-      'SELECT id, nama, nik, tempat_lahir, tanggal_lahir, jenis_kelamin, alamat, no_wa, email, status_kepegawaian, tmt, nip, scan_id, link_foto, status_aktif FROM teachers WHERE id = ? AND status_aktif = 1',
-      [req.params.id]
-    );
-    if (!teacher) {
-      return res.status(404).json({ success: false, message: 'Guru tidak ditemukan' });
-    }
-    const assignmentRows = await db.query('SELECT tenant_id, jabatan_di_unit FROM teacher_assignments WHERE teacher_id = ?', [req.params.id]);
-    teacher.assignments = assignmentRows;
-    res.json({ success: true, data: teacher });
-  } catch (error) {
-    console.error('Get teacher error:', error.message);
-    res.status(500).json({ success: false, message: 'Error fetching teacher' });
-  }
-});
+// // GET /api/admin/teachers/:id - Get teacher by ID
+// router.get('/admin/teachers/:id', authenticateOperator, async (req, res) => {
+//   try {
+//     const [teacher] = await db.query(
+//       'SELECT id, nama, nik, tempat_lahir, tanggal_lahir, jenis_kelamin, alamat, no_wa, email, status_kepegawaian, tmt, nip, scan_id, link_foto, status_aktif FROM teachers WHERE id = ? AND status_aktif = 1',
+//       [req.params.id]
+//     );
+//     if (!teacher) {
+//       return res.status(404).json({ success: false, message: 'Guru tidak ditemukan' });
+//     }
+//     const assignmentRows = await db.query('SELECT tenant_id, jabatan_di_unit FROM teacher_assignments WHERE teacher_id = ?', [req.params.id]);
+//     teacher.assignments = assignmentRows;
+//     res.json({ success: true, data: teacher });
+//   } catch (error) {
+//     console.error('Get teacher error:', error.message);
+//     res.status(500).json({ success: false, message: 'Error fetching teacher' });
+//   }
+// });
 
 // ============================================================
 // DASHBOARD ROUTES

@@ -17,6 +17,7 @@ const axios = require('axios');
 const PDFKit = require('pdfkit');
 const db = require('./db');
 const requestLogger = require('./src/middlewares/logger');
+const validator = require('validator');
 
 // Native fetch is available in modern Node.js, no import needed
 
@@ -604,6 +605,132 @@ app.put('/api/profile-complete/:teacherId', async (req, res) => {
     res.status(500).json({ success: false, message: 'Error updating profile' });
   }
 });
+
+// app.put('/api/admin/teachers/:id', teacherUpload.single('foto'), async (req, res) => {
+//   const { id } = req.params;
+
+//   // Get data from both body and file
+//   const {
+//     nama, nik, nip: nip_val, email, tempat_lahir, tanggal_lahir,
+//     jenis_kelamin, no_wa, alamat, status_kepegawaian, status_aktif,
+//     tmt, link_foto, assignments_json
+//   } = req.body;
+
+//   if (!nama || !nik) {
+//     return res.status(400).json({ success: false, message: 'Nama dan NIK wajib diisi.' });
+//   }
+
+//   // Validate NIK (16 digits for Indonesian ID)
+//   if (!/^\d{16}$/.test(nik)) {
+//     return res.status(400).json({ success: false, message: 'NIK harus terdiri dari 16 digit angka.' });
+//   }
+
+//   // Validate email format
+//   if (email && !validator.isEmail(email)) {
+//     return res.status(400).json({ success: false, message: 'Format email tidak valid.' });
+//   }
+
+//   // Validate Indonesian phone number format
+//   if (no_wa && !/^(\+62|62|0)[8-9][0-9]{7,11}$/.test(no_wa.replace(/\s+/g, ''))) {
+//     return res.status(400).json({ success: false, message: 'Format nomor WhatsApp tidak valid. Gunakan format Indonesia (08xxxxxxxxx).' });
+//   }
+
+//   try {
+//     let photoPath = null; // Don't update photo path by default
+//     let shouldUpdatePhoto = false;
+
+//     // If a new file was uploaded, use its path and delete old file
+//     if (req.file) {
+//       photoPath = `/uploads/${req.file.filename}`;
+//       shouldUpdatePhoto = true;
+
+//       // Get current photo from database to delete old file
+//       const [currentTeacher] = await db.query('SELECT link_foto FROM teachers WHERE id = ?', [id]);
+//       if (currentTeacher && currentTeacher.link_foto && currentTeacher.link_foto.startsWith('/uploads/')) {
+//         const oldFilePath = path.join(__dirname, 'public', currentTeacher.link_foto);
+//         try {
+//           if (fs.existsSync(oldFilePath)) {
+//             fs.unlinkSync(oldFilePath);
+//             console.log(`[FILE CLEANUP] Deleted old photo: ${oldFilePath}`);
+//           }
+//         } catch (fileError) {
+//           console.error('[FILE CLEANUP ERROR] Could not delete old photo:', fileError.message);
+//           // Continue with update even if file deletion fails
+//         }
+//       }
+//     }
+
+//     // Update teacher basic info
+//     let updateQuery = `UPDATE teachers SET
+//       nama = ?, nik = ?, nip = ?, email = ?, tempat_lahir = ?, tanggal_lahir = ?,
+//       jenis_kelamin = ?, no_wa = ?, alamat = ?, status_kepegawaian = ?,
+//       status_aktif = ?, tmt = ?, updated_at = NOW()`;
+//     let updateParams = [nama, nik, nip_val, email, tempat_lahir, tanggal_lahir,
+//       jenis_kelamin, no_wa, alamat, status_kepegawaian,
+//       status_aktif, tmt];
+
+//     // Only update link_foto if a new photo was uploaded
+//     if (shouldUpdatePhoto) {
+//       updateQuery += `, link_foto = ?`;
+//       updateParams.push(photoPath);
+//     }
+
+//     updateQuery += ` WHERE id = ?`;
+//     updateParams.push(id);
+
+//     await db.query(updateQuery, updateParams);
+
+//     // Handle assignments if provided
+//     if (assignments_json) {
+//       try {
+//         const assignments = JSON.parse(assignments_json);
+//         // Clear existing assignments
+//         await db.query('DELETE FROM teacher_assignments WHERE teacher_id = ?', [id]);
+//         // Insert new assignments
+//         for (const assignment of assignments) {
+//           await db.query(
+//             'INSERT INTO teacher_assignments (teacher_id, tenant_id, jabatan_di_unit) VALUES (?, ?, ?)',
+//             [id, assignment.tenant_id, assignment.jabatan_di_unit]
+//           );
+//         }
+//       } catch (assignmentError) {
+//         console.error('Error processing assignments:', assignmentError);
+//         // Continue with teacher update even if assignments fail
+//       }
+//     }
+
+//     // Auto-create user account if not exists and teacher has email
+//     try {
+//       if (email && email.trim()) {
+//         const existingUser = await db.query('SELECT id FROM users WHERE username = ?', [email.trim()]);
+
+//         if (existingUser.length === 0) {
+//           // Get tenant_id from assignments
+//           const assignmentRows = await db.query('SELECT tenant_id FROM teacher_assignments WHERE teacher_id = ? LIMIT 1', [id]);
+//           const tenantId = assignmentRows.length > 0 ? assignmentRows[0].tenant_id : 'YPWI';
+
+//           // Create user account with default password
+//           const hashedPassword = await bcrypt.hash('ypwi123', 10);
+
+//           await db.query(
+//             'INSERT INTO users (username, password, role, guru_id, tenant_id, is_profile_complete, is_default_password) VALUES (?, ?, ?, ?, ?, ?, ?)',
+//             [email.trim(), hashedPassword, 'guru', id, tenantId, 1, 1] // is_profile_complete = 1, is_default_password = 1
+//           );
+
+//           console.log(`[AUTO-CREATE USER] Created user account for teacher ${nama} (${email})`);
+//         }
+//       }
+//     } catch (userError) {
+//       console.error('[AUTO-CREATE USER ERROR] Could not create user account:', userError.message);
+//       // Continue with response even if user creation fails
+//     }
+
+//     res.json({ success: true, message: 'Profil guru berhasil diperbarui' });
+//   } catch (error) {
+//     console.error('[SERVER ERROR]', error.message);
+//     res.status(500).json({ success: false, message: 'Error updating teacher profile' });
+//   }
+// });
 
 // Public search endpoint for teachers (no auth required)
 app.get('/api/search/teachers', async (req, res) => {
@@ -2003,6 +2130,25 @@ app.post('/api/admin/send-whatsapp-single/:teacherId', authenticateOperator, asy
   }
 });
 
+// Tambahkan route baru ini di server.js (TANPA middleware authenticateOperator)
+app.get('/api/public/teachers/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    // Ambil data yang dibutuhkan untuk ditampilkan di form pengisian
+    const teacherRows = await db.query('SELECT id, nama, nik, tempat_lahir, tanggal_lahir, jenis_kelamin, alamat, no_wa, email, status_kepegawaian, tmt, nip, scan_id, link_foto FROM teachers WHERE id = ? AND status_aktif = 1', [id]);
+
+    if (teacherRows.length === 0) {
+      return res.status(404).json({ success: false, message: 'Guru tidak ditemukan' });
+    }
+
+    const teacher = teacherRows[0];
+    res.json({ success: true, data: teacher });
+  } catch (error) {
+    console.error('[SERVER ERROR]', error.message);
+    res.status(500).json({ success: false, message: 'Error fetching teacher' });
+  }
+});
+
 // Teacher management routes
 app.get('/api/admin/teachers/:id', authenticateOperator, async (req, res) => {
   const { id } = req.params;
@@ -2109,7 +2255,7 @@ app.delete('/api/admin/teachers/:id', authenticateOperator, async (req, res) => 
   }
 });
 
-app.put('/api/admin/teachers/:id', authenticateOperator, teacherUpload.single('foto'), async (req, res) => {
+app.put('/api/admin/teachers/:id', teacherUpload.single('foto'), async (req, res) => {
   const { id } = req.params;
 
   // Get data from both body and file
@@ -2396,36 +2542,6 @@ app.get('/api/tenants/:id', authenticateToken, async (req, res) => {
   } catch (error) {
     console.error('[SERVER ERROR]', error.message);
     res.status(500).json({ success: false, message: 'Error fetching tenant' });
-  }
-});
-
-app.get('/api/attendance-history', authenticateToken, async (req, res) => {
-  try {
-    const attendance = await db.query(
-      'SELECT jenis, waktu_scan, status FROM attendance_logs WHERE teacher_id = ? ORDER BY waktu_scan DESC LIMIT 10',
-      [req.user.guru_id]
-    );
-
-    // --- SISIPKAN PROSES FORMATTING DI SINI ---
-    const formattedAttendance = attendance.map(item => {
-      // Pastikan waktu_scan tidak null/undefined
-      if (!item.waktu_scan) return item;
-
-      return {
-        ...item,
-        // Ini mengubah format database ("2026-05-21 01:13:53")
-        // menjadi ISO Standard ("2026-05-20T17:13:53.000Z")
-        waktu_scan: new Date(item.waktu_scan.replace(' ', 'T') + 'Z').toISOString()
-      };
-    });
-    // ------------------------------------------
-
-    // Gunakan formattedAttendance, bukan attendance asli
-    res.json({ success: true, data: formattedAttendance });
-
-  } catch (error) {
-    console.error('[SERVER ERROR]', error.message);
-    res.status(500).json({ success: false, message: 'Error fetching attendance history' });
   }
 });
 
