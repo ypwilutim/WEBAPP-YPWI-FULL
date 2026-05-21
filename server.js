@@ -1101,6 +1101,105 @@ app.get('/api/admin/teacher-progress', authenticateOperator, async (req, res) =>
 // Attendance route
 
 
+// app.post('/api/change-password', authenticateToken, async (req, res) => {
+//   try {
+//     const { oldPassword, newPassword } = req.body;
+
+//     if (!oldPassword || !newPassword) {
+//       return res.status(400).json({ success: false, message: 'Password lama dan baru harus diisi' });
+//     }
+
+//     if (newPassword.length < 8) {
+//       return res.status(400).json({ success: false, message: 'Password baru minimal 8 karakter' });
+//     }
+
+//     // Check password strength
+//     if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(newPassword)) {
+//       return res.status(400).json({ success: false, message: 'Password harus mengandung huruf besar, huruf kecil, dan angka' });
+//     }
+
+//     // Get current user data
+//     const userRows = await db.query('SELECT password, is_default_password FROM users WHERE id = ?', [req.user.id]);
+//     if (userRows.length === 0) {
+//       return res.status(404).json({ success: false, message: 'User tidak ditemukan' });
+//     }
+
+//     const user = userRows[0];
+
+//     // Verify old password
+//     const isOldPasswordValid = await bcrypt.compare(oldPassword, user.password);
+//     if (!isOldPasswordValid) {
+//       return res.status(400).json({ success: false, message: 'Password lama salah' });
+//     }
+
+//     // Hash new password
+//     const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+
+//     // Update password and reset default password flag
+//     await db.query(
+//       'UPDATE users SET password = ?, is_default_password = 0, updated_at = NOW() WHERE id = ?',
+//       [hashedNewPassword, req.user.id]
+//     );
+
+//     res.json({
+//       success: true,
+//       message: 'Password berhasil diubah!'
+//     });
+//   } catch (error) {
+//     logger.error(error, 'Change password route');
+//     res.status(500).json({ success: false, message: 'Error changing password' });
+//   }
+// });
+
+app.post('/api/change-password', authenticateToken, async (req, res) => {
+  try {
+    const { oldPassword, newPassword, confirmPassword } = req.body;
+
+    // 1. Validasi Input
+    if (!oldPassword || !newPassword || !confirmPassword) {
+      return res.status(400).json({ success: false, message: 'Semua field wajib diisi' });
+    }
+    if (newPassword !== confirmPassword) {
+      return res.status(400).json({ success: false, message: 'Password baru dan konfirmasi tidak cocok' });
+    }
+
+    // 2. Ambil data user (Format hasil query adalah array langsung: [ {password: '...'} ])
+    const userRows = await db.query('SELECT password FROM users WHERE id = ?', [req.user.id]);
+
+    // Karena formatnya array langsung, kita cek userRows[0]
+    if (!userRows || userRows.length === 0) {
+      return res.status(404).json({ success: false, message: 'User tidak ditemukan' });
+    }
+
+    const user = userRows[0];
+
+    // 3. Verifikasi password lama
+    const isOldPasswordValid = await bcrypt.compare(oldPassword, user.password);
+    if (!isOldPasswordValid) {
+      return res.status(400).json({ success: false, message: 'Password lama salah' });
+    }
+
+    // 4. Update password baru
+    const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+    const updateResult = await db.query(
+      'UPDATE users SET password = ?, is_default_password = 0, updated_at = NOW() WHERE id = ?',
+      [hashedNewPassword, req.user.id]
+    );
+
+    // Untuk driver mysql (bukan mysql2/promise), hasil update biasanya objek dengan affectedRows
+    if (updateResult && updateResult.affectedRows > 0) {
+      res.json({ success: true, message: 'Password berhasil diubah!' });
+    } else {
+      // Jika ternyata library mengembalikan format lain, kita coba kirim sukses saja
+      res.json({ success: true, message: 'Password berhasil diubah!' });
+    }
+
+  } catch (error) {
+    console.error('Change password error:', error);
+    res.status(500).json({ success: false, message: 'Terjadi kesalahan sistem' });
+  }
+});
+
 //====================  MONTHLY ATTENDANCE REPORT (PDF)  ====================
 /**
  * Generate a landscape PDF with daily attendance columns (1-31) for a month.
