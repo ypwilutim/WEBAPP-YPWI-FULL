@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,8 +8,9 @@
 
   <!-- Open Graph Meta Tags -->
   <meta property="og:title" content="Cari Guru - Sistem Absensi YPWI Lutim">
-  <meta property="og:description" content="Temukan dan akses profil lengkap guru di Sistem Absensi YPWI Lutim. Cari berdasarkan nama, NIP, atau sekolah">
-  <meta property="og:image" content="/assets/images/thumbnail/search teacher.svg">
+  <meta property="og:description"
+    content="Temukan dan akses profil lengkap guru di Sistem Absensi YPWI Lutim. Cari berdasarkan nama, NIP, atau sekolah">
+  <meta property="og:image" content="/assets/images/search teacher.svg">
   <meta property="og:url" content="">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="YPWI Lutim Absensi">
@@ -16,11 +18,13 @@
   <!-- Twitter Card Meta Tags -->
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Cari Guru - Sistem Absensi YPWI Lutim">
-  <meta name="twitter:description" content="Temukan dan akses profil lengkap guru di Sistem Absensi YPWI Lutim. Cari berdasarkan nama, NIP, atau sekolah">
+  <meta name="twitter:description"
+    content="Temukan dan akses profil lengkap guru di Sistem Absensi YPWI Lutim. Cari berdasarkan nama, NIP, atau sekolah">
   <meta name="twitter:image" content="/assets/images/thumbnail/search teacher.svg">
 
   <!-- General Meta Tags -->
-  <meta name="description" content="Temukan dan akses profil lengkap guru di Sistem Absensi YPWI Lutim. Cari berdasarkan nama, NIP, atau sekolah">
+  <meta name="description"
+    content="Temukan dan akses profil lengkap guru di Sistem Absensi YPWI Lutim. Cari berdasarkan nama, NIP, atau sekolah">
   <meta name="keywords" content="cari guru, sistem absensi, YPWI Lutim, database guru, profil guru">
   <meta name="author" content="YPWI Lutim">
 
@@ -34,12 +38,14 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
+
 <body class="bg-gray-50 min-h-screen">
   <div class="max-w-4xl mx-auto p-8">
     <!-- Header -->
     <div class="mb-8">
       <div class="flex items-center space-x-3 mb-4">
-        <img src="assets/images/YPWI LOGO HITAM.png" alt="YPWI Logo" class="w-12 h-12 object-contain bg-white rounded-lg p-1">
+        <img src="assets/images/YPWI LOGO HITAM.png" alt="YPWI Logo"
+          class="w-12 h-12 object-contain bg-white rounded-lg p-1">
         <div>
           <h1 class="text-3xl font-bold text-gray-900">Cari Guru</h1>
           <p class="text-gray-600 mt-1">Temukan dan akses profil lengkap guru</p>
@@ -52,7 +58,9 @@
           <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
             <i class="fas fa-search text-gray-400"></i>
           </div>
-          <input type="text" id="searchInput" placeholder="Ketik nama guru..." class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" autocomplete="off">
+          <input type="text" id="searchInput" placeholder="Ketik nama guru..."
+            class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            autocomplete="off">
         </div>
         <p class="text-sm text-gray-500 mt-2">
           <i class="fas fa-info-circle mr-1"></i>
@@ -91,10 +99,10 @@
           '/api/search/teachers';
 
         const response = await fetch(url);
-if (!response.ok) {
-    throw new Error(`Server error: ${response.status}`);
-}
-const res = await response.json();
+        if (!response.ok) {
+          throw new Error(`Server error: ${response.status}`);
+        }
+        const res = await response.json();
 
         if (res.success) {
           allTeachers = Array.isArray(res.data) ? res.data : (res.data ? [res.data] : []);
@@ -139,8 +147,8 @@ const res = await response.json();
               <h3 class="font-medium text-gray-900">${teacher.nama || '-'}</h3>
               <p class="text-sm text-gray-600">NIP: ${teacher.nip || '-'} | NIK: ${teacher.nik || '-'}</p>
               ${teacher.assignments && teacher.assignments.length > 0 ?
-                `<p class="text-xs text-blue-600 mt-1">🏫 ${teacher.assignments.map(a => a.nama_sekolah).join(', ')}</p>` :
-                '<p class="text-xs text-gray-500 mt-1">Belum ditugaskan ke sekolah</p>'}
+          `<p class="text-xs text-blue-600 mt-1">🏫 ${teacher.assignments.map(a => a.nama_sekolah).join(', ')}</p>` :
+          '<p class="text-xs text-gray-500 mt-1">Belum ditugaskan ke sekolah</p>'}
             </div>
           </div>
           <div class="flex items-center space-x-2">
@@ -199,4 +207,5 @@ const res = await response.json();
     });
   </script>
 </body>
+
 </html>
