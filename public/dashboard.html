@@ -724,7 +724,7 @@
               userPhotoElement.onerror = showFallbackAvatar;
             } else {
               userPhotoElement.src = '';
-              showAvatarFallback(true);
+              showFallbackAvatar(true);
             }
           }
 
@@ -747,6 +747,7 @@
             // ... (sisipkan logika dropdown admin anda di sini dengan cara menambah ke variable htmlContent) ...
 
             adminSection.innerHTML = htmlContent;
+            window.userAssignments = assignments;
           }
         }
       } catch (error) {
@@ -875,27 +876,44 @@
 
           if (result.withinRadius) {
             isInsideValidZone = true;
-            statusClass = 'location-info success';
-            statusHtml = `<span>✅ Lokasi valid - Dalam radius ${result.radius}m dari ${result.schoolName}</span>`;
+
+            if (result.isHomeUnit !== false) {
+              // Sekolah sendiri — tampil hijau normal
+              statusClass = 'location-info success';
+              statusHtml = `<span>✅ Lokasi valid — Dalam radius ${result.radius}m dari ${result.schoolName}</span>`;
+            } else if (result.isDinasLuarCandidate) {
+              // Sekolah lain dalam radius — tampil kuning (dinas luar)
+              statusClass = 'location-info warning';
+              statusHtml = `<span>⚠️ Di luar unit utama — Dinas luar di ${result.schoolName}</span>`;
+            } else {
+              // Sekolah lain tapi tidak ada penanda khusus
+              statusClass = 'location-info warning';
+              statusHtml = `<span>⚠️ Di luar unit utama — Dinas luar di ${result.schoolName}</span>`;
+            }
           } else {
-            // Check if can do dinas luar
+            // Coba checkDinasLuar sebagai fallback tambahan
             return checkDinasLuar(currentLocation.latitude, currentLocation.longitude)
               .then(dinasCheck => {
                 if (dinasCheck.canDinasLuar) {
                   isInsideValidZone = true;
                   statusClass = 'location-info warning';
-                  statusHtml = `<span>⚠️ Di luar unit utama - Dinas luar di ${dinasCheck.unit.nama_sekolah}</span>`;
+                  statusHtml = `<span>⚠️ Di luar unit utama — Dinas luar di ${dinasCheck.unit.nama_sekolah}</span>`;
                 } else {
                   isInsideValidZone = false;
                   statusClass = 'location-info error';
                   statusHtml = `<span>❌ Di luar radius semua unit sekolah YPWI</span>`;
                 }
-                // Jalankan pengatur tombol berdasarkan status lokasi dan aturan jam
+                applyTimeRulesToButtons(isInsideValidZone, statusClass, statusHtml, checkInBtn, checkOutBtn, locationInfo);
+              })
+              .catch(() => {
+                isInsideValidZone = false;
+                statusClass = 'location-info error';
+                statusHtml = `<span>❌ Di luar radius semua unit sekolah YPWI</span>`;
                 applyTimeRulesToButtons(isInsideValidZone, statusClass, statusHtml, checkInBtn, checkOutBtn, locationInfo);
               });
           }
 
-          // Jalankan jika guru berada di dalam radius unit utama
+          // Jalankan jika valid atau sekolah lain
           applyTimeRulesToButtons(isInsideValidZone, statusClass, statusHtml, checkInBtn, checkOutBtn, locationInfo);
         })
         .catch(error => {
@@ -995,57 +1013,114 @@
     }
 
     // ==========================================
-    // FUNGSI VALIDASI RADIUS GEOFENCING (FIXED)
+    // FUNGSI VALIDASI RADIUS GEOFENCING (FIXED — cek semua lokasi dari DB)
     // ==========================================
     async function validateLocationRadius(userLat, userLng) {
       try {
-        // Pastikan data assignments tersedia sebelum melakukan perulangan
+        // ======================================================
+        // TAHAP 1: Cek sekolah yang di-assign ke user (cepat, 1 API call)
+        // ======================================================
         if (!window.userAssignments || window.userAssignments.length === 0) {
           console.log('[VALIDATE_RADIUS] Tidak ada unit assigned');
-          return { withinRadius: false, distance: 0, radius: 0, schoolName: 'Tidak ada unit assigned' };
-        }
+        } else {
+          for (let i = 0; i < window.userAssignments.length; i++) {
+            const assignment = window.userAssignments[i];
+            const tenantId = encodeURIComponent(assignment.tenant_id);
 
-        // Blok perulangan yang tadi error, sekarang AMAN karena berada di dalam jangkar 'async function'
-        for (let i = 0; i < window.userAssignments.length; i++) {
-          const assignment = window.userAssignments[i];
-          const tenantId = encodeURIComponent(assignment.tenant_id);
+            const res = await fetch('/api/tenants/' + tenantId, {
+              headers: { 'Authorization': 'Bearer ' + token }
+            });
 
-          const res = await fetch('/api/tenants/' + tenantId, {
-            headers: { 'Authorization': 'Bearer ' + token }
-          });
+            if (!res.ok) continue;
 
-          if (!res.ok) continue;
+            const data = await res.json();
+            if (!data.success || !data.tenant.latitude) continue;
 
-          const data = await res.json();
-          if (!data.success || !data.tenant.latitude) continue;
+            const tLat = parseFloat(data.tenant.latitude);
+            const tLng = parseFloat(data.tenant.longitude);
+            const dist = calculateDistance(userLat, userLng, tLat, tLng) * 1000;
+            window.lastDistanceResult = dist;
+            const rad = data.tenant.location_radius || 200;
+            const acc = (currentLocation && currentLocation.accuracy) ? currentLocation.accuracy : 0;
+            const eff = dist + (acc * 0.3);
 
-          const tLat = parseFloat(data.tenant.latitude);
-          const tLng = parseFloat(data.tenant.longitude);
-          const dist = calculateDistance(userLat, userLng, tLat, tLng) * 1000;
-          window.lastDistanceResult = dist;
-          const rad = data.tenant.location_radius || 200;
-          const acc = (currentLocation && currentLocation.accuracy) ? currentLocation.accuracy : 0;
-          const eff = Math.max(dist, acc);
+            console.log('[VALIDATE_RADIUS] Check', data.tenant.nama_sekolah, 'dist:', dist.toFixed(0), 'rad:', rad, 'eff:', eff.toFixed(0));
 
-          console.log('[VALIDATE_RADIUS] Check', data.tenant.nama_sekolah, 'dist:', dist.toFixed(0), 'rad:', rad, 'eff:', eff.toFixed(0));
-
-          if (eff <= rad) {
-            console.log('[VALIDATE_RADIUS] OK within radius');
-            return { withinRadius: true, distance: dist, radius: rad, schoolName: data.tenant.nama_sekolah };
+            if (eff <= rad) {
+              console.log('[VALIDATE_RADIUS] OK within radius');
+              return { withinRadius: true, distance: dist, radius: rad, schoolName: data.tenant.nama_sekolah };
+            }
           }
         }
 
-        // Jika setelah mengecek semua unit ternyata koordinat guru di luar pagar radius
-        console.log('[VALIDATE_RADIUS] Not within any assigned unit');
+        // ======================================================
+        // TAHAP 2: Jika tidak ada sekolah assigned yang dalam radius,
+        //           cek SEMUA lokasi di database (tenants + tenant_locations)
+        // ======================================================
+        console.log('[VALIDATE_RADIUS] Tidak dalam sekolah assigned, cek semua lokasi...');
+
+        const allUnitsRes = await fetch('/api/units/all', {
+          headers: { 'Authorization': 'Bearer ' + token }
+        });
+
+        if (allUnitsRes.ok) {
+          const allUnitsData = await allUnitsRes.json();
+          if (allUnitsData.success && allUnitsData.units && allUnitsData.units.length > 0) {
+            const userHomeTenantNorm = normalizeTenantId(
+              window.userAssignments?.[0]?.tenant_id || ''
+            );
+            const acc = (currentLocation && currentLocation.accuracy) ? currentLocation.accuracy : 0;
+
+            for (const unit of allUnitsData.units) {
+              if (!unit.latitude || !unit.longitude) continue;
+
+              const tLat = parseFloat((unit.latitude || '').toString().trim());
+              const tLng = parseFloat((unit.longitude || '').toString().trim());
+              if (isNaN(tLat) || isNaN(tLng)) continue;
+
+              const dist = calculateDistance(userLat, userLng, tLat, tLng) * 1000;
+              const rad = parseInt(unit.location_radius) || 100;
+              const eff = dist + (acc * 0.3);
+
+              console.log('[VALIDATE_RADIUS] Cek lokasi lain:', unit.nama_sekolah, 'dist:', dist.toFixed(0), 'rad:', rad, 'eff:', eff.toFixed(0));
+
+              if (eff <= rad) {
+                window.lastDistanceResult = dist;
+                const detectedTenantNorm = normalizeTenantId(unit.tenant_id);
+                const isHomeUnit = detectedTenantNorm === userHomeTenantNorm;
+
+                console.log('[VALIDATE_RADIUS] DITEMUKAN lokasi:', unit.nama_sekolah,
+                  isHomeUnit ? '(sekolah asal)' : '(sekolah lain → dinas luar)');
+
+                return {
+                  withinRadius: true,
+                  distance: dist,
+                  radius: rad,
+                  schoolName: unit.nama_sekolah,
+                  nama_sekolah: unit.nama_sekolah,     // tambah ini untuk kompatibilitas showDinasLuarModal
+                  tenant_id: unit.tenant_id,            // tambah ini untuk referensi
+                  latitude: unit.latitude,              // tambah ini
+                  longitude: unit.longitude,            // tambah ini
+                  location_radius: unit.location_radius,// tambah ini
+                  unit: unit,                           // ← objek unit lengkap untuk dinas luar modal
+                  isHomeUnit: isHomeUnit,
+                  isDinasLuarCandidate: !isHomeUnit
+                };
+              }
+            }
+          }
+        }
+
+        console.log('[VALIDATE_RADIUS] Not within any location in database');
         return {
           withinRadius: false,
           distance: 0,
           radius: 0,
-          schoolName: 'Tidak dalam unit assigned'
+          schoolName: 'Tidak dalam lokasi manapun'
         };
 
       } catch (error) {
-        console.error('Error validating assigned radius:', error);
+        console.error('Error validating radius:', error);
         return {
           withinRadius: false,
           distance: 0,
@@ -1053,7 +1128,7 @@
           schoolName: 'Error validasi'
         };
       }
-    } // <-- Penutup fungsi validateLocationRadius yang valid
+    }
 
 
 
@@ -1158,16 +1233,24 @@
               accuracy: position.coords.accuracy
             };
             updateLocationDisplay(true, `Lokasi didapatkan (${Math.round(position.coords.accuracy)}m akurasi)`);
-            updateAttendanceButtonsState();
-            loadAttendanceRules().then(() => {
-              updateAttendanceButtonsState();
+            // Tunggu dulu assignments siap (max 5 detik timeout)
+            const waitForAssignments = new Promise(resolve => {
+              if (window.userAssignments?.length) return resolve();
+              const check = setInterval(() => {
+                if (window.userAssignments?.length) {
+                  clearInterval(check);
+                  resolve();
+                }
+              }, 100);
+              setTimeout(() => { clearInterval(check); resolve(); }, 5000); // fallback 5s
             });
 
-            // Detect nearby units
+            await waitForAssignments;                    // ← TAMBAH INI
+            loadAttendanceRules();                       // ← await saja, tidak perlu .then()
+            updateAttendanceButtonsState();              // ← panggil HANYA SETELAH assignments siap
             await detectNearbyUnits(position.coords.latitude, position.coords.longitude);
-
-            // Start watching for location changes
             startLocationWatcher();
+
           },
           function (error) {
             console.error('Location error:', error);
@@ -1234,20 +1317,23 @@
       // Validate radius before allowing attendance
       try {
         const radiusCheck = await validateLocationRadius(currentLocation.latitude, currentLocation.longitude);
+
         if (!radiusCheck.withinRadius) {
-          // Check if can do dinas luar
-          const dinasCheck = await checkDinasLuar(currentLocation.latitude, currentLocation.longitude);
-          if (dinasCheck.canDinasLuar) {
-            showDinasLuarModal(jenis, dinasCheck);
-            return;
-          } else {
-            alert(`❌ Tidak dapat absen!\n\nAnda berada di luar radius lokasi semua sekolah.`);
-            return;
-          }
+          // Tidak ada sekolah manapun dalam radius → tolak
+          alert(`❌ Tidak dapat absen!\n\nAnda berada di luar radius lokasi semua sekolah YPWI.\n\nJarak terdekat: ${radiusCheck.schoolName}`);
+          return;
         }
+
+        // Dalam radius sekolah manapun
+        if (radiusCheck.isDinasLuarCandidate) {
+          // Di sekolah lain → minta laporan dinas luar
+          showDinasLuarModal(jenis, { unit: radiusCheck, canDinasLuar: true });
+          return;
+        }
+        // Jika home unit → langsung lanjut absen biasa
       } catch (error) {
         console.error('Radius validation error:', error);
-        // Allow attendance if validation fails (fallback)
+        // Fallback aman: izinkan absen jika sistem error
       }
 
       const metode = 'dashboard';
@@ -1328,6 +1414,7 @@
 
     function updateConnectionStatus() {
       const statusEl = document.getElementById('connectionStatus');
+      if (!statusEl) return;
       if (navigator.onLine) {
         statusEl.innerHTML = '<i class="fas fa-circle text-green-500 mr-1"></i>Sistem Online';
         statusEl.className = 'badge badge-success';
@@ -1527,15 +1614,17 @@
 
             // 3. SINKRONISASI KOTAK STATUS AKHIR
             const teksHtmlBaru = recentDiv.innerHTML.toLowerCase();
+            const isLogToday = logTerbaru.waktu_scan &&
+              new Date(logTerbaru.waktu_scan).toDateString() === new Date().toDateString();
 
             if (statusBox) {
-              if (teksHtmlBaru.includes('absen masuk')) {
+              if (isLogToday && teksHtmlBaru.includes('absen masuk')) {
                 statusBox.innerText = 'Sudah Masuk';
                 statusBox.style.setProperty('background', '#e2fbe8', 'important');
                 statusBox.style.setProperty('color', '#15803d', 'important');
               }
 
-              if (logTerbaru.jenis === 'pulang' || teksHtmlBaru.includes('absen pulang')) {
+              if (isLogToday && (logTerbaru.jenis === 'pulang' || teksHtmlBaru.includes('absen pulang'))) {
                 statusBox.innerText = 'Sudah Pulang';
                 statusBox.style.setProperty('background', '#eff6ff', 'important');
                 statusBox.style.setProperty('color', '#1e40af', 'important');
@@ -1545,14 +1634,18 @@
             // ========================================================
             // 4. KONTROL TAMPILAN DUA TOMBOL (SHOW / HIDE)
             // ========================================================
-            if (logTerbaru.jenis === 'masuk') {
-              // JIKA BARU ABSEN MASUK -> Sembunyikan Tombol Masuk, Munculkan Tombol Pulang
+            if (isLogToday && logTerbaru.jenis === 'masuk') {
+              // JIKA BARU ABSEN MASUK HARI INI -> Sembunyikan Tombol Masuk, Munculkan Tombol Pulang
               if (checkInBtn) checkInBtn.style.display = 'none';
               if (checkOutBtn) checkOutBtn.style.display = 'block';
 
-            } else if (logTerbaru.jenis === 'pulang') {
-              // JIKA SUDAH ABSEN PULANG -> Sembunyikan kedua tombol (Absensi beres)
+            } else if (isLogToday && logTerbaru.jenis === 'pulang') {
+              // JIKA SUDAH ABSEN PULANG HARI INI -> Sembunyikan kedua tombol (Absensi beres)
               if (checkInBtn) checkInBtn.style.display = 'none';
+              if (checkOutBtn) checkOutBtn.style.display = 'none';
+            } else {
+              // Log terbaru dari hari lain -> TAMPilkan tombol Masuk (belum absen hari ini)
+              if (checkInBtn) checkInBtn.style.display = 'block';
               if (checkOutBtn) checkOutBtn.style.display = 'none';
             }
 
@@ -1821,53 +1914,6 @@
       window.addEventListener('offline', showOfflineMessage);
     }
 
-    // ==========================================
-    // AUTOMATIC SINKRONISASI RINGKASAN STATUS
-    // ==========================================
-    function sinkronisasiRingkasanStatus() {
-      // Ambil elemen pembungkus riwayat presensi
-      const recentBox = document.getElementById('recentAttendance');
-      if (!recentBox) return;
-
-      // Deteksi teks di dalam riwayat untuk menentukan status asli hari ini
-      const isiRiwayat = recentBox.innerText || recentBox.textContent;
-
-      const statusBox = document.getElementById('lastStatus');
-      const timeBox = document.getElementById('lastTime');
-      const totalBox = document.getElementById('totalAttendance');
-
-      // Regex atau pencarian teks sederhana untuk mendeteksi log hari ini
-      if (isiRiwayat.includes('masuk') || isiRiwayat.includes('Masuk')) {
-        if (statusBox) {
-          statusBox.innerText = 'Sudah Masuk';
-          statusBox.style.background = '#e2fbe8'; // Hijau muda soft
-          statusBox.style.color = '#15803d'; // Hijau tua teks
-        }
-
-        // Otomatis set jam terakhir ke jam 06.47 jika terdeteksi di log
-        if (timeBox && (timeBox.innerText === '-' || timeBox.innerText === '')) {
-          timeBox.innerText = '06.47';
-        }
-
-        // Update counter total absensi minimal menjadi 1 jika belum ter-update
-        if (totalBox && totalBox.innerText === '0') {
-          totalBox.innerText = '1';
-        }
-      }
-
-      if (isiRiwayat.includes('pulang') || isiRiwayat.includes('Pulang')) {
-        if (statusBox) {
-          statusBox.innerText = 'Sudah Pulang';
-          statusBox.style.background = '#eff6ff'; // Biru muda soft
-          statusBox.style.color = '#1e40af'; // Biru tua teks
-        }
-      }
-    }
-
-    // Jalankan auto-sinkronisasi beberapa saat setelah data selesai dimuat oleh sistem
-    // Anda bisa memanggil fungsi ini tepat di dalam fungsi sukses/selesai fetch riwayat Anda.
-    setTimeout(sinkronisasiRingkasanStatus, 1500);
-
     // ========================================================
     // JURUS PAMUNGKAS: PAKSA SINKRONISASI SETELAH HALAMAN SIAP
     // ========================================================
@@ -1876,39 +1922,6 @@
       if (typeof loadRecentAttendance === 'function') {
         loadRecentAttendance();
       }
-
-      // 2. Jalankan pemeriksaan lapis kedua jika data lambat dimuat
-      setTimeout(() => {
-        const recentDiv = document.getElementById('recentAttendance');
-        const statusBox = document.getElementById('lastStatus');
-        const timeBox = document.getElementById('lastTime');
-        const totalBox = document.getElementById('totalAttendance');
-
-        if (recentDiv && statusBox) {
-          const teksRiwayat = recentDiv.innerText || recentDiv.textContent;
-
-          // Jika mendeteksi kata "Masuk" atau "masuk" di dalam riwayat bawah
-          if (teksRiwayat.toLowerCase().includes('masuk')) {
-            statusBox.innerText = 'Sudah Masuk';
-            statusBox.style.background = '#e2fbe8'; // Hijau segar
-            statusBox.style.color = '#15803d';
-
-            if (timeBox && (timeBox.innerText === '-' || timeBox.innerText === '')) {
-              timeBox.innerText = '06.47'; // Pasang jam fallback
-            }
-            if (totalBox && totalBox.innerText === '0') {
-              totalBox.innerText = '1';
-            }
-          }
-
-          // Jika mendeteksi kata "Pulang" atau "pulang" di dalam riwayat bawah
-          if (teksRiwayat.toLowerCase().includes('pulang')) {
-            statusBox.innerText = 'Sudah Pulang';
-            statusBox.style.background = '#eff6ff'; // Biru segar
-            statusBox.style.color = '#1e40af';
-          }
-        }
-      }, 2000); // Mengecek ulang 2 detik setelah halaman terbuka
     });
 
   </script>

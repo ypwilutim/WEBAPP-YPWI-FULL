@@ -155,60 +155,89 @@ router.post('/attendance', authenticateToken, selfieUpload.single('selfie'), asy
     // ===================================================================
     // VALIDASI 3: GEOFENCING (RADAR LOKASI SEKOLAH YPWI)
     // ===================================================================
+    // ===================================================================
+    // VALIDASI 3: GEOFENCING (RADAR LOKASI SEKOLAH YPWI) - VERSION FIXED
+    // ===================================================================
     if (latitude && longitude) {
       try {
         const userLat = parseFloat(latitude);
         const userLng = parseFloat(longitude);
 
+        if (isNaN(userLat) || isNaN(userLng)) {
+          return res.status(400).json({
+            success: false,
+            message: 'Absensi gagal! Format koordinat GPS dari perangkat Anda tidak valid.'
+          });
+        }
+
         if (!is_dinas_luar) {
+          // 1. Ambil data lokasi utama tenants
           const tenantsLocationsRaw = await db.query(
             'SELECT tenant_id, nama_sekolah, latitude, longitude, location_radius, tipe_unit FROM tenants WHERE latitude IS NOT NULL AND longitude IS NOT NULL'
           );
           const tenantsLocations = Array.isArray(tenantsLocationsRaw[0]) ? tenantsLocationsRaw[0] : (Array.isArray(tenantsLocationsRaw) ? tenantsLocationsRaw : []);
 
+          // 2. Ambil data sub-lokasi cabang/titik lain
           const tenantLocationsDataRaw = await db.query(
-            'SELECT tl.*, t.nama_sekolah, t.tipe_unit FROM tenant_locations tl JOIN tenants t ON tl.tenant_id = t.tenant_id WHERE tl.latitude IS NOT NULL AND tl.longitude IS NOT NULL AND tl.is_active = 1'
+            'SELECT tl.tenant_id, t.nama_sekolah, tl.latitude, tl.longitude, tl.location_radius, t.tipe_unit FROM tenant_locations tl JOIN tenants t ON tl.tenant_id = t.tenant_id WHERE tl.latitude IS NOT NULL AND tl.longitude IS NOT NULL AND tl.is_active = 1'
           );
           const tenantLocationsData = Array.isArray(tenantLocationsDataRaw[0]) ? tenantLocationsDataRaw[0] : (Array.isArray(tenantLocationsDataRaw) ? tenantLocationsDataRaw : []);
 
-          const allLocationsMap = new Map();
-          [...tenantsLocations, ...tenantLocationsData].forEach(loc => {
-            const key = normalize(loc.tenant_id);
-            if (!allLocationsMap.has(key)) allLocationsMap.set(key, loc);
-          });
-          const allLocations = Array.from(allLocationsMap.values());
+          // Gabungkan semua data ke array flat tanpa menggunakan Map agar data dengan tenant_id yang sama tidak saling menimpa
+          const allLocations = [...tenantsLocations, ...tenantLocationsData];
 
           let withinAssigned = false;
           let withinOther = false;
 
           const userHomeTenantNorm = normalize(req.user.tenant_id);
+
+          // Filter lokasi yang cocok dengan sekolah asal user
           const homeLocations = allLocations.filter(loc => normalize(loc.tenant_id) === userHomeTenantNorm);
 
+          // LOOP 1: Cari kecocokan di area sekolah asal user terlebih dahulu
           for (const location of homeLocations) {
-            if (!location.latitude || !location.longitude) continue;
-            const distance = calculateDistance(userLat, userLng, parseFloat(location.latitude), parseFloat(location.longitude));
-            const radius = location.location_radius || 100;
+            // Pembersihan string koordinat dari spasi tersembunyi
+            const targetLat = parseFloat((location.latitude || "").toString().trim());
+            const targetLng = parseFloat((location.longitude || "").toString().trim());
+
+            if (isNaN(targetLat) || isNaN(targetLng)) continue;
+
+            const distance = calculateDistance(userLat, userLng, targetLat, targetLng);
+            const radius = parseInt(location.location_radius) || 100;
+
+            // Konversi jarak ke meter (distance * 1000). Ditambah toleransi akurasi GPS 50 meter
             if ((distance * 1000) <= radius + 50) {
               withinAssigned = true;
               break;
             }
           }
 
+          // LOOP 2: Jika gagal di sekolah sendiri, sisir cadangan ke seluruh properti sekolah lain
           if (!withinAssigned) {
             for (const location of allLocations) {
-              if (normalize(location.tenant_id) === userHomeTenantNorm) continue;
-              if (!location.latitude || !location.longitude) continue;
-              const distance = calculateDistance(userLat, userLng, parseFloat(location.latitude), parseFloat(location.longitude));
-              const radius = location.location_radius || 100;
+              const targetLat = parseFloat((location.latitude || "").toString().trim());
+              const targetLng = parseFloat((location.longitude || "").toString().trim());
+
+              if (isNaN(targetLat) || isNaN(targetLng)) continue;
+
+              const distance = calculateDistance(userLat, userLng, targetLat, targetLng);
+              const radius = parseInt(location.location_radius) || 100;
+
               if ((distance * 1000) <= radius + 50) {
-                withinOther = true;
-                tenant_id = location.tenant_id;
-                is_dinas_luar = true; // Otomatis terhitung dinas luar karena di unit YPWI cabang lain
+                // FALLBACK: Jika ternyata titik koordinatnya lolos di sini dan itu adalah sekolah asalnya sendiri
+                if (normalize(location.tenant_id) === userHomeTenantNorm) {
+                  withinAssigned = true;
+                } else {
+                  withinOther = true;
+                  tenant_id = location.tenant_id;
+                  is_dinas_luar = true; // Ditandai dinas luar otomatis karena berada di cabang YPWI lain
+                }
                 break;
               }
             }
           }
 
+          // Verifikasi Akhir Radar Geofencing
           if (!withinAssigned && !withinOther) {
             return res.status(403).json({
               success: false,
@@ -219,7 +248,8 @@ router.post('/attendance', authenticateToken, selfieUpload.single('selfie'), asy
           tenant_id = req.user.tenant_id || tenant_id;
         }
       } catch (locationError) {
-        console.error('[LOCATION VALIDATION] Error:', locationError);
+        console.error('[LOCATION VALIDATION ERROR]:', locationError);
+        return res.status(500).json({ success: false, message: 'Terjadi kegagalan sistem internal pada radar geofencing.' });
       }
     }
 
@@ -269,9 +299,9 @@ router.post('/attendance', authenticateToken, selfieUpload.single('selfie'), asy
         if (status === 'lembur') statusEmoji = '🔥 LEMBUR';
         if (is_dinas_luar) statusEmoji = '💼 DINAS LUAR (Otomatis)';
 
-const waktuAbsen = req.body.waktu_absen ? new Date(req.body.waktu_absen) : new Date();
-         const waktuSekarang = waktuAbsen.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) + ' WITA';
-         const tanggalSekarang = waktuAbsen.toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+        const waktuAbsen = req.body.waktu_absen ? new Date(req.body.waktu_absen) : new Date();
+        const waktuSekarang = waktuAbsen.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) + ' WITA';
+        const tanggalSekarang = waktuAbsen.toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 
         const waMessage =
           `*NOTIFIKASI PRESENSI YPWI*
@@ -618,7 +648,7 @@ router.get('/admin/attendance-logs', authenticateOperator, async (req, res) => {
   }
 });
 
-// GET /api/units/nearby - Find nearest units with tipe_unit awareness
+// GET /api/units/nearby - Find nearest units with tipe_unit awareness (includes tenant_locations)
 router.get('/units/nearby', authenticateToken, async (req, res) => {
   try {
     const { lat, lng } = req.query;
@@ -630,10 +660,24 @@ router.get('/units/nearby', authenticateToken, async (req, res) => {
     const userLat = parseFloat(lat);
     const userLng = parseFloat(lng);
 
-    // Get ALL units with coordinates including tipe_unit
-    const allUnits = await db.query(
-      'SELECT tenant_id, nama_sekolah, latitude, longitude, location_radius, tipe_unit FROM tenants WHERE latitude IS NOT NULL AND longitude IS NOT NULL'
+    // Ambil data dari tabel tenants utama
+    const tenantsData = await db.query(
+      `SELECT tenant_id, nama_sekolah, latitude, longitude, location_radius, tipe_unit
+       FROM tenants
+       WHERE latitude IS NOT NULL AND longitude IS NOT NULL`
     );
+
+    // Ambil data dari tabel tenant_locations (cabang/sub-lokasi)
+    const subLocationsData = await db.query(
+      `SELECT tl.tenant_id, t.nama_sekolah, tl.latitude, tl.longitude,
+              tl.location_radius, t.tipe_unit
+       FROM tenant_locations tl
+       JOIN tenants t ON tl.tenant_id = t.tenant_id
+       WHERE tl.latitude IS NOT NULL AND tl.longitude IS NOT NULL AND tl.is_active = 1`
+    );
+
+    // Gabungkan kedua array
+    const allUnits = [...tenantsData, ...subLocationsData];
 
     if (allUnits.length === 0) {
       return res.json({
@@ -676,16 +720,31 @@ router.get('/units/nearby', authenticateToken, async (req, res) => {
   }
 });
 
-// GET /api/units/all - Get all units with tipe_unit
+// GET /api/units/all - Get all units (tenants + tenant_locations sub-locations) with tipe_unit
 router.get('/units/all', authenticateToken, async (req, res) => {
   try {
-    const units = await db.query(
-      'SELECT tenant_id, nama_sekolah, latitude, longitude, location_radius, tipe_unit FROM tenants WHERE latitude IS NOT NULL AND longitude IS NOT NULL'
+    // Ambil data dari tabel tenants utama
+    const tenantsData = await db.query(
+      `SELECT tenant_id, nama_sekolah, latitude, longitude, location_radius, tipe_unit
+       FROM tenants
+       WHERE latitude IS NOT NULL AND longitude IS NOT NULL`
     );
+
+    // Ambil data dari tabel tenant_locations (cabang/sub-lokasi)
+    const subLocationsData = await db.query(
+      `SELECT tl.tenant_id, t.nama_sekolah, tl.latitude, tl.longitude,
+              tl.location_radius, t.tipe_unit
+       FROM tenant_locations tl
+       JOIN tenants t ON tl.tenant_id = t.tenant_id
+       WHERE tl.latitude IS NOT NULL AND tl.longitude IS NOT NULL AND tl.is_active = 1`
+    );
+
+    // Gabungkan kedua array (jika ada tenant_id yang sama di kedua tabel, tetap tampilkan keduanya)
+    const allUnits = [...tenantsData, ...subLocationsData];
 
     res.json({
       success: true,
-      units: units
+      units: allUnits
     });
   } catch (error) {
     console.error('Error fetching all units:', error);
